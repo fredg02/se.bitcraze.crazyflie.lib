@@ -11,6 +11,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+
 /**
  * TODO: clean up, do not fail tests if no Crazyflie is found?
  *
@@ -86,25 +87,6 @@ public class CrazyradioTest {
         }
     }
 
-    private class ConnectionData {
-        private int mDataRate;
-        private int mChannel;
-
-        public ConnectionData(int dataRate, int channel) {
-            this.mDataRate = dataRate;
-            this.mChannel = channel;
-        }
-
-        public int getDataRate() {
-            return mDataRate;
-        }
-
-        public int getChannel() {
-            return mChannel;
-        }
-    }
-
-
     @Test
     public void testGetVersion() {
         float firmwareVersion = mCrazyradio.getVersion();
@@ -112,6 +94,17 @@ public class CrazyradioTest {
             System.out.println("Crazyradio firmware version: " + firmwareVersion);
         } else {
             fail("Could not read Crazyradio firmware version");
+        }
+    }
+
+    @Test
+    public void testGetSerialNumber() {
+        String serialNumber = mCrazyradio.getSerialNumber();
+        //TODO: check with regex
+        if (!serialNumber.isEmpty()) {
+            System.out.println("Serial number: " + serialNumber);
+        } else {
+            fail("Could not read Crazyradio serial number");
         }
     }
 

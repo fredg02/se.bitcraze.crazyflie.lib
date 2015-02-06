@@ -43,11 +43,11 @@ public class UsbLinkJavaTest {
             fail("No Crazyradios found");
         } else if (usbDeviceList.size() == 1) {
             UsbDevice usbDevice = usbDeviceList.get(0);
-            System.out.println("Found a single Crazyradio: " + usbDevice.getSerialNumberString());
+            System.out.println("Found a single Crazyradio: " + UsbLinkJava.getSerialNumber(usbDevice));
         } else if (usbDeviceList.size() > 1) {
             System.out.println("Found multiple Crazyradios:");
             for (UsbDevice ud : usbDeviceList) {
-                System.out.println("  Crazyradio: " + ud.getSerialNumberString());
+                System.out.println("  Crazyradio: " + UsbLinkJava.getSerialNumber(ud));
             }
         }
     }
@@ -69,12 +69,12 @@ public class UsbLinkJavaTest {
             fail("No Crazyradios found");
         } else if (usbDeviceList.size() == 1) {
             UsbDevice usbDevice = usbDeviceList.get(0);
-            System.out.print("Found a single Crazyradio: " + usbDevice.getSerialNumberString());
+            System.out.print("Found a single Crazyradio: " + UsbLinkJava.getSerialNumber(usbDevice));
             checkFirmwareVersion(usbDevice);
         } else if (usbDeviceList.size() > 1) {
             System.out.println("Found multiple Crazyradios:");
             for (UsbDevice usbDevice1 : usbDeviceList) {
-                System.out.print("  Crazyradio: " + usbDevice1.getSerialNumberString());
+                System.out.print("  Crazyradio: " + UsbLinkJava.getSerialNumber(usbDevice1));
                 checkFirmwareVersion(usbDevice1);
             }
         }
@@ -86,6 +86,17 @@ public class UsbLinkJavaTest {
             System.out.println(", firmware version: " + firmwareVersion);
         } else {
             fail("Could not read Crazyradio firmware version");
+        }
+    }
+
+    @Test
+    public void testSerialNumber() {
+        String serialNumber = mUsbLinkJava.getSerialNumber();
+        //TODO: check with regex
+        if (!serialNumber.isEmpty()) {
+            System.out.println("Serial number: " + serialNumber);
+        } else {
+            fail("Could not read Crazyradio serial number");
         }
     }
 

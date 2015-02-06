@@ -3,6 +3,7 @@ package se.bitcraze.crazyflie.lib.crazyradio;
 
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +24,7 @@ import javax.usb.UsbServices;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * TODO: While multiple Crazyradios can be found with findDevices() only the first Crazyradio
@@ -304,6 +306,28 @@ public class UsbLinkJava implements CrazyUsbInterface {
             return Float.valueOf("0.0");
         }
         return Float.valueOf("0." + Integer.toHexString(usbDevice.getUsbDeviceDescriptor().bcdDevice()));
+    }
+
+    public String getSerialNumber() {
+        return getSerialNumber(mUsbDevice);
+    }
+
+    public static String getSerialNumber(UsbDevice usbDevice) {
+        if (usbDevice == null) {
+            return "N/A";
+        }
+        try {
+            return usbDevice.getSerialNumberString();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return "N/A";
+        } catch (UsbDisconnectedException e) {
+            e.printStackTrace();
+            return "N/A";
+        } catch (UsbException e) {
+            e.printStackTrace();
+            return "N/A";
+        }
     }
 
     //TODO: should isCrazyradio be generalized??

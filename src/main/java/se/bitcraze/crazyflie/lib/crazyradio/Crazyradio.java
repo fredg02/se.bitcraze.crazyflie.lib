@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+
 /**
  * Used for communication with the Crazyradio USB dongle
  *
@@ -47,7 +48,9 @@ public class Crazyradio {
 
     private CrazyUsbInterface mUsbInterface;
     private int mArc;
-    private float mVersion;
+    private float mVersion; // Crazyradio firmware version
+    private String mSerialNumber; // Crazyradio serial number
+
 
     /**
      * Create object and scan for USB dongle if no device is supplied
@@ -75,6 +78,8 @@ public class Crazyradio {
         if (this.mVersion < 0.3) {
             this.mLogger.warn("You should update to Crazyradio firmware V0.4+");
         }
+
+        this.mSerialNumber = mUsbInterface.getSerialNumber();
 
         // Reset the dongle to power up settings
         setDatarate(DR_2MPS);
@@ -325,6 +330,10 @@ public class Crazyradio {
 
     public float getVersion() {
         return this.mVersion;
+    }
+
+    public String getSerialNumber() {
+        return this.mSerialNumber;
     }
 
 }
