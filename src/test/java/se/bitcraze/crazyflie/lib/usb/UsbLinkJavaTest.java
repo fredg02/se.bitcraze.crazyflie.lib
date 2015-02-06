@@ -1,4 +1,4 @@
-package se.bitcraze.crazyflie.lib.crazyradio;
+package se.bitcraze.crazyflie.lib.usb;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -14,6 +14,7 @@ import javax.usb.UsbException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 
 public class UsbLinkJavaTest {
 

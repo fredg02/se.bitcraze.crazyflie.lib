@@ -11,6 +11,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
+
 
 /**
  * TODO: clean up, do not fail tests if no Crazyflie is found?

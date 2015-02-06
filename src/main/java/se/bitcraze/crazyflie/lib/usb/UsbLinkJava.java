@@ -1,4 +1,4 @@
-package se.bitcraze.crazyflie.lib.crazyradio;
+package se.bitcraze.crazyflie.lib.usb;
 
 
 
@@ -24,6 +24,8 @@ import javax.usb.UsbServices;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import se.bitcraze.crazyflie.lib.crazyradio.Crazyradio;
 
 
 /**
