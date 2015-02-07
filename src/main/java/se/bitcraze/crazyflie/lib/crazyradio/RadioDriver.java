@@ -2,6 +2,8 @@ package se.bitcraze.crazyflie.lib.crazyradio;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -30,16 +32,14 @@ public class RadioDriver extends CrtpDriver{
     private final BlockingDeque<CrtpPacket> mInQueue;
     private final BlockingDeque<CrtpPacket> mOutQueue;
 
+    private List<LinkListener> mLinkListeners = Collections.synchronizedList(new LinkedList<LinkListener>());
+
     /**
      * Create the link driver
      */
     public RadioDriver(CrazyUsbInterface usbInterface) {
         this.mUsbInterface = usbInterface;
         this.mCradio = null;
-        /*
-        self.link_error_callback = None
-        self.link_quality_callback = None
-        */
         this.mInQueue = new LinkedBlockingDeque<CrtpPacket>();
         this.mOutQueue = new LinkedBlockingDeque<CrtpPacket>(); //TODO: Limit size of out queue to avoid "ReadBack" effect?
         this.mRadioDriverThread = null;
@@ -85,8 +85,6 @@ public class RadioDriver extends CrtpDriver{
             mRadioDriverThread = new Thread(rDT);
             mRadioDriverThread.start();
         }
-
-        //self.link_error_callback = link_error_callback
     }
 
     /*
@@ -124,8 +122,7 @@ public class RadioDriver extends CrtpDriver{
             self.out_queue.put(pk, True, 2)
         except Queue.Full:
             if self.link_error_callback:
-                self.link_error_callback("RadioDriver: Could not send packet"
-                                         " to copter")
+                self.link_error_callback("RadioDriver: Could not send packet to copter")
         */
 
         // this.mOutQueue.addLast(packet);
@@ -204,6 +201,36 @@ public class RadioDriver extends CrtpDriver{
     }
 
 
+    /* LINK LISTENER */
+
+    public void addLinkListener(LinkListener listener) {
+        if (mLinkListeners.contains(listener)) {
+            mLogger.warn("LinkListener " + listener.toString() + " already registered.");
+            return;
+        }
+        this.mLinkListeners.add(listener);
+    }
+
+    public void removeLinkListener(LinkListener listener) {
+        this.mLinkListeners.remove(listener);
+    }
+
+    private void notifyLinkQualityUpdated(int percent) {
+        synchronized (this.mLinkListeners) {
+            for (LinkListener pl : this.mLinkListeners) {
+                pl.linkQualityUpdated(percent);
+            }
+        }
+    }
+
+    private void notifyLinkError(String msg) {
+        synchronized (this.mLinkListeners) {
+            for (LinkListener pl : this.mLinkListeners) {
+                pl.linkError(msg);
+            }
+        }
+    }
+
 
     /**
      * Radio link receiver thread is used to read data from the Crazyradio USB driver.
@@ -219,10 +246,6 @@ public class RadioDriver extends CrtpDriver{
          * Create the object
          */
         public RadioDriverThread() {
-            /*
-            self.link_error_callback = link_error_callback
-            self.link_quality_callback = link_quality_callback
-            */
             this.mRetryBeforeDisconnect = RETRYCOUNT_BEFORE_DISCONNECT;
         }
 
@@ -240,28 +263,37 @@ public class RadioDriver extends CrtpDriver{
 
             while(mCradio != null) {
                 try {
+
+                    /*
+                    try:
+                        ackStatus = self.cradio.send_packet(dataOut)
+                    except Exception as e:
+                        import traceback
+                        self.link_error_callback("Error communicating with crazy radio"
+                                                 " ,it has probably been unplugged!\n"
+                                                 "Exception:%s\n\n%s" % (e,
+                                                 traceback.format_exc()))
+                    */
                     RadioAck ackStatus = mCradio.sendPacket(dataOut);
 
                     // Analyze the data packet
                     if (ackStatus == null) {
-                        //if (self.link_error_callback is not None):
-                        //    self.link_error_callback("Dongle communication error (ackStatus==None)")
+                        // self.link_error_callback("Dongle communication error (ackStatus==None)")
+                        notifyLinkError("Dongle communication error (ackStatus == null)");
                         mLogger.warn("Dongle communication error (ackStatus == null)");
                         continue;
                     }
 
-                    /*
-                    if (self.link_quality_callback is not None):
-                        self.link_quality_callback((10 - ackStatus.retry) * 10)
-                    */
+                    // self.link_quality_callback((10 - ackStatus.retry) * 10)
+                    notifyLinkQualityUpdated((10 - ackStatus.getRetry()) * 10);
 
                     // If no copter, retry
                     //TODO: how is this actually possible?
                     if (!ackStatus.isAck()) {
                         this.mRetryBeforeDisconnect--;
                         if (this.mRetryBeforeDisconnect == 0) {
+                            notifyLinkError("Too many packets lost");
                             mLogger.warn("Too many packets lost");
-                            System.err.println("Too many packets lost");
                         }
                         continue;
                     }

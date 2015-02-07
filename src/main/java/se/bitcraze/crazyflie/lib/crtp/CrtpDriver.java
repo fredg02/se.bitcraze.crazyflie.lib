@@ -1,5 +1,7 @@
 package se.bitcraze.crazyflie.lib.crtp;
 
+import se.bitcraze.crazyflie.lib.crazyradio.LinkListener;
+
 /**
  * CTRP Driver main class
  * This class is inherited by all the CRTP link drivers.
@@ -35,6 +37,21 @@ public abstract class CrtpDriver {
      * @return One CRTP packet or None if no packet has been received.
      */
     public abstract CrtpPacket receivePacket(int wait);
+
+
+    /**
+     * Add a link listener
+     *
+     * @param linkListener
+     */
+    public abstract void addLinkListener(LinkListener linkListener);
+
+    /**
+     * Remove a link listener
+     *
+     * @param linkListener
+     */
+    public abstract void removeLinkListener(LinkListener linkListener);
 
     /**
      * Close the link

@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
+import se.bitcraze.crazyflie.lib.crazyradio.LinkListener;
 import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
 import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
@@ -26,6 +27,8 @@ public class Crazyflie {
     private State mState = State.DISCONNECTED;
 
     private ConnectionData mConnectionData;
+
+    private LinkListener mLinkListener;
 
     /**
      * State of the connection procedure
@@ -51,6 +54,19 @@ public class Crazyflie {
         mConnectionData = connectionData;
         notifyConnectionRequested();
         mState = State.INITIALIZED;
+
+        //TODO: can this be done more elegantly?
+        mLinkListener = new LinkListener(){
+
+            public void linkQualityUpdated(int percent) {
+                notifyLinkQualityUpdated(percent);
+            }
+
+            public void linkError(String msg) {
+                //TODO
+            };
+        };
+        mDriver.addLinkListener(mLinkListener);
 
         // try to connect
         mDriver.connect(mConnectionData.getChannel(), mConnectionData.getDataRate());
@@ -89,7 +105,9 @@ public class Crazyflie {
     public void disconnect() {
         if (mState != State.DISCONNECTED) {
             mLogger.debug("Disconnect");
+
             if (mDriver != null) {
+                mDriver.removeLinkListener(mLinkListener);
                 //Send commander packet with all values set to 0 before closing the connection
                 sendPacket(new CommanderPacket(0, 0, 0, (char) 0));
                 mDriver.close();
@@ -125,9 +143,9 @@ public class Crazyflie {
         //TODO: should be made more reliable
         if (this.mState == State.INITIALIZED) {
             this.mState = State.CONNECTED;
+            //self.link_established.call(self.link_uri)
             notifyLinkEstablished();
         }
-        //self.link_established.call(self.link_uri)
         //self.packet_received.remove_callback(self._check_for_initial_packet_cb)
         // => IncomingPacketHandler
     }
