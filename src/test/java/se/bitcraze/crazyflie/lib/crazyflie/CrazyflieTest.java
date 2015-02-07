@@ -53,4 +53,53 @@ public class CrazyflieTest {
         crazyflie.disconnect();
     }
 
+    @Test
+    public void testConnectionListener() {
+        Crazyflie crazyflie = new Crazyflie(new RadioDriver(new UsbLinkJava()));
+
+        crazyflie.addConnectionListener(new ConnectionListener() {
+
+            public void connected(String connectionInfo) {
+                System.out.println("CONNECTED: " + connectionInfo);
+            }
+
+            public void connectionFailed(String connectionInfo, String msg) {
+                System.out.println("CONNECTION FAILED: " + connectionInfo);
+            }
+
+            public void connectionLost(String connectionInfo, String msg) {
+                System.out.println("CONNECTION LOST: " + connectionInfo);
+            }
+
+            public void disconnected(String connectionInfo) {
+                System.out.println("DISCONNECTED: " + connectionInfo);
+            }
+
+            public void linkEstablished(String connectionInfo) {
+                System.out.println("LINK ESTABLISHED: " + connectionInfo);
+            }
+
+            public void connectionRequested(String connectionInfo) {
+                System.out.println("CONNECTION REQUESTED: " + connectionInfo);
+            }
+
+            public void linkQualityUpdated(int percent) {
+                System.out.println("LINK QUALITY: " + percent);
+            }
+
+
+        });
+
+        crazyflie.connect(10, 0);
+
+        for (int i = 0; i < 30; i++) {
+            crazyflie.sendPacket(new CommanderPacket(0, 0, 0, (char) 15000));
+            try {
+                Thread.sleep(50, 0);
+            } catch (InterruptedException e) {
+                break;
+            }
+        }
+        crazyflie.disconnect();
+    }
 }

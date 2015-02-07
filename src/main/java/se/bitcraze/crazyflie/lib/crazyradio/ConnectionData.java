@@ -17,4 +17,8 @@ public class ConnectionData {
         return mDataRate;
     }
 
+    @Override
+    public String toString() {
+        return "Channel: " + getChannel() + ", DataRate: " + getDataRate();
+    }
 }

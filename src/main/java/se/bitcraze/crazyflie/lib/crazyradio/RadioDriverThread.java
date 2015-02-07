@@ -57,7 +57,6 @@ public class RadioDriverThread implements Runnable {
                     //if (self.link_error_callback is not None):
                     //    self.link_error_callback("Dongle communication error (ackStatus==None)")
                     mLogger.warn("Dongle communication error (ackStatus == null)");
-                    System.err.println("Dongle communication error (ackStatus == null)");
                     continue;
                 }
 

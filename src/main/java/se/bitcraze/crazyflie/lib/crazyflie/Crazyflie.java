@@ -21,36 +21,86 @@ public class Crazyflie {
 
     private List<DataListener> mDataListeners = Collections.synchronizedList(new LinkedList<DataListener>());
     private List<PacketListener> mPacketListeners = Collections.synchronizedList(new LinkedList<PacketListener>());
+    private List<ConnectionListener> mConnectionListeners = Collections.synchronizedList(new LinkedList<ConnectionListener>());
+
+    private State mState = State.DISCONNECTED;
+
+    private ConnectionData mConnectionData;
+
+    /**
+     * State of the connection procedure
+     */
+    public enum State {
+        DISCONNECTED,
+        INITIALIZED,
+        CONNECTED,
+        SETUP_FINISHED;
+    }
 
 
     public Crazyflie(CrtpDriver driver) {
         this.mDriver = driver;
     }
 
-    public void connect(ConnectionData connectionData) {
-        connect(connectionData.getChannel(), connectionData.getDataRate());
+    public void connect(int channel, int datarate) {
+        connect(new ConnectionData(channel, datarate));
     }
 
-    public void connect(int channel, int datarate) {
+    public void connect(ConnectionData connectionData) {
         mLogger.debug("Connect");
-        mDriver.connect(channel, datarate);
+        mConnectionData = connectionData;
+        notifyConnectionRequested();
+        mState = State.INITIALIZED;
+
+        // try to connect
+        mDriver.connect(mConnectionData.getChannel(), mConnectionData.getDataRate());
 
         if (mIncomingPacketHandlerThread == null) {
             IncomingPacketHandler iph = new IncomingPacketHandler();
             mIncomingPacketHandlerThread = new Thread(iph);
             mIncomingPacketHandlerThread.start();
         }
+
+        //TODO: better solution to wait for connected state?
+        //Timeout: 10x50ms = 500ms
+        int i = 0;
+        while(i < 10) {
+            if (mState == State.CONNECTED) {
+                break;
+            }
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            i++;
+        }
+
+        if (mState == State.CONNECTED) {
+            startConnectionSetup();
+
+        } else {
+            notifyConnectionFailed("Connection failed");
+            disconnect();
+        }
+
     }
 
     public void disconnect() {
-        mLogger.debug("Disconnect");
-        if (mDriver != null) {
-            //Send commander packet with all values set to 0 before closing the connection
-            sendPacket(new CommanderPacket(0, 0, 0, (char) 0));
-            mDriver.close();
-            mDriver = null;
+        if (mState != State.DISCONNECTED) {
+            mLogger.debug("Disconnect");
+            if (mDriver != null) {
+                //Send commander packet with all values set to 0 before closing the connection
+                sendPacket(new CommanderPacket(0, 0, 0, (char) 0));
+                mDriver.close();
+                mDriver = null;
+            }
+            if(mIncomingPacketHandlerThread != null) {
+                mIncomingPacketHandlerThread.interrupt();
+            }
+            notifyDisconnected();
+            mState = State.DISCONNECTED;
         }
-        mIncomingPacketHandlerThread.interrupt();
     }
 
     /**
@@ -65,10 +115,38 @@ public class Crazyflie {
         }
     }
 
+    /**
+     * Called when first packet arrives from Crazyflie.
+     * This is used to determine if we are connected to something that is answering.
+     *
+     * @param data
+     */
+    public void checkForInitialPacketCallback(CrtpPacket packet) {
+        //TODO: should be made more reliable
+        if (this.mState == State.INITIALIZED) {
+            this.mState = State.CONNECTED;
+            notifyLinkEstablished();
+        }
+        //self.link_established.call(self.link_uri)
+        //self.packet_received.remove_callback(self._check_for_initial_packet_cb)
+        // => IncomingPacketHandler
+    }
+
     public CrtpDriver getDriver(){
         return mDriver;
     }
 
+
+    /**
+     * Start the connection setup by refreshing the TOCs
+     */
+    public void startConnectionSetup() {
+        mLogger.info("We are connected[" + mConnectionData.toString() + "], requesting connection setup...");
+        //FIXME
+        //Skipping log and param setup for now
+        //this.mLog.refreshToc(self._log_toc_updated_cb, self._toc_cache);
+        notifyConnected();
+    }
 
 
     /** DATA LISTENER **/
@@ -126,6 +204,7 @@ public class Crazyflie {
     }
 
     private void notifyPacketReceived(CrtpPacket inPacket) {
+        checkForInitialPacketCallback(inPacket);
         synchronized (this.mPacketListeners) {
             for (PacketListener pl : this.mPacketListeners) {
                 pl.packetReceived(inPacket);
@@ -133,6 +212,98 @@ public class Crazyflie {
         }
     }
 
+    /* CONNECTION LISTENER */
+
+    public void addConnectionListener(ConnectionListener listener) {
+        if (mConnectionListeners.contains(listener)) {
+            mLogger.warn("ConnectionListener " + listener.toString() + " already registered.");
+            return;
+        }
+        this.mConnectionListeners.add(listener);
+    }
+
+    public void removeConnectionListener(ConnectionListener listener) {
+        this.mConnectionListeners.remove(listener);
+    }
+
+    /**
+     * Notify all registered listeners about a requested connection
+     *
+     * @param linkUri
+     */
+    private void notifyConnectionRequested() {
+        synchronized (this.mConnectionListeners) {
+            for (ConnectionListener cl : this.mConnectionListeners) {
+                cl.connectionRequested(mConnectionData.toString());
+            }
+        }
+    }
+
+    /**
+     * Notify all registered listeners about an established link.
+     */
+    private void notifyLinkEstablished() {
+        synchronized (this.mConnectionListeners) {
+            for (ConnectionListener cl : this.mConnectionListeners) {
+                cl.linkEstablished(mConnectionData.toString());
+            }
+        }
+    }
+
+    /**
+     * Notify all registered listeners about a connect.
+     */
+    private void notifyConnected() {
+        synchronized (this.mConnectionListeners) {
+            for (ConnectionListener cl : this.mConnectionListeners) {
+                cl.connected(mConnectionData.toString());
+            }
+        }
+    }
+
+    /**
+     * Notify all registered listeners about a failed connection attempt.
+     */
+    private void notifyConnectionFailed(String msg) {
+        synchronized (this.mConnectionListeners) {
+            for (ConnectionListener cl : this.mConnectionListeners) {
+                cl.connectionFailed(mConnectionData.toString(), msg);
+            }
+        }
+    }
+
+    /**
+     * Notify all registered listeners about a lost connection.
+     */
+    private void notifyConnectionLost(String msg) {
+        synchronized (this.mConnectionListeners) {
+            for (ConnectionListener cl : this.mConnectionListeners) {
+                cl.connectionLost(mConnectionData.toString(), msg);
+            }
+        }
+    }
+
+    /**
+     * Notify all registered listeners about a disconnect.
+     */
+    private void notifyDisconnected() {
+        synchronized (this.mConnectionListeners) {
+            for (ConnectionListener cl : this.mConnectionListeners) {
+                cl.disconnected(mConnectionData.toString());
+            }
+        }
+    }
+
+    /**
+     * Notify all registered listeners about a link quality update.
+     */
+    private void notifyLinkQualityUpdated(int percent) {
+        synchronized (this.mConnectionListeners) {
+            for (ConnectionListener cl : this.mConnectionListeners) {
+                cl.linkQualityUpdated(percent);
+            }
+        }
+    }
 
     /**
      * Handles incoming packets and sends the data to the correct listeners
@@ -161,7 +332,6 @@ public class Crazyflie {
                     //All-packet callbacks
                     //self.cf.packet_received.call(pk)
                     notifyPacketReceived(packet);
-                    //this.mCrazyflie.packetReceived(packet);
 
                     boolean found = false;
                     for (DataListener dataListener : mDataListeners) {
