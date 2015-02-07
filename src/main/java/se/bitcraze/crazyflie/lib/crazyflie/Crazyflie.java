@@ -8,8 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
-import se.bitcraze.crazyflie.lib.crazyradio.DataListener;
-import se.bitcraze.crazyflie.lib.crazyradio.PacketListener;
 import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
 import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;

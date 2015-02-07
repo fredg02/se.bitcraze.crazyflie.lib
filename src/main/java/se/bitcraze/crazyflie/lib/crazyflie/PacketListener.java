@@ -1,4 +1,4 @@
-package se.bitcraze.crazyflie.lib.crazyradio;
+package se.bitcraze.crazyflie.lib.crazyflie;
 
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
 

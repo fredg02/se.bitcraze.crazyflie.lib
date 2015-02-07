@@ -2,7 +2,6 @@ package se.bitcraze.crazyflie.lib.crazyflie;
 
 import org.junit.Test;
 
-import se.bitcraze.crazyflie.lib.crazyradio.DataListener;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
