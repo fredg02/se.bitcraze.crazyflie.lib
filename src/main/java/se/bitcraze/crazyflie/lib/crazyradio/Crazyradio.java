@@ -84,6 +84,7 @@ public class Crazyradio {
         this.mSerialNumber = mUsbInterface.getSerialNumber();
 
         // Reset the dongle to power up settings
+        this.mLogger.debug("Resetting dongle to power up settings...");
         setDatarate(DR_2MPS);
         setChannel(2);
         this.mArc = -1;
