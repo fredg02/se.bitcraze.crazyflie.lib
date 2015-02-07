@@ -38,22 +38,6 @@ public class UsbLinkJavaTest {
     }
 
     @Test
-    public void testFindDevices() throws UnsupportedEncodingException, UsbDisconnectedException, UsbException {
-        List<UsbDevice> usbDeviceList = mUsbLinkJava.findDevices();
-        if (usbDeviceList.isEmpty()) {
-            fail("No Crazyradios found");
-        } else if (usbDeviceList.size() == 1) {
-            UsbDevice usbDevice = usbDeviceList.get(0);
-            System.out.println("Found a single Crazyradio: " + UsbLinkJava.getSerialNumber(usbDevice));
-        } else if (usbDeviceList.size() > 1) {
-            System.out.println("Found multiple Crazyradios:");
-            for (UsbDevice ud : usbDeviceList) {
-                System.out.println("  Crazyradio: " + UsbLinkJava.getSerialNumber(ud));
-            }
-        }
-    }
-
-    @Test
     public void testGetFirmwareVersionSingleRadio() {
         float firmwareVersion = mUsbLinkJava.getFirmwareVersion();
         if (firmwareVersion > 0.0f) {
@@ -68,15 +52,11 @@ public class UsbLinkJavaTest {
         List<UsbDevice> usbDeviceList = mUsbLinkJava.findDevices();
         if (usbDeviceList.isEmpty()) {
             fail("No Crazyradios found");
-        } else if (usbDeviceList.size() == 1) {
-            UsbDevice usbDevice = usbDeviceList.get(0);
-            System.out.print("Found a single Crazyradio: " + UsbLinkJava.getSerialNumber(usbDevice));
-            checkFirmwareVersion(usbDevice);
-        } else if (usbDeviceList.size() > 1) {
-            System.out.println("Found multiple Crazyradios:");
-            for (UsbDevice usbDevice1 : usbDeviceList) {
-                System.out.print("  Crazyradio: " + UsbLinkJava.getSerialNumber(usbDevice1));
-                checkFirmwareVersion(usbDevice1);
+        } else {
+            System.out.println("Found Crazyradio(s):");
+            for (UsbDevice usbDevice : usbDeviceList) {
+                System.out.print("  Crazyradio: " + UsbLinkJava.getSerialNumber(usbDevice));
+                checkFirmwareVersion(usbDevice);
             }
         }
     }
@@ -106,16 +86,6 @@ public class UsbLinkJavaTest {
         assertTrue(mUsbLinkJava.isUsbConnected());
         mUsbLinkJava.releaseInterface();
         assertFalse(mUsbLinkJava.isUsbConnected());
-    }
-
-    @Test
-    public void testSendControlTransfer() {
-        // TODO
-    }
-
-    @Test
-    public void testSendBulkTransfer() {
-        // TODO
     }
 
 }

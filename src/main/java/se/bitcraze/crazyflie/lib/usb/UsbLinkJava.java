@@ -75,7 +75,7 @@ public class UsbLinkJava implements CrazyUsbInterface {
             mLogger.info("Crazyradio not found.");
             return;
         }
-        this.mUsbDevice = findDevices().get(0);
+        this.mUsbDevice = usbDevices.get(0);
         // TODO: Only gets the first Crazyradio that is found
         if (mUsbDevice == null) {
             mLogger.info("Crazyradio not found.");

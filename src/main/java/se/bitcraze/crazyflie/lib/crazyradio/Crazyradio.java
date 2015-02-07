@@ -270,7 +270,11 @@ public class Crazyradio {
                         mLogger.debug("Found channel: " + i);
                         result.add(i);
                     }
-                    // TODO: thread sleep necessary?
+                    try {
+                        Thread.sleep(20);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         } else {
