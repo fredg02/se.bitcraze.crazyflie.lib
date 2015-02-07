@@ -31,7 +31,7 @@ public abstract class CrtpDriver {
     /**
      * Receive a CRTP packet.
      *
-     * @param wait The time to wait for a packet in seconds. -1 means forever
+     * @param wait The time to wait for a packet in milliseconds. -1 means forever
      * @return One CRTP packet or None if no packet has been received.
      */
     public abstract CrtpPacket receivePacket(int wait);

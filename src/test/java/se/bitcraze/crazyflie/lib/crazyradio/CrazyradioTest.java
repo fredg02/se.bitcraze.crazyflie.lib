@@ -48,17 +48,17 @@ public class CrazyradioTest {
             System.out.println("Found active channels 250k:");
             for (Integer i : scanChannels250k) {
                 System.out.println("  Channel " + i);
-                mConnectionDataList.add(new ConnectionData(Crazyradio.DR_250KPS, i));
+                mConnectionDataList.add(new ConnectionData(i, Crazyradio.DR_250KPS));
             }
             System.out.println("Found active channels 1M:");
             for (Integer i : scanChannels1m) {
                 System.out.println("  Channel " + i);
-                mConnectionDataList.add(new ConnectionData(Crazyradio.DR_1MPS, i));
+                mConnectionDataList.add(new ConnectionData(i, Crazyradio.DR_1MPS));
             }
             System.out.println("Found active channels 2M:");
             for (Integer i : scanChannels2m) {
                 System.out.println("  Channel " + i);
-                mConnectionDataList.add(new ConnectionData(Crazyradio.DR_2MPS, i));
+                mConnectionDataList.add(new ConnectionData(i, Crazyradio.DR_2MPS));
             }
         }
     }

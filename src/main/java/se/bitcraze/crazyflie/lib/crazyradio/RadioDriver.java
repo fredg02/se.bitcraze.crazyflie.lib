@@ -100,7 +100,8 @@ public class RadioDriver extends CrtpDriver{
         try {
             return mInQueue.pollFirst((long) time, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            //TODO: does this needs to be dealt with?
+            //e.printStackTrace();
             return null;
         }
     }
@@ -185,17 +186,17 @@ public class RadioDriver extends CrtpDriver{
         crazyRadio.setDatarate(Crazyradio.DR_250KPS);
         List<Integer> scanRadioChannels250k = crazyRadio.scanChannels();
         for(Integer channel : scanRadioChannels250k) {
-            connectionDataList.add(new ConnectionData(Crazyradio.DR_250KPS, channel));
+            connectionDataList.add(new ConnectionData(channel, Crazyradio.DR_250KPS));
         }
         crazyRadio.setDatarate(Crazyradio.DR_1MPS);
         List<Integer> scanRadioChannels1m = crazyRadio.scanChannels();
         for(Integer channel : scanRadioChannels1m) {
-            connectionDataList.add(new ConnectionData(Crazyradio.DR_1MPS, channel));
+            connectionDataList.add(new ConnectionData(channel, Crazyradio.DR_1MPS));
         }
         crazyRadio.setDatarate(Crazyradio.DR_2MPS);
         List<Integer> scanRadioChannels2m = crazyRadio.scanChannels();
         for(Integer channel : scanRadioChannels2m) {
-            connectionDataList.add(new ConnectionData(Crazyradio.DR_2MPS, channel));
+            connectionDataList.add(new ConnectionData(channel, Crazyradio.DR_2MPS));
         }
 
 //        crazyRadio.close();
