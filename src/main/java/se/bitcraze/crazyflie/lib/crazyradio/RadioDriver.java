@@ -81,9 +81,7 @@ public class RadioDriver extends CrtpDriver{
         // Launch the comm thread
         if (mRadioDriverThread == null) {
             //self._thread = _RadioDriverThread(self.cradio, self.in_queue, self.out_queue, link_quality_callback, link_error_callback)
-            RadioDriverThread rDT = new RadioDriverThread(this.mCradio, this.mInQueue, this.mOutQueue);
-            //FIXME
-//            rDT.addPacketListener(packetListener);
+            RadioDriverThread rDT = new RadioDriverThread();
             mRadioDriverThread = new Thread(rDT);
             mRadioDriverThread.start();
         }
@@ -203,6 +201,109 @@ public class RadioDriver extends CrtpDriver{
 //        crazyRadio = null;
 
         return connectionDataList;
+    }
+
+
+
+    /**
+     * Radio link receiver thread is used to read data from the Crazyradio USB driver.
+     */
+    public class RadioDriverThread implements Runnable {
+
+        final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
+
+        private final static int RETRYCOUNT_BEFORE_DISCONNECT = 10;
+        private int mRetryBeforeDisconnect;
+
+        /**
+         * Create the object
+         */
+        public RadioDriverThread() {
+            /*
+            self.link_error_callback = link_error_callback
+            self.link_quality_callback = link_quality_callback
+            */
+            this.mRetryBeforeDisconnect = RETRYCOUNT_BEFORE_DISCONNECT;
+        }
+
+        /**
+         * Run the receiver thread
+         *
+         * (non-Javadoc)
+         * @see java.lang.Runnable#run()
+         */
+        public void run() {
+            byte[] dataOut = new byte[] {(byte) 0xFF}; //Null packet
+
+            double waitTime = 0;
+            int emptyCtr = 0;
+
+            while(mCradio != null) {
+                try {
+                    RadioAck ackStatus = mCradio.sendPacket(dataOut);
+
+                    // Analyze the data packet
+                    if (ackStatus == null) {
+                        //if (self.link_error_callback is not None):
+                        //    self.link_error_callback("Dongle communication error (ackStatus==None)")
+                        mLogger.warn("Dongle communication error (ackStatus == null)");
+                        continue;
+                    }
+
+                    /*
+                    if (self.link_quality_callback is not None):
+                        self.link_quality_callback((10 - ackStatus.retry) * 10)
+                    */
+
+                    // If no copter, retry
+                    //TODO: how is this actually possible?
+                    if (!ackStatus.isAck()) {
+                        this.mRetryBeforeDisconnect--;
+                        if (this.mRetryBeforeDisconnect == 0) {
+                            mLogger.warn("Too many packets lost");
+                            System.err.println("Too many packets lost");
+                        }
+                        continue;
+                    }
+                    this.mRetryBeforeDisconnect = RETRYCOUNT_BEFORE_DISCONNECT;
+
+                    byte[] data = ackStatus.getData();
+
+                    // if there is a copter in range, the packet is analyzed and the next packet to send is prepared
+                    if (data != null && data.length > 0) {
+                        CrtpPacket inPacket = new CrtpPacket(data);
+                        mInQueue.put(inPacket);
+
+                        waitTime = 0;
+                        emptyCtr = 0;
+                    } else {
+                        emptyCtr += 1;
+                        if (emptyCtr > 10) {
+                            emptyCtr = 10;
+                            // Relaxation time if the last 10 packet where empty
+                            waitTime = 0.01;
+                        } else {
+                            waitTime = 0;
+                        }
+                    }
+
+                    // get the next packet to send of relaxation (wait 10ms)
+                    CrtpPacket outPacket = null;
+                    outPacket = mOutQueue.pollFirst((long) waitTime, TimeUnit.MILLISECONDS);
+
+                    if (outPacket != null) {
+                        dataOut = outPacket.toByteArray();
+                    } else {
+                        dataOut = new byte[]{(byte) 0xFF};
+                    }
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    mLogger.debug("RadioDriverThread was interrupted.");
+                    break;
+                }
+            }
+
+        }
     }
 
 }
