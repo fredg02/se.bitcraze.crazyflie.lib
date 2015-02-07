@@ -1,7 +1,4 @@
 package se.bitcraze.crazyflie.lib.crazyradio;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.TimeUnit;
 
@@ -24,7 +21,6 @@ public class RadioDriverThread implements Runnable {
     private BlockingDeque<CrtpPacket> mInQueue;
     private BlockingDeque<CrtpPacket> mOutQueue;
     private int mRetryBeforeDisconnect;
-    private List<PacketListener> mPacketListeners = Collections.synchronizedList(new LinkedList<PacketListener>());
 
     /**
      * Create the object
@@ -89,9 +85,6 @@ public class RadioDriverThread implements Runnable {
                     CrtpPacket inPacket = new CrtpPacket(data);
                     this.mInQueue.put(inPacket);
 
-                    //FIXME: should be handled in IncomingPacketHandler
-                    notifyPacketReceived(inPacket);
-
                     waitTime = 0;
                     emptyCtr = 0;
                 } else {
@@ -123,26 +116,4 @@ public class RadioDriverThread implements Runnable {
 
     }
 
-
-    /* Listener methods */
-
-    public void addPacketListener(PacketListener listener) {
-        if (mPacketListeners.contains(listener)) {
-            mLogger.warn("PacketListener " + listener.toString() + " already registered.");
-            return;
-        }
-        this.mPacketListeners.add(listener);
-    }
-
-    public void removePacketListener(PacketListener listener) {
-        this.mPacketListeners.remove(listener);
-    }
-
-    private void notifyPacketReceived(CrtpPacket inPacket) {
-        synchronized (this.mPacketListeners) {
-            for (PacketListener pl : this.mPacketListeners) {
-                pl.packetReceived(inPacket);
-            }
-        }
-    }
 }

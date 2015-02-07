@@ -1,6 +1,7 @@
 package se.bitcraze.crazyflie.lib.crazyflie;
 
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -8,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
 import se.bitcraze.crazyflie.lib.crazyradio.DataListener;
+import se.bitcraze.crazyflie.lib.crazyradio.PacketListener;
 import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
 import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
@@ -19,7 +21,8 @@ public class Crazyflie {
     private CrtpDriver mDriver;
     private Thread mIncomingPacketHandlerThread;
 
-    private List<DataListener> mDataListeners = new ArrayList<DataListener>();
+    private List<DataListener> mDataListeners = Collections.synchronizedList(new LinkedList<DataListener>());
+    private List<PacketListener> mPacketListeners = Collections.synchronizedList(new LinkedList<PacketListener>());
 
 
     public Crazyflie(CrtpDriver driver) {
@@ -110,7 +113,27 @@ public class Crazyflie {
     }
 
 
+    /* PACKET LISTENER */
 
+    public void addPacketListener(PacketListener listener) {
+        if (mPacketListeners.contains(listener)) {
+            mLogger.warn("PacketListener " + listener.toString() + " already registered.");
+            return;
+        }
+        this.mPacketListeners.add(listener);
+    }
+
+    public void removePacketListener(PacketListener listener) {
+        this.mPacketListeners.remove(listener);
+    }
+
+    private void notifyPacketReceived(CrtpPacket inPacket) {
+        synchronized (this.mPacketListeners) {
+            for (PacketListener pl : this.mPacketListeners) {
+                pl.packetReceived(inPacket);
+            }
+        }
+    }
 
 
     /**
@@ -139,6 +162,7 @@ public class Crazyflie {
 
                     //All-packet callbacks
                     //self.cf.packet_received.call(pk)
+                    notifyPacketReceived(packet);
                     //this.mCrazyflie.packetReceived(packet);
 
                     boolean found = false;
