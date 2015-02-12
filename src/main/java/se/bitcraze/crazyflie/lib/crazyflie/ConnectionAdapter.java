@@ -7,7 +7,13 @@ package se.bitcraze.crazyflie.lib.crazyflie;
  */
 public abstract class ConnectionAdapter implements ConnectionListener {
 
+    public void connectionRequested(String linkUri) {
+    }
+
     public void connected(String linkUri) {
+    }
+
+    public void setupFinished(String linkUri) {
     }
 
     public void connectionFailed(String linkUri, String msg) {
@@ -17,12 +23,6 @@ public abstract class ConnectionAdapter implements ConnectionListener {
     }
 
     public void disconnected(String linkUri, String msg) {
-    }
-
-    public void linkEstablished(String linkUri) {
-    }
-
-    public void connectionRequested(String linkUri) {
     }
 
     public void linkQualityUpdated(int percent) {

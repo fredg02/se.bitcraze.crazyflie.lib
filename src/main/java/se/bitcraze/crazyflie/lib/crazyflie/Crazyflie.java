@@ -143,7 +143,7 @@ public class Crazyflie {
         if (this.mState == State.INITIALIZED) {
             this.mState = State.CONNECTED;
             //self.link_established.call(self.link_uri)
-            notifyLinkEstablished();
+            notifyConnected();
         }
         //self.packet_received.remove_callback(self._check_for_initial_packet_cb)
         // => IncomingPacketHandler
@@ -162,7 +162,7 @@ public class Crazyflie {
         //FIXME
         //Skipping log and param setup for now
         //this.mLog.refreshToc(self._log_toc_updated_cb, self._toc_cache);
-        notifyConnected();
+        notifySetupFinished();
     }
 
 
@@ -242,20 +242,20 @@ public class Crazyflie {
 
 
     /**
-     * Notify all registered listeners about an established link.
-     */
-    private void notifyLinkEstablished() {
-        for (ConnectionListener cl : this.mConnectionListeners) {
-            cl.linkEstablished(mConnectionData.toString());
-        }
-    }
-
-    /**
      * Notify all registered listeners about a connect.
      */
     private void notifyConnected() {
         for (ConnectionListener cl : this.mConnectionListeners) {
             cl.connected(mConnectionData.toString());
+        }
+    }
+
+    /**
+     * Notify all registered listeners about a finished setup.
+     */
+    private void notifySetupFinished() {
+        for (ConnectionListener cl : this.mConnectionListeners) {
+            cl.setupFinished(mConnectionData.toString());
         }
     }
 

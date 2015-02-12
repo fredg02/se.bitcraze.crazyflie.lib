@@ -25,11 +25,25 @@ public interface ConnectionListener {
     */
 
     /**
-     * This callback is called from the Crazyflie API when a Crazyflie has been connected and the TOCs have been downloaded.
+     * Callback when the user requests a connection
+     *
+     * @param connectionInfo
+     */
+    public void connectionRequested(String connectionInfo);
+
+    /**
+     * Callback when the first packet in a new link is received
      *
      * @param connectionInfo
      */
     public void connected(String connectionInfo);
+
+    /**
+     * Callback when a Crazyflie has been connected and the TOCs have been downloaded.
+     * 
+     * @param connectionInfo
+     */
+    public void setupFinished(String connectionInfo);
 
     /**
      * Callback when connection initial connection fails (i.e no Crazyflie at the specified address)
@@ -53,20 +67,6 @@ public interface ConnectionListener {
      * @param connectionInfo
      */
     public void disconnected(String connectionInfo);
-
-    /**
-     * Callback when the first packet in a new link is received
-     *
-     * @param connectionInfo
-     */
-    public void linkEstablished(String connectionInfo);
-
-    /**
-     * Callback when the user requests a connection
-     *
-     * @param connectionInfo
-     */
-    public void connectionRequested(String connectionInfo);
 
     /**
      * Called when the link driver updates the link quality measurement

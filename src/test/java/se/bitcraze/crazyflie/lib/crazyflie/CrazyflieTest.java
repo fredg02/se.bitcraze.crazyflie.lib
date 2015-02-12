@@ -59,8 +59,16 @@ public class CrazyflieTest {
 
         crazyflie.addConnectionListener(new ConnectionListener() {
 
+            public void connectionRequested(String connectionInfo) {
+                System.out.println("CONNECTION REQUESTED: " + connectionInfo);
+            }
+
             public void connected(String connectionInfo) {
                 System.out.println("CONNECTED: " + connectionInfo);
+            }
+
+            public void setupFinished(String connectionInfo) {
+                System.out.println("SETUP FINISHED: " + connectionInfo);
             }
 
             public void connectionFailed(String connectionInfo, String msg) {
@@ -75,18 +83,9 @@ public class CrazyflieTest {
                 System.out.println("DISCONNECTED: " + connectionInfo);
             }
 
-            public void linkEstablished(String connectionInfo) {
-                System.out.println("LINK ESTABLISHED: " + connectionInfo);
-            }
-
-            public void connectionRequested(String connectionInfo) {
-                System.out.println("CONNECTION REQUESTED: " + connectionInfo);
-            }
-
             public void linkQualityUpdated(int percent) {
                 System.out.println("LINK QUALITY: " + percent);
             }
-
 
         });
 
