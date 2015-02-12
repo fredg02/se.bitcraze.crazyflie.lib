@@ -2,10 +2,10 @@ package se.bitcraze.crazyflie.lib.crazyradio;
 
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
@@ -32,7 +32,7 @@ public class RadioDriver extends CrtpDriver{
     private final BlockingDeque<CrtpPacket> mInQueue;
     private final BlockingDeque<CrtpPacket> mOutQueue;
 
-    private List<LinkListener> mLinkListeners = Collections.synchronizedList(new LinkedList<LinkListener>());
+    private Set<LinkListener> mLinkListeners = new CopyOnWriteArraySet<LinkListener>();
 
     /**
      * Create the link driver
@@ -204,10 +204,6 @@ public class RadioDriver extends CrtpDriver{
     /* LINK LISTENER */
 
     public void addLinkListener(LinkListener listener) {
-        if (mLinkListeners.contains(listener)) {
-            mLogger.warn("LinkListener " + listener.toString() + " already registered.");
-            return;
-        }
         this.mLinkListeners.add(listener);
     }
 
@@ -216,18 +212,14 @@ public class RadioDriver extends CrtpDriver{
     }
 
     private void notifyLinkQualityUpdated(int percent) {
-        synchronized (this.mLinkListeners) {
-            for (LinkListener pl : this.mLinkListeners) {
-                pl.linkQualityUpdated(percent);
-            }
+        for (LinkListener pl : this.mLinkListeners) {
+            pl.linkQualityUpdated(percent);
         }
     }
 
     private void notifyLinkError(String msg) {
-        synchronized (this.mLinkListeners) {
-            for (LinkListener pl : this.mLinkListeners) {
-                pl.linkError(msg);
-            }
+        for (LinkListener pl : this.mLinkListeners) {
+            pl.linkError(msg);
         }
     }
 
