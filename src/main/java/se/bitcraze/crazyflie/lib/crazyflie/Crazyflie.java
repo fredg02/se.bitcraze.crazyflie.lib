@@ -331,7 +331,7 @@ public class Crazyflie {
                         }
                     }
                     if (!found) {
-                        mLogger.warn("Got packet on port [" + packet.getHeader().getPort() + "] but found no data listener to handle it.");
+                        //mLogger.warn("Got packet on port [" + packet.getHeader().getPort() + "] but found no data listener to handle it.");
                     }
                 } catch(InterruptedException e) {
                     mLogger.debug("IncomingPacketHandlerThread was interrupted.");
