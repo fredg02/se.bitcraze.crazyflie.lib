@@ -328,7 +328,7 @@ public class RadioDriver extends CrtpDriver{
                     } else {
                         dataOut = new byte[]{(byte) 0xFF};
                     }
-                    Thread.sleep(100);
+                    Thread.sleep(20);
                 } catch (InterruptedException e) {
                     mLogger.debug("RadioDriverThread was interrupted.");
                     break;
