@@ -2,6 +2,7 @@ package se.bitcraze.crazyflie.lib.crazyflie;
 
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,9 @@ public class Crazyflie {
     private CrtpDriver mDriver;
     private Thread mIncomingPacketHandlerThread;
 
+    private LinkedBlockingDeque<CrtpPacket> mResendQueue = new LinkedBlockingDeque<CrtpPacket>();
+    private Thread mResendQueueHandlerThread;
+
     private Set<DataListener> mDataListeners = new CopyOnWriteArraySet<DataListener>();
     private Set<PacketListener> mPacketListeners = new CopyOnWriteArraySet<PacketListener>();
     private Set<ConnectionListener> mConnectionListeners = new CopyOnWriteArraySet<ConnectionListener>();
@@ -28,6 +32,7 @@ public class Crazyflie {
     private ConnectionData mConnectionData;
 
     private LinkListener mLinkListener;
+    private PacketListener mPacketListener;
 
     /**
      * State of the connection procedure
@@ -67,6 +72,19 @@ public class Crazyflie {
         };
         mDriver.addLinkListener(mLinkListener);
 
+
+        mPacketListener = new PacketListener() {
+
+            public void packetReceived(CrtpPacket packet) {
+                checkReceivedPackets(packet);
+            }
+
+            public void packetSent() {
+            }
+
+        };
+        addPacketListener(mPacketListener);
+
         // try to connect
         mDriver.connect(mConnectionData.getChannel(), mConnectionData.getDataRate());
 
@@ -74,6 +92,12 @@ public class Crazyflie {
             IncomingPacketHandler iph = new IncomingPacketHandler();
             mIncomingPacketHandlerThread = new Thread(iph);
             mIncomingPacketHandlerThread.start();
+        }
+
+        if (mResendQueueHandlerThread == null) {
+            ResendQueueHandler rqh = new ResendQueueHandler();
+            mResendQueueHandlerThread = new Thread(rqh);
+            mResendQueueHandlerThread.start();
         }
 
         //TODO: better solution to wait for connected state?
@@ -126,11 +150,67 @@ public class Crazyflie {
      * @param packet
      */
     // def send_packet(self, pk, expected_reply=(), resend=False):
-    public void sendPacket(CrtpPacket packet){
+    public void sendPacket(CrtpPacket packet) {
         if (mDriver != null) {
             mDriver.sendPacket(packet);
+
+            if (packet.getExpectedReply() != null && packet.getExpectedReply().length > 0) {
+                //add packet to resend queue
+                if(!mResendQueue.contains(packet)) {
+                    mResendQueue.add(packet);
+                } else {
+                    mLogger.warn("Packet already exists in Queue.");
+                }
+            }
         }
     }
+
+    /**
+     * Callback called for every packet received to check if we are
+     * waiting for an packet like this. If so, then remove it from the queue.
+     *
+     * @param packet
+     */
+    private void checkReceivedPackets(CrtpPacket packet) {
+        // compare received packet with expectedReplies in resend queue
+
+        boolean same = true;
+        for(CrtpPacket resendPacket : mResendQueue) {
+            byte[] expectedReply = resendPacket.getExpectedReply();
+            for(int i = 0; i < expectedReply.length; i++) {
+                if (expectedReply[i] != packet.getPayload()[i]) {
+                    same = false;
+                    break;
+                }
+            }
+            if(same) {
+                mResendQueue.remove(resendPacket);
+                System.out.println("QUEUE REMOVE");
+            }
+        }
+
+    }
+
+    private class ResendQueueHandler implements Runnable {
+
+        public void run() {
+            while(true) {
+                if (!mResendQueue.isEmpty()) {
+                    CrtpPacket resendPacket = mResendQueue.poll();
+                    mLogger.debug("RESEND: " + resendPacket);
+                    sendPacket(resendPacket);
+                }
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    break;
+                }
+            }
+        }
+
+    }
+
 
     /**
      * Called when first packet arrives from Crazyflie.

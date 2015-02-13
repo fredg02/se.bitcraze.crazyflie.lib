@@ -50,17 +50,17 @@ public class TocFetcherTest {
             }
 
             public void linkQualityUpdated(int percent) {
-                System.out.println("LINK QUALITY: " + percent);
+                //System.out.println("LINK QUALITY: " + percent);
             }
 
         });
 
         crazyflie.connect(10, 0);
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 200; i++) {
             crazyflie.sendPacket(new CommanderPacket(0, 0, 0, (char) 0));
             try {
-                Thread.sleep(50, 0);
+                Thread.sleep(50);
             } catch (InterruptedException e) {
                 break;
             }

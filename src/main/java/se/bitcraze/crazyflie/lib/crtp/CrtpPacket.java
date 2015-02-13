@@ -57,7 +57,7 @@ public class CrtpPacket {
         }
     };
 
-    public class Header {
+    public static class Header {
 
         private int mChannel;
         private CrtpPort mPort;
@@ -97,11 +97,46 @@ public class CrtpPacket {
         public String toString() {
             return "Header - Channel: " + getChannel() + " Port: " + getPort();
         }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + (isNullPacketHeader ? 1231 : 1237);
+            result = prime * result + mChannel;
+            result = prime * result + ((mPort == null) ? 0 : mPort.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (!(obj instanceof Header)) {
+                return false;
+            }
+            Header other = (Header) obj;
+            if (isNullPacketHeader != other.isNullPacketHeader) {
+                return false;
+            }
+            if (mChannel != other.mChannel) {
+                return false;
+            }
+            if (mPort != other.mPort) {
+                return false;
+            }
+            return true;
+        }
     }
 
     private final Header mPacketHeader;
     private final byte[] mPacketPayload;
     private byte[] mSerializedPacket;
+    private byte[] mExpectedReply;
 
     public CrtpPacket() {
         mPacketHeader = null;
@@ -219,4 +254,51 @@ public class CrtpPacket {
     public String toString() {
         return "CrtpPacket: port: " + this.getHeader().getPort() + " channel: " + this.getHeader().getChannel();
     }
+
+    public byte[] getExpectedReply() {
+        return mExpectedReply;
+    }
+
+    public void setExpectedReply(byte[] mExpectedReply) {
+        this.mExpectedReply = mExpectedReply;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + Arrays.hashCode(mExpectedReply);
+        result = prime * result + ((mPacketHeader == null) ? 0 : mPacketHeader.hashCode());
+        result = prime * result + Arrays.hashCode(mPacketPayload);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof CrtpPacket)) {
+            return false;
+        }
+        CrtpPacket other = (CrtpPacket) obj;
+        if (!Arrays.equals(mExpectedReply, other.mExpectedReply)) {
+            return false;
+        }
+        if (mPacketHeader == null) {
+            if (other.mPacketHeader != null) {
+                return false;
+            }
+        } else if (!mPacketHeader.equals(other.mPacketHeader)) {
+            return false;
+        }
+        if (!Arrays.equals(mPacketPayload, other.mPacketPayload)) {
+            return false;
+        }
+        return true;
+    }
+
 }
