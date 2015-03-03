@@ -7,26 +7,25 @@ package se.bitcraze.crazyflie.lib.crazyflie;
  */
 public abstract class ConnectionAdapter implements ConnectionListener {
 
-    public void connectionRequested(String linkUri) {
+    public void connectionRequested(String connectionInfo) {
     }
 
-    public void connected(String linkUri) {
+    public void connected(String connectionInfo) {
     }
 
-    public void setupFinished(String linkUri) {
+    public void setupFinished(String connectionInfo) {
     }
 
-    public void connectionFailed(String linkUri, String msg) {
+    public void connectionFailed(String connectionInfo, String msg) {
     }
 
-    public void connectionLost(String linkUri, String msg) {
+    public void connectionLost(String connectionInfo, String msg) {
     }
 
-    public void disconnected(String linkUri, String msg) {
+    public void disconnected(String connectionInfo) {
     }
 
     public void linkQualityUpdated(int percent) {
     }
-
 
 }

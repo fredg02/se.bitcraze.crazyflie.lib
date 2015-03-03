@@ -17,7 +17,7 @@ public class CrazyflieTest {
         crazyflie.connect(10, 0);
 
         for (int i = 0; i < 10; i++) {
-            crazyflie.sendPacket(new CommanderPacket(0, 0, 0, (char) 15000));
+            crazyflie.sendPacket(new CommanderPacket(0, 0, 0, (char) 0));
             try {
                 Thread.sleep(50, 0);
             } catch (InterruptedException e) {
@@ -43,7 +43,7 @@ public class CrazyflieTest {
         crazyflie.connect(10, 0);
 
         for (int i = 0; i < 30; i++) {
-            crazyflie.sendPacket(new CommanderPacket(0, 0, 0, (char) 15000));
+            crazyflie.sendPacket(new CommanderPacket(0, 0, 0, (char) 0));
             try {
                 Thread.sleep(50, 0);
             } catch (InterruptedException e) {
@@ -92,7 +92,7 @@ public class CrazyflieTest {
         crazyflie.connect(10, 0);
 
         for (int i = 0; i < 30; i++) {
-            crazyflie.sendPacket(new CommanderPacket(0, 0, 0, (char) 15000));
+            crazyflie.sendPacket(new CommanderPacket(0, 0, 0, (char) 0));
             try {
                 Thread.sleep(50, 0);
             } catch (InterruptedException e) {

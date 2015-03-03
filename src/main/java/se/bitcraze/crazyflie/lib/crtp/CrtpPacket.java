@@ -82,6 +82,7 @@ public class CrtpPacket {
             }
         }
 
+        //TODO: change order of parameters according to python cflib?
         public Header(int channel, CrtpPort port){
             this.mChannel = channel;
             this.mPort = port;

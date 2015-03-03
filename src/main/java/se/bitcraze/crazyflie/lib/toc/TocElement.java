@@ -43,6 +43,10 @@ public class TocElement {
         this.mName = name;
     }
 
+    public String getCompleteName() {
+        return mGroup + "." + mName;
+    }
+
     public VariableType getCtype() {
         return mCtype;
     }
