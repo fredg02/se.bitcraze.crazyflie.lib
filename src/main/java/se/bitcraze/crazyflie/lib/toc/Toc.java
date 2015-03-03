@@ -2,7 +2,9 @@ package se.bitcraze.crazyflie.lib.toc;
 
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -17,6 +19,8 @@ public class Toc {
 
     private Map<String, Map<String, TocElement>> mTocElementMap = new HashMap<String, Map<String, TocElement>>();
 
+    private int mTocSize = 0;
+
     public Toc() {
     }
 
@@ -25,6 +29,7 @@ public class Toc {
      */
     public void clear() {
         this.mTocElementMap.clear();
+        this.mTocSize = 0;
     }
 
     /**
@@ -41,6 +46,7 @@ public class Toc {
             mTocElementMap.put(tocElement.getGroup(), new HashMap<String, TocElement>());
         }
         mTocElementMap.get(tocElement.getGroup()).put(tocElement.getName(), tocElement);
+        mTocSize++;
     }
 
     /**
@@ -101,19 +107,14 @@ public class Toc {
         return null;
     }
 
-
-    //extra:
-
-//    //TODO: return sorted list
-//    public List<TocElement> getElements() {
-//        List<TocElement> tocElementList = new ArrayList<TocElement>();
-//        for(String group : mTocElementMap.keySet()) {
-//            for (String name : mTocElementMap.get(group).keySet()) {
-//                tocElementList.add(mTocElementMap.get(group).get(name));
-//            }
-//        }
-//        return tocElementList;
-//    }
+    //TODO: generate list not every time
+    public List<TocElement> getElements() {
+        List<TocElement> tocElementList = new ArrayList<TocElement>();
+        for (int i = 0; i < mTocSize; i++) {
+            tocElementList.add(getElementById(i));
+        }
+        return tocElementList;
+    }
 
     public Map<String, Map<String, TocElement>> getTocElementMap() {
         return mTocElementMap;
@@ -121,5 +122,9 @@ public class Toc {
 
     public void setTocElementMap(Map<String, Map<String, TocElement>> map) {
         this.mTocElementMap = map;
+    }
+
+    public int getTocSize() {
+        return mTocSize;
     }
 }

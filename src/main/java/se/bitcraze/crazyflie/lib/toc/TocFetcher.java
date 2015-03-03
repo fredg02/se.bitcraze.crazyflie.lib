@@ -11,12 +11,10 @@ import se.bitcraze.crazyflie.lib.crazyflie.DataListener;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket.Header;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
-
+import se.bitcraze.crazyflie.lib.param.ParamTocElement;
 
 /**
  * Fetches TOC entries from the Crazyflie
- *
- * @author fr3d
  *
  */
 public class TocFetcher {
@@ -27,6 +25,7 @@ public class TocFetcher {
     private CrtpPort mPort;
     private int mCrc = 0;
     private TocState mState = null;
+    private Toc mToc;
 
     private final int TOC_CHANNEL = 0;
     public static final int CMD_TOC_ELEMENT = 0;
@@ -41,9 +40,10 @@ public class TocFetcher {
         IDLE, GET_TOC_INFO, GET_TOC_ELEMENT, TOC_FETCH_FINISHED;
     }
 
-    public TocFetcher(Crazyflie crazyFlie, CrtpPort port) {
+    public TocFetcher(Crazyflie crazyFlie, CrtpPort port, Toc tocHolder) {
         this.mCrazyFlie = crazyFlie;
         this.mPort = port;
+        this.mToc = tocHolder;
     }
 
     /**
@@ -60,6 +60,7 @@ public class TocFetcher {
             }
         };
         this.mCrazyFlie.addDataListener(mDataListener);
+
         requestTocInfo();
     }
 
@@ -73,10 +74,11 @@ public class TocFetcher {
         logger.debug("[%d]: Done!", self.port)
         self.finished_callback()
          */
-        //this.mCrazyFlie.removePortCallback(this.mPort, this.newPacketCallback);
+        // this.mCrazyFlie.removeDataListener(mDataListener);
         mLogger.debug("Fetching TOC (Port: " + this.mPort + ") done.");
         this.mState = TocState.TOC_FETCH_FINISHED;
         // finishedCallback();
+        // notifyTocFetchFinished();
     }
 
     public TocState getState() {
@@ -84,12 +86,11 @@ public class TocFetcher {
     }
 
     public void newPacketReceived(CrtpPacket packet) {
-        if (packet.getHeader().getChannel() != 0) {
+        if (packet.getHeader().getChannel() != TOC_CHANNEL) {
             return;
         }
-
         // payload = struct.pack("B" * (len(packet.datal) - 1), *packet.datal[1:])
-        ByteBuffer payload = ByteBuffer.wrap(packet.getPayload(), 1, packet.getPayload().length - 1);
+        ByteBuffer payload = ByteBuffer.wrap(packet.getPayload(), 1, packet.getPayload().length-1);
 
         if (mState == TocState.GET_TOC_INFO) {
             if (packet.getPayload()[0] == CMD_TOC_INFO) {
@@ -109,40 +110,45 @@ public class TocFetcher {
 
             if (packet.getPayload()[0] == CMD_TOC_ELEMENT) {
 
-                // Always add new element, but only request new if it's not the last one.
+            // Always add new element, but only request new if it's not the last one.
 
-                // if self.requested_index != ord(payload[0]):
+            // if self.requested_index != ord(payload[0]):
                 if (this.mRequestedIndex != payload.get(1)) {
-                    /*
-                    # TODO: There might be a timing issue here with resending old
-                    #       packets while loosing new ones. Then if 7 is requested
-                    #       but 6 is send back due to timing issues with the resend
-                    #       while 7 is lost then we will never resend for 7.
-                    #       This is pretty hard to reproduce but happens...
-                    */
-                    mLogger.warn("[" + this.mPort + "]: Was expecting " + this.mRequestedIndex + " but got " + payload.get(1));
-                    return;
-                }
+                /*
+                # TODO: There might be a timing issue here with resending old
+                #       packets while loosing new ones. Then if 7 is requested
+                #       but 6 is send back due to timing issues with the resend
+                #       while 7 is lost then we will never resend for 7.
+                #       This is pretty hard to reproduce but happens...
+                */
+                mLogger.warn("[" + this.mPort + "]: Was expecting " + this.mRequestedIndex + " but got " + payload.get(1));
+                return;
+            }
 
-                // self.toc.add_element(self.element_class(payload))
-                //this.mToc.addElement(this.);
+            // self.toc.add_element(self.element_class(payload))
 
-                //logger.debug("Added element [%s]", self.element_class(payload).ident)
-                //mLogger.debug("Added element " + self.element_class(payload).ident);
+            if (mPort == CrtpPort.LOGGING) {
+                //TODO: mToc.addElement(new LogTocElement(payload));
+            } else {
+                ParamTocElement paramTocElement = new ParamTocElement(payload.array());
+                mToc.addElement(paramTocElement);
+            }
 
-                if(mRequestedIndex < (mNoOfItems - 1)) {
+            //logger.debug("Added element [%s]", self.element_class(payload).ident)
+
+            if(mRequestedIndex < (mNoOfItems - 1)) {
                     mLogger.debug("[" + this.mPort + "]: More variables, requesting index " + (this.mRequestedIndex + 1));
                     this.mRequestedIndex++;
                     requestTocElement(this.mRequestedIndex);
-                } else {
-                    // No more variables in TOC
-                    System.out.println("No more variables in TOC.");
-                    //self._toc_cache.insert(self._crc, self.toc.toc)
-                    //this.mTocCache.insert(this.mCrc, this.mToc);
-                    tocFetchFinished();
-                }
+            } else {
+                // No more variables in TOC
+                System.out.println("No more variables in TOC.");
+                //self._toc_cache.insert(self._crc, self.toc.toc)
+                //this.mTocCache.insert(this.mCrc, this.mToc);
+                tocFetchFinished();
             }
         }
+    }
     }
 
     private void requestTocInfo() {
@@ -155,7 +161,6 @@ public class TocFetcher {
         packet.setExpectedReply(new byte[]{CMD_TOC_INFO});
         this.mCrazyFlie.sendPacket(packet);
     }
-
 
     private void requestTocElement(int index) {
         mLogger.debug("Requesting index " + index + " on port " + this.mPort);

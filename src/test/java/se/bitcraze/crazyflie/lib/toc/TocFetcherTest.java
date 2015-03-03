@@ -2,6 +2,8 @@ package se.bitcraze.crazyflie.lib.toc;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.List;
+
 import org.junit.Test;
 
 import se.bitcraze.crazyflie.lib.crazyflie.ConnectionListener;
@@ -9,17 +11,19 @@ import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
-import se.bitcraze.crazyflie.lib.toc.TocFetcher.TocState;
 import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
 
 public class TocFetcherTest {
 
     protected TocFetcher mTocFetcher;
+    protected Toc mToc;
 
     @Test
-    public void test() {
+    public void testTocFetcher() {
         final Crazyflie crazyflie = new Crazyflie(new RadioDriver(new UsbLinkJava()));
 
+        mToc = new Toc();
+        
         crazyflie.addConnectionListener(new ConnectionListener() {
 
             public void connectionRequested(String connectionInfo) {
@@ -29,7 +33,7 @@ public class TocFetcherTest {
             public void connected(String connectionInfo) {
                 System.out.println("CONNECTED: " + connectionInfo);
 
-                mTocFetcher = new TocFetcher(crazyflie, CrtpPort.PARAMETERS);
+                mTocFetcher = new TocFetcher(crazyflie, CrtpPort.PARAMETERS, mToc);
                 mTocFetcher.start();
             }
 
@@ -67,7 +71,14 @@ public class TocFetcherTest {
         }
         crazyflie.disconnect();
 
-        assertEquals(TocState.TOC_FETCH_FINISHED, mTocFetcher.getState());
+        List<TocElement> elements = mToc.getElements();
+        System.out.println("No of Param TOC elements: " + elements.size());
+
+        assertEquals(53, elements.size());
+
+        for (TocElement tocElement : elements) {
+            System.out.println(tocElement);
+        }
     }
 
 }
