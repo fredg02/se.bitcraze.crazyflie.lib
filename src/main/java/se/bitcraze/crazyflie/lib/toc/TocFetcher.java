@@ -2,6 +2,8 @@ package se.bitcraze.crazyflie.lib.toc;
 
 
 import java.nio.ByteBuffer;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +35,8 @@ public class TocFetcher {
 
     private int mRequestedIndex = -1;
     private int mNoOfItems = -1;
+
+    private Set<TocFetchFinishedListener> mTocFetchFinishedListeners = new CopyOnWriteArraySet<TocFetchFinishedListener>();
 
     private DataListener mDataListener;
 
@@ -78,7 +82,7 @@ public class TocFetcher {
         mLogger.debug("Fetching TOC (Port: " + this.mPort + ") done.");
         this.mState = TocState.TOC_FETCH_FINISHED;
         // finishedCallback();
-        // notifyTocFetchFinished();
+        notifyTocFetchFinished();
     }
 
     public TocState getState() {
@@ -105,50 +109,50 @@ public class TocFetcher {
                 this.mState = TocState.GET_TOC_ELEMENT;
                 this.mRequestedIndex = 0;
                 requestTocElement(this.mRequestedIndex);
-            }
-        } else if (mState == TocState.GET_TOC_ELEMENT) {
+                }
+            } else if (mState == TocState.GET_TOC_ELEMENT) {
 
-            if (packet.getPayload()[0] == CMD_TOC_ELEMENT) {
+                if (packet.getPayload()[0] == CMD_TOC_ELEMENT) {
 
-            // Always add new element, but only request new if it's not the last one.
+                    // Always add new element, but only request new if it's not the last one.
 
-            // if self.requested_index != ord(payload[0]):
-                if (this.mRequestedIndex != payload.get(1)) {
-                /*
-                # TODO: There might be a timing issue here with resending old
-                #       packets while loosing new ones. Then if 7 is requested
-                #       but 6 is send back due to timing issues with the resend
-                #       while 7 is lost then we will never resend for 7.
-                #       This is pretty hard to reproduce but happens...
-                */
-                mLogger.warn("[" + this.mPort + "]: Was expecting " + this.mRequestedIndex + " but got " + payload.get(1));
-                return;
-            }
+                    // if self.requested_index != ord(payload[0]):
+                    if (this.mRequestedIndex != payload.get(1)) {
+                    /*
+                    # TODO: There might be a timing issue here with resending old
+                    #       packets while loosing new ones. Then if 7 is requested
+                    #       but 6 is send back due to timing issues with the resend
+                    #       while 7 is lost then we will never resend for 7.
+                    #       This is pretty hard to reproduce but happens...
+                    */
+                    mLogger.warn("[" + this.mPort + "]: Was expecting " + this.mRequestedIndex + " but got " + payload.get(1));
+                    return;
+                }
 
-            // self.toc.add_element(self.element_class(payload))
+                // self.toc.add_element(self.element_class(payload))
 
-            if (mPort == CrtpPort.LOGGING) {
-                //TODO: mToc.addElement(new LogTocElement(payload));
-            } else {
-                ParamTocElement paramTocElement = new ParamTocElement(payload.array());
-                mToc.addElement(paramTocElement);
-            }
+                if (mPort == CrtpPort.LOGGING) {
+                    //TODO: mToc.addElement(new LogTocElement(payload));
+                } else {
+                    ParamTocElement paramTocElement = new ParamTocElement(payload.array());
+                    mToc.addElement(paramTocElement);
+                }
 
-            //logger.debug("Added element [%s]", self.element_class(payload).ident)
+                //logger.debug("Added element [%s]", self.element_class(payload).ident)
 
-            if(mRequestedIndex < (mNoOfItems - 1)) {
+                if(mRequestedIndex < (mNoOfItems - 1)) {
                     mLogger.debug("[" + this.mPort + "]: More variables, requesting index " + (this.mRequestedIndex + 1));
                     this.mRequestedIndex++;
                     requestTocElement(this.mRequestedIndex);
-            } else {
-                // No more variables in TOC
-                System.out.println("No more variables in TOC.");
-                //self._toc_cache.insert(self._crc, self.toc.toc)
-                //this.mTocCache.insert(this.mCrc, this.mToc);
-                tocFetchFinished();
+                } else {
+                    // No more variables in TOC
+                    mLogger.info("No more variables in TOC.");
+                    //self._toc_cache.insert(self._crc, self.toc.toc)
+                    //this.mTocCache.insert(this.mCrc, this.mToc);
+                    tocFetchFinished();
+                }
             }
         }
-    }
     }
 
     private void requestTocInfo() {
@@ -170,4 +174,26 @@ public class TocFetcher {
         this.mCrazyFlie.sendPacket(packet);
     }
 
+
+    /* TOC FETCH FINISHED LISTENER */
+
+    public void addTocFetchFinishedListener(TocFetchFinishedListener listener) {
+        this.mTocFetchFinishedListeners.add(listener);
+    }
+
+    public void removeTocFetchFinishedListener(TocFetchFinishedListener listener) {
+        this.mTocFetchFinishedListeners.remove(listener);
+    }
+
+    private void notifyTocFetchFinished() {
+        for (TocFetchFinishedListener tffl : this.mTocFetchFinishedListeners) {
+            tffl.tocFetchFinished();
+        }
+    }
+
+    public interface TocFetchFinishedListener {
+
+        public void tocFetchFinished();
+
+    }
 }

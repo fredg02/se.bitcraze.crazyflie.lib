@@ -12,6 +12,8 @@ import se.bitcraze.crazyflie.lib.crazyradio.LinkListener;
 import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
 import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
+import se.bitcraze.crazyflie.lib.param.Param;
+import se.bitcraze.crazyflie.lib.toc.TocFetcher.TocFetchFinishedListener;
 
 public class Crazyflie {
 
@@ -33,6 +35,8 @@ public class Crazyflie {
 
     private LinkListener mLinkListener;
     private PacketListener mPacketListener;
+
+    private Param mParam;
 
     /**
      * State of the connection procedure
@@ -150,7 +154,7 @@ public class Crazyflie {
      * @param packet
      */
     // def send_packet(self, pk, expected_reply=(), resend=False):
-    public void sendPacket(CrtpPacket packet) {
+    public void sendPacket(CrtpPacket packet){
         if (mDriver != null) {
             mDriver.sendPacket(packet);
 
@@ -185,7 +189,7 @@ public class Crazyflie {
             }
             if(same) {
                 mResendQueue.remove(resendPacket);
-                System.out.println("QUEUE REMOVE");
+                mLogger.debug("QUEUE REMOVE");
             }
         }
 
@@ -242,9 +246,23 @@ public class Crazyflie {
         //FIXME
         //Skipping log and param setup for now
         //this.mLog.refreshToc(self._log_toc_updated_cb, self._toc_cache);
-        notifySetupFinished();
+
+        TocFetchFinishedListener tocFetchFinishedListener = new TocFetchFinishedListener() {
+
+            public void tocFetchFinished() {
+                mState = State.SETUP_FINISHED;
+                notifySetupFinished();
+
+            }
+        };
+
+        mParam = new Param(this);
+        mParam.refreshToc(tocFetchFinishedListener);
     }
 
+    public Param getParam() {
+        return mParam;
+    }
 
     /** DATA LISTENER **/
 
@@ -315,65 +333,65 @@ public class Crazyflie {
      * @param linkUri
      */
     private void notifyConnectionRequested() {
-        for (ConnectionListener cl : this.mConnectionListeners) {
-            cl.connectionRequested(mConnectionData.toString());
+            for (ConnectionListener cl : this.mConnectionListeners) {
+                cl.connectionRequested(mConnectionData.toString());
+            }
         }
-    }
 
 
     /**
      * Notify all registered listeners about a connect.
      */
     private void notifyConnected() {
-        for (ConnectionListener cl : this.mConnectionListeners) {
-            cl.connected(mConnectionData.toString());
+            for (ConnectionListener cl : this.mConnectionListeners) {
+                cl.connected(mConnectionData.toString());
+            }
         }
-    }
 
     /**
      * Notify all registered listeners about a finished setup.
      */
     private void notifySetupFinished() {
-        for (ConnectionListener cl : this.mConnectionListeners) {
-            cl.setupFinished(mConnectionData.toString());
+            for (ConnectionListener cl : this.mConnectionListeners) {
+                cl.setupFinished(mConnectionData.toString());
+            }
         }
-    }
 
     /**
      * Notify all registered listeners about a failed connection attempt.
      */
     private void notifyConnectionFailed(String msg) {
-        for (ConnectionListener cl : this.mConnectionListeners) {
-            cl.connectionFailed(mConnectionData.toString(), msg);
+            for (ConnectionListener cl : this.mConnectionListeners) {
+                cl.connectionFailed(mConnectionData.toString(), msg);
+            }
         }
-    }
 
     /**
      * Notify all registered listeners about a lost connection.
      */
     private void notifyConnectionLost(String msg) {
-        for (ConnectionListener cl : this.mConnectionListeners) {
-            cl.connectionLost(mConnectionData.toString(), msg);
+            for (ConnectionListener cl : this.mConnectionListeners) {
+                cl.connectionLost(mConnectionData.toString(), msg);
+            }
         }
-    }
 
     /**
      * Notify all registered listeners about a disconnect.
      */
     private void notifyDisconnected() {
-        for (ConnectionListener cl : this.mConnectionListeners) {
-            cl.disconnected(mConnectionData.toString());
+            for (ConnectionListener cl : this.mConnectionListeners) {
+                cl.disconnected(mConnectionData.toString());
+            }
         }
-    }
 
     /**
      * Notify all registered listeners about a link quality update.
      */
     private void notifyLinkQualityUpdated(int percent) {
-        for (ConnectionListener cl : this.mConnectionListeners) {
-            cl.linkQualityUpdated(percent);
+            for (ConnectionListener cl : this.mConnectionListeners) {
+                cl.linkQualityUpdated(percent);
+            }
         }
-    }
 
     /**
      * Handles incoming packets and sends the data to the correct listeners
@@ -381,7 +399,7 @@ public class Crazyflie {
      * TODO: respect also channel specific data listeners?
      *
      */
-    public class IncomingPacketHandler implements Runnable{
+    public class IncomingPacketHandler implements Runnable {
 
         final Logger mLogger = LoggerFactory.getLogger("IncomingPacketHandler");
 

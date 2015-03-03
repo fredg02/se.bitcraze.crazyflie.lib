@@ -10,35 +10,36 @@ import se.bitcraze.crazyflie.lib.crazyflie.ConnectionListener;
 import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
-import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
 import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
 
 public class TocFetcherTest {
 
-    protected TocFetcher mTocFetcher;
-    protected Toc mToc;
+    boolean mStateConnectionRequested = false;
+    boolean mStateConnected = false;
+    boolean mStateSetupFinished = false;
+    boolean mStateDisconnected = false;
 
     @Test
     public void testTocFetcher() {
         final Crazyflie crazyflie = new Crazyflie(new RadioDriver(new UsbLinkJava()));
 
-        mToc = new Toc();
-        
+        //TODO: crazyflie.clearTocCache();
+
         crazyflie.addConnectionListener(new ConnectionListener() {
 
             public void connectionRequested(String connectionInfo) {
                 System.out.println("CONNECTION REQUESTED: " + connectionInfo);
+                mStateConnectionRequested = true;
             }
 
             public void connected(String connectionInfo) {
                 System.out.println("CONNECTED: " + connectionInfo);
-
-                mTocFetcher = new TocFetcher(crazyflie, CrtpPort.PARAMETERS, mToc);
-                mTocFetcher.start();
+                mStateConnected = true;
             }
 
             public void setupFinished(String connectionInfo) {
                 System.out.println("SETUP FINISHED: " + connectionInfo);
+                mStateSetupFinished = true;
             }
 
             public void connectionFailed(String connectionInfo, String msg) {
@@ -51,6 +52,7 @@ public class TocFetcherTest {
 
             public void disconnected(String connectionInfo) {
                 System.out.println("DISCONNECTED: " + connectionInfo);
+                mStateDisconnected = true;
             }
 
             public void linkQualityUpdated(int percent) {
@@ -71,8 +73,14 @@ public class TocFetcherTest {
         }
         crazyflie.disconnect();
 
-        List<TocElement> elements = mToc.getElements();
-        System.out.println("No of Param TOC elements: " + elements.size());
+        assertEquals(true, mStateConnectionRequested);
+        assertEquals(true, mStateConnected);
+        assertEquals(true, mStateSetupFinished);
+        assertEquals(true, mStateDisconnected);
+
+        Toc toc = crazyflie.getParam().getToc();
+        List<TocElement> elements = toc.getElements();
+        System.out.println("Number of Param TOC elements: " + elements.size());
 
         assertEquals(53, elements.size());
 
