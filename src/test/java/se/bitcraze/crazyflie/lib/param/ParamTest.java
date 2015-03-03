@@ -26,7 +26,7 @@ public class ParamTest {
         //TODO: refactor this into a test utility method
         mCrazyflie = new Crazyflie(new RadioDriver(new UsbLinkJava()));
 
-        //TODO: mCrazyflie.clearTocCache();
+        mCrazyflie.clearTocCache();
 
         mCrazyflie.addConnectionListener(new ConnectionListener() {
 

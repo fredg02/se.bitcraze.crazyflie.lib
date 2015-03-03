@@ -13,6 +13,7 @@ import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
 import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
 import se.bitcraze.crazyflie.lib.param.Param;
+import se.bitcraze.crazyflie.lib.toc.TocCache;
 import se.bitcraze.crazyflie.lib.toc.TocFetcher.TocFetchFinishedListener;
 
 public class Crazyflie {
@@ -37,6 +38,7 @@ public class Crazyflie {
     private PacketListener mPacketListener;
 
     private Param mParam;
+    private TocCache mTocCache;
 
     /**
      * State of the connection procedure
@@ -51,6 +53,8 @@ public class Crazyflie {
 
     public Crazyflie(CrtpDriver driver) {
         this.mDriver = driver;
+
+        this.mTocCache = new TocCache("ro_cache", "rw_cache");
     }
 
     public void connect(int channel, int datarate) {
@@ -257,11 +261,16 @@ public class Crazyflie {
         };
 
         mParam = new Param(this);
-        mParam.refreshToc(tocFetchFinishedListener);
+        mParam.refreshToc(tocFetchFinishedListener, mTocCache);
     }
 
     public Param getParam() {
         return mParam;
+    }
+
+    //TODO: do this properly
+    public void clearTocCache() {
+        mTocCache = new TocCache(null, null);
     }
 
     /** DATA LISTENER **/

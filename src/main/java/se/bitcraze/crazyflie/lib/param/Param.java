@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
 import se.bitcraze.crazyflie.lib.toc.Toc;
+import se.bitcraze.crazyflie.lib.toc.TocCache;
 import se.bitcraze.crazyflie.lib.toc.TocFetcher;
 import se.bitcraze.crazyflie.lib.toc.TocFetcher.TocFetchFinishedListener;
 
@@ -30,10 +31,10 @@ public class Param {
      * Initiate a refresh of the parameter TOC.
      */
     // def refresh_toc(self, refresh_done_callback, toc_cache):
-    public void refreshToc(TocFetchFinishedListener listener) {
+    public void refreshToc(TocFetchFinishedListener listener, TocCache tocCache) {
        this.mToc = new Toc();
        // toc_fetcher = TocFetcher(self.cf, ParamTocElement, CRTPPort.PARAM, self.toc, refresh_done_callback, toc_cache)
-       TocFetcher tocFetcher = new TocFetcher(mCrazyflie, CrtpPort.PARAMETERS, mToc);
+       TocFetcher tocFetcher = new TocFetcher(mCrazyflie, CrtpPort.PARAMETERS, mToc, tocCache);
        tocFetcher.addTocFetchFinishedListener(listener);
        tocFetcher.start();
     }

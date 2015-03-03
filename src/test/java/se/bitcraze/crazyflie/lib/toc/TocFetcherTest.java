@@ -23,7 +23,7 @@ public class TocFetcherTest {
     public void testTocFetcher() {
         final Crazyflie crazyflie = new Crazyflie(new RadioDriver(new UsbLinkJava()));
 
-        //TODO: crazyflie.clearTocCache();
+        crazyflie.clearTocCache();
 
         crazyflie.addConnectionListener(new ConnectionListener() {
 

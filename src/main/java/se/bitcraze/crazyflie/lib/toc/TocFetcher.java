@@ -27,6 +27,7 @@ public class TocFetcher {
     private CrtpPort mPort;
     private int mCrc = 0;
     private TocState mState = null;
+    private TocCache mTocCache;
     private Toc mToc;
 
     private final int TOC_CHANNEL = 0;
@@ -44,10 +45,11 @@ public class TocFetcher {
         IDLE, GET_TOC_INFO, GET_TOC_ELEMENT, TOC_FETCH_FINISHED;
     }
 
-    public TocFetcher(Crazyflie crazyFlie, CrtpPort port, Toc tocHolder) {
+    public TocFetcher(Crazyflie crazyFlie, CrtpPort port, Toc tocHolder, TocCache tocCache) {
         this.mCrazyFlie = crazyFlie;
         this.mPort = port;
         this.mToc = tocHolder;
+        this.mTocCache = tocCache;
     }
 
     /**
@@ -106,25 +108,34 @@ public class TocFetcher {
 
                 mLogger.debug("[" + this.mPort + "]: Got TOC CRC, " + this.mNoOfItems + " items and CRC=" + String.format("0x%08X", this.mCrc));
 
-                this.mState = TocState.GET_TOC_ELEMENT;
-                this.mRequestedIndex = 0;
-                requestTocElement(this.mRequestedIndex);
+                //Try to find toc in cache
+                Toc cacheData = (mTocCache != null) ? mTocCache.fetch(mCrc) : null;
+                if (cacheData != null) {
+                    // self.toc.toc = cache_data
+                    mToc = cacheData;
+                    mLogger.info("TOC for port " + mPort + " found in cache.");
+                    tocFetchFinished();
+                } else {
+                    this.mState = TocState.GET_TOC_ELEMENT;
+                    this.mRequestedIndex = 0;
+                    requestTocElement(this.mRequestedIndex);
                 }
-            } else if (mState == TocState.GET_TOC_ELEMENT) {
+            }
+        } else if (mState == TocState.GET_TOC_ELEMENT) {
 
-                if (packet.getPayload()[0] == CMD_TOC_ELEMENT) {
+            if (packet.getPayload()[0] == CMD_TOC_ELEMENT) {
 
-                    // Always add new element, but only request new if it's not the last one.
+                // Always add new element, but only request new if it's not the last one.
 
-                    // if self.requested_index != ord(payload[0]):
-                    if (this.mRequestedIndex != payload.get(1)) {
+                // if self.requested_index != ord(payload[0]):
+                if (this.mRequestedIndex != payload.get(1)) {
                     /*
-                    # TODO: There might be a timing issue here with resending old
-                    #       packets while loosing new ones. Then if 7 is requested
-                    #       but 6 is send back due to timing issues with the resend
-                    #       while 7 is lost then we will never resend for 7.
-                    #       This is pretty hard to reproduce but happens...
-                    */
+                        # TODO: There might be a timing issue here with resending old
+                        #       packets while loosing new ones. Then if 7 is requested
+                        #       but 6 is send back due to timing issues with the resend
+                        #       while 7 is lost then we will never resend for 7.
+                        #       This is pretty hard to reproduce but happens...
+                     */
                     mLogger.warn("[" + this.mPort + "]: Was expecting " + this.mRequestedIndex + " but got " + payload.get(1));
                     return;
                 }
@@ -148,7 +159,7 @@ public class TocFetcher {
                     // No more variables in TOC
                     mLogger.info("No more variables in TOC.");
                     //self._toc_cache.insert(self._crc, self.toc.toc)
-                    //this.mTocCache.insert(this.mCrc, this.mToc);
+                    mTocCache.insert(mCrc, mToc);
                     tocFetchFinished();
                 }
             }
