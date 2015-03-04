@@ -1,0 +1,446 @@
+{
+  "imu_acc_lpf" : {
+    "factor" : {
+      "name" : "factor",
+      "group" : "imu_acc_lpf",
+      "ident" : 5,
+      "ctype" : "UINT8_T",
+      "pytype" : "",
+      "access" : 1
+    }
+  },
+  "firmware" : {
+    "revision0" : {
+      "name" : "revision0",
+      "group" : "firmware",
+      "ident" : 50,
+      "ctype" : "UINT32_T",
+      "pytype" : "",
+      "access" : 0
+    },
+    "revision1" : {
+      "name" : "revision1",
+      "group" : "firmware",
+      "ident" : 51,
+      "ctype" : "UINT16_T",
+      "pytype" : "",
+      "access" : 0
+    },
+    "modified" : {
+      "name" : "modified",
+      "group" : "firmware",
+      "ident" : 52,
+      "ctype" : "UINT8_T",
+      "pytype" : "",
+      "access" : 0
+    }
+  },
+  "pid_rate" : {
+    "pitch_kd" : {
+      "name" : "pitch_kd",
+      "group" : "pid_rate",
+      "ident" : 16,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "pitch_ki" : {
+      "name" : "pitch_ki",
+      "group" : "pid_rate",
+      "ident" : 15,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "roll_kd" : {
+      "name" : "roll_kd",
+      "group" : "pid_rate",
+      "ident" : 13,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "yaw_kp" : {
+      "name" : "yaw_kp",
+      "group" : "pid_rate",
+      "ident" : 17,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "pitch_kp" : {
+      "name" : "pitch_kp",
+      "group" : "pid_rate",
+      "ident" : 14,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "roll_kp" : {
+      "name" : "roll_kp",
+      "group" : "pid_rate",
+      "ident" : 11,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "yaw_kd" : {
+      "name" : "yaw_kd",
+      "group" : "pid_rate",
+      "ident" : 19,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "yaw_ki" : {
+      "name" : "yaw_ki",
+      "group" : "pid_rate",
+      "ident" : 18,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "roll_ki" : {
+      "name" : "roll_ki",
+      "group" : "pid_rate",
+      "ident" : 12,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    }
+  },
+  "imu_sensors" : {
+    "HMC5883L" : {
+      "name" : "HMC5883L",
+      "group" : "imu_sensors",
+      "ident" : 3,
+      "ctype" : "UINT8_T",
+      "pytype" : "",
+      "access" : 0
+    },
+    "MS5611" : {
+      "name" : "MS5611",
+      "group" : "imu_sensors",
+      "ident" : 4,
+      "ctype" : "UINT8_T",
+      "pytype" : "",
+      "access" : 0
+    }
+  },
+  "altHold" : {
+    "vSpeedASLFac" : {
+      "name" : "vSpeedASLFac",
+      "group" : "altHold",
+      "ident" : 45,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "vSpeedAccFac" : {
+      "name" : "vSpeedAccFac",
+      "group" : "altHold",
+      "ident" : 43,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "vSpeedASLDeadband" : {
+      "name" : "vSpeedASLDeadband",
+      "group" : "altHold",
+      "ident" : 44,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "aslAlpha" : {
+      "name" : "aslAlpha",
+      "group" : "altHold",
+      "ident" : 31,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "kp" : {
+      "name" : "kp",
+      "group" : "altHold",
+      "ident" : 38,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "vSpeedLimit" : {
+      "name" : "vSpeedLimit",
+      "group" : "altHold",
+      "ident" : 46,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "minThrust" : {
+      "name" : "minThrust",
+      "group" : "altHold",
+      "ident" : 49,
+      "ctype" : "UINT16_T",
+      "pytype" : "",
+      "access" : 1
+    },
+    "vAccDeadband" : {
+      "name" : "vAccDeadband",
+      "group" : "altHold",
+      "ident" : 41,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "altHoldChangeSens" : {
+      "name" : "altHoldChangeSens",
+      "group" : "altHold",
+      "ident" : 34,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "vBiasAlpha" : {
+      "name" : "vBiasAlpha",
+      "group" : "altHold",
+      "ident" : 42,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "ki" : {
+      "name" : "ki",
+      "group" : "altHold",
+      "ident" : 37,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "baseThrust" : {
+      "name" : "baseThrust",
+      "group" : "altHold",
+      "ident" : 47,
+      "ctype" : "UINT16_T",
+      "pytype" : "",
+      "access" : 1
+    },
+    "aslAlphaLong" : {
+      "name" : "aslAlphaLong",
+      "group" : "altHold",
+      "ident" : 32,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "kd" : {
+      "name" : "kd",
+      "group" : "altHold",
+      "ident" : 36,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "errDeadband" : {
+      "name" : "errDeadband",
+      "group" : "altHold",
+      "ident" : 33,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "pidAlpha" : {
+      "name" : "pidAlpha",
+      "group" : "altHold",
+      "ident" : 39,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "pidAslFac" : {
+      "name" : "pidAslFac",
+      "group" : "altHold",
+      "ident" : 40,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "maxThrust" : {
+      "name" : "maxThrust",
+      "group" : "altHold",
+      "ident" : 48,
+      "ctype" : "UINT16_T",
+      "pytype" : "",
+      "access" : 1
+    },
+    "altHoldErrMax" : {
+      "name" : "altHoldErrMax",
+      "group" : "altHold",
+      "ident" : 35,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    }
+  },
+  "sensorfusion6" : {
+    "ki" : {
+      "name" : "ki",
+      "group" : "sensorfusion6",
+      "ident" : 30,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "kp" : {
+      "name" : "kp",
+      "group" : "sensorfusion6",
+      "ident" : 29,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    }
+  },
+  "flightmode" : {
+    "althold" : {
+      "name" : "althold",
+      "group" : "flightmode",
+      "ident" : 10,
+      "ctype" : "UINT8_T",
+      "pytype" : "",
+      "access" : 1
+    }
+  },
+  "imu_tests" : {
+    "HMC5883L" : {
+      "name" : "HMC5883L",
+      "group" : "imu_tests",
+      "ident" : 1,
+      "ctype" : "UINT8_T",
+      "pytype" : "",
+      "access" : 0
+    },
+    "MS5611" : {
+      "name" : "MS5611",
+      "group" : "imu_tests",
+      "ident" : 2,
+      "ctype" : "UINT8_T",
+      "pytype" : "",
+      "access" : 0
+    },
+    "MPU6050" : {
+      "name" : "MPU6050",
+      "group" : "imu_tests",
+      "ident" : 0,
+      "ctype" : "UINT8_T",
+      "pytype" : "",
+      "access" : 0
+    }
+  },
+  "pid_attitude" : {
+    "pitch_kd" : {
+      "name" : "pitch_kd",
+      "group" : "pid_attitude",
+      "ident" : 25,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "pitch_ki" : {
+      "name" : "pitch_ki",
+      "group" : "pid_attitude",
+      "ident" : 24,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "roll_kd" : {
+      "name" : "roll_kd",
+      "group" : "pid_attitude",
+      "ident" : 22,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "yaw_kp" : {
+      "name" : "yaw_kp",
+      "group" : "pid_attitude",
+      "ident" : 26,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "pitch_kp" : {
+      "name" : "pitch_kp",
+      "group" : "pid_attitude",
+      "ident" : 23,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "roll_kp" : {
+      "name" : "roll_kp",
+      "group" : "pid_attitude",
+      "ident" : 20,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "yaw_kd" : {
+      "name" : "yaw_kd",
+      "group" : "pid_attitude",
+      "ident" : 28,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "yaw_ki" : {
+      "name" : "yaw_ki",
+      "group" : "pid_attitude",
+      "ident" : 27,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    },
+    "roll_ki" : {
+      "name" : "roll_ki",
+      "group" : "pid_attitude",
+      "ident" : 21,
+      "ctype" : "FLOAT",
+      "pytype" : "",
+      "access" : 1
+    }
+  },
+  "cpu" : {
+    "flash" : {
+      "name" : "flash",
+      "group" : "cpu",
+      "ident" : 6,
+      "ctype" : "UINT16_T",
+      "pytype" : "",
+      "access" : 0
+    },
+    "id2" : {
+      "name" : "id2",
+      "group" : "cpu",
+      "ident" : 9,
+      "ctype" : "UINT32_T",
+      "pytype" : "",
+      "access" : 0
+    },
+    "id1" : {
+      "name" : "id1",
+      "group" : "cpu",
+      "ident" : 8,
+      "ctype" : "UINT32_T",
+      "pytype" : "",
+      "access" : 0
+    },
+    "id0" : {
+      "name" : "id0",
+      "group" : "cpu",
+      "ident" : 7,
+      "ctype" : "UINT32_T",
+      "pytype" : "",
+      "access" : 0
+    }
+  }
+}

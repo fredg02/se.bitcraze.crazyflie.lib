@@ -1,4 +1,7 @@
 package se.bitcraze.crazyflie.lib.toc;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * An element in the TOC
  *
@@ -43,6 +46,7 @@ public class TocElement {
         this.mName = name;
     }
 
+    @JsonIgnore
     public String getCompleteName() {
         return mGroup + "." + mName;
     }

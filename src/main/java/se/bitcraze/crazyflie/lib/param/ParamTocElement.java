@@ -7,6 +7,8 @@ import java.util.Map;
 import se.bitcraze.crazyflie.lib.toc.TocElement;
 import se.bitcraze.crazyflie.lib.toc.VariableType;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 /**
  * An element in the Param TOC
@@ -106,12 +108,7 @@ public class ParamTocElement extends TocElement {
         setName(variableName);
     }
 
-    /*
-    def get_readable_access(self):
-        if (self.access == ParamTocElement.RO_ACCESS):
-            return "RO"
-        return "RW"
-    */
+    @JsonIgnore
     public String getReadableAccess() {
         return (getAccess() == RO_ACCESS) ? "RO" : "RW";
     }

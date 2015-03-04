@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -65,23 +66,29 @@ public class TocCache {
         String pattern = String.format("%08X.json", crc);
         File hit = null;
 
+        mLogger.debug("Trying to find TOC cache file: " + pattern);
+
         for (File file : mCacheFiles) {
             if(file.getName().endsWith(pattern)) {
                 hit = file;
             }
         }
         if (hit != null) {
+            mLogger.debug("Found TOC cache file: " + pattern);
             try {
                 fetchedToc = new Toc();
-                //TODO: can this be done better?
-                fetchedToc.setTocElementMap(mMapper.readValue(hit, Map.class));
+                Map<String, Map<String, TocElement>> readValue = mMapper.readValue(hit, new TypeReference<Map<String, Map<String, TocElement>>>() { });
+                fetchedToc.setTocElementMap(readValue);
                 //TODO: file leak?
             } catch (JsonParseException jpe) {
                 mLogger.error("Error while parsing cache file " + hit.getName() + ": " + jpe.getMessage());
+                return null;
             } catch (JsonMappingException jme) {
                 mLogger.error("Error while parsing cache file " + hit.getName() + ": " + jme.getMessage());
+                return null;
             } catch (IOException ioe) {
                 mLogger.error("Error while parsing cache file " + hit.getName() + ": " + ioe.getMessage());
+                return null;
             }
         }
         return fetchedToc;
