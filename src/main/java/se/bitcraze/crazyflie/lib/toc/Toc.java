@@ -19,8 +19,6 @@ public class Toc {
 
     private Map<String, Map<String, TocElement>> mTocElementMap = new HashMap<String, Map<String, TocElement>>();
 
-    private int mTocSize = 0;
-
     public Toc() {
     }
 
@@ -29,7 +27,6 @@ public class Toc {
      */
     public void clear() {
         this.mTocElementMap.clear();
-        this.mTocSize = 0;
     }
 
     /**
@@ -46,7 +43,6 @@ public class Toc {
             mTocElementMap.put(tocElement.getGroup(), new HashMap<String, TocElement>());
         }
         mTocElementMap.get(tocElement.getGroup()).put(tocElement.getName(), tocElement);
-        mTocSize++;
     }
 
     /**
@@ -107,10 +103,15 @@ public class Toc {
         return null;
     }
 
+    /**
+     * Get TocElements as list sorted by ID
+     *
+     * @return list of TocElements sorted by ID
+     */
     //TODO: generate list not every time
     public List<TocElement> getElements() {
         List<TocElement> tocElementList = new ArrayList<TocElement>();
-        for (int i = 0; i < mTocSize; i++) {
+        for (int i = 0; i < getTocSize(); i++) {
             tocElementList.add(getElementById(i));
         }
         return tocElementList;
@@ -125,6 +126,10 @@ public class Toc {
     }
 
     public int getTocSize() {
-        return mTocSize;
+        int tocSizeCount = 0;
+        for(String group : mTocElementMap.keySet()) {
+            tocSizeCount += mTocElementMap.get(group).keySet().size();
+        }
+        return tocSizeCount;
     }
 }
