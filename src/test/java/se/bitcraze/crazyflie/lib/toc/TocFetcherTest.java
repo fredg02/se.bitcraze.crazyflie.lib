@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import se.bitcraze.crazyflie.lib.crazyflie.ConnectionListener;
+import se.bitcraze.crazyflie.lib.TestConnectionAdapter;
 import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
@@ -25,7 +25,7 @@ public class TocFetcherTest {
 
         crazyflie.clearTocCache();
 
-        crazyflie.addConnectionListener(new ConnectionListener() {
+        crazyflie.addConnectionListener(new TestConnectionAdapter() {
 
             public void connectionRequested(String connectionInfo) {
                 System.out.println("CONNECTION REQUESTED: " + connectionInfo);
@@ -42,21 +42,9 @@ public class TocFetcherTest {
                 mStateSetupFinished = true;
             }
 
-            public void connectionFailed(String connectionInfo, String msg) {
-                System.out.println("CONNECTION FAILED: " + connectionInfo);
-            }
-
-            public void connectionLost(String connectionInfo, String msg) {
-                System.out.println("CONNECTION LOST: " + connectionInfo);
-            }
-
             public void disconnected(String connectionInfo) {
                 System.out.println("DISCONNECTED: " + connectionInfo);
                 mStateDisconnected = true;
-            }
-
-            public void linkQualityUpdated(int percent) {
-                //System.out.println("LINK QUALITY: " + percent);
             }
 
         });

@@ -4,11 +4,9 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
-import se.bitcraze.crazyflie.lib.crazyflie.ConnectionListener;
+import se.bitcraze.crazyflie.lib.TestConnectionAdapter;
 import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
@@ -19,78 +17,39 @@ import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
 
 public class ParamTest {
 
-    private Crazyflie mCrazyflie;
+    //TODO: separate testing of Param class methods
+    //TODO: separate testing of ParamTocElement class
 
-    @Before
-    public void setUp() throws Exception {
+    @Test
+    public void testParamElements() {
         //TODO: refactor this into a test utility method
-        mCrazyflie = new Crazyflie(new RadioDriver(new UsbLinkJava()));
+        Crazyflie crazyflie = new Crazyflie(new RadioDriver(new UsbLinkJava()));
 
-        mCrazyflie.clearTocCache();
+        crazyflie.clearTocCache();
 
-        mCrazyflie.addConnectionListener(new ConnectionListener() {
+        crazyflie.addConnectionListener(new TestConnectionAdapter() {});
 
-            public void connectionRequested(String connectionInfo) {
-                System.out.println("CONNECTION REQUESTED: " + connectionInfo);
-            }
-
-            public void connected(String connectionInfo) {
-                System.out.println("CONNECTED: " + connectionInfo);
-            }
-
-            public void setupFinished(String connectionInfo) {
-                System.out.println("SETUP FINISHED: " + connectionInfo);
-            }
-
-            public void connectionFailed(String connectionInfo, String msg) {
-                System.out.println("CONNECTION FAILED: " + connectionInfo);
-            }
-
-            public void connectionLost(String connectionInfo, String msg) {
-                System.out.println("CONNECTION LOST: " + connectionInfo);
-            }
-
-            public void disconnected(String connectionInfo) {
-                System.out.println("DISCONNECTED: " + connectionInfo);
-            }
-
-            public void linkQualityUpdated(int percent) {
-                //System.out.println("LINK QUALITY: " + percent);
-            }
-
-        });
-
-        mCrazyflie.connect(10, 0);
+        crazyflie.connect(10, 0);
 
         for (int i = 0; i < 200; i++) {
-            mCrazyflie.sendPacket(new CommanderPacket(0, 0, 0, (char) 0));
+            crazyflie.sendPacket(new CommanderPacket(0, 0, 0, (char) 0));
             try {
                 Thread.sleep(50);
             } catch (InterruptedException e) {
                 break;
             }
         }
-        mCrazyflie.disconnect();
-    }
+        crazyflie.disconnect();
 
-    @After
-    public void tearDown() throws Exception {
-    }
-
-    //TODO: separate testing of Param class methods
-    //TODO: separate testing of ParamTocElement class
-
-    @Test
-    public void testParamElements() {
-        Toc toc = mCrazyflie.getParam().getToc();
+        Toc toc = crazyflie.getParam().getToc();
         List<TocElement> elements = toc.getElements();
 
         for (TocElement tocElement : elements) {
             System.out.println(tocElement);
         }
 
-        //TODO: are IDs always the same?
-        //TODO: check getPytype
+        //TODO: are IDs always the same? No, they can change after firmware upgrades!
+        //TODO: get rid of pytype
 
         //TODO: can this be checked easier?
         TocElement id00 = toc.getElementById(0);

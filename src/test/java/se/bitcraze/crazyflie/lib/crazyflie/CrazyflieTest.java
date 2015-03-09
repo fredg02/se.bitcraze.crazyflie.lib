@@ -2,6 +2,7 @@ package se.bitcraze.crazyflie.lib.crazyflie;
 
 import org.junit.Test;
 
+import se.bitcraze.crazyflie.lib.TestConnectionAdapter;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
@@ -57,31 +58,7 @@ public class CrazyflieTest {
     public void testConnectionListener() {
         Crazyflie crazyflie = new Crazyflie(new RadioDriver(new UsbLinkJava()));
 
-        crazyflie.addConnectionListener(new ConnectionListener() {
-
-            public void connectionRequested(String connectionInfo) {
-                System.out.println("CONNECTION REQUESTED: " + connectionInfo);
-            }
-
-            public void connected(String connectionInfo) {
-                System.out.println("CONNECTED: " + connectionInfo);
-            }
-
-            public void setupFinished(String connectionInfo) {
-                System.out.println("SETUP FINISHED: " + connectionInfo);
-            }
-
-            public void connectionFailed(String connectionInfo, String msg) {
-                System.out.println("CONNECTION FAILED: " + connectionInfo);
-            }
-
-            public void connectionLost(String connectionInfo, String msg) {
-                System.out.println("CONNECTION LOST: " + connectionInfo);
-            }
-
-            public void disconnected(String connectionInfo) {
-                System.out.println("DISCONNECTED: " + connectionInfo);
-            }
+        crazyflie.addConnectionListener(new TestConnectionAdapter() {
 
             public void linkQualityUpdated(int percent) {
                 System.out.println("LINK QUALITY: " + percent);
