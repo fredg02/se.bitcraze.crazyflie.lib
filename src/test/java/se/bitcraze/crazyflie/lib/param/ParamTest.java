@@ -3,7 +3,9 @@ package se.bitcraze.crazyflie.lib.param;
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
+import java.util.Map;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import se.bitcraze.crazyflie.lib.TestConnectionAdapter;
@@ -20,7 +22,73 @@ public class ParamTest {
     //TODO: separate testing of Param class methods
     //TODO: separate testing of ParamTocElement class
 
+    Param mParam;
+
     @Test
+    public void testParam() {
+        //TODO: refactor this into a test utility method
+        final Crazyflie crazyflie = new Crazyflie(new RadioDriver(new UsbLinkJava()));
+
+        //TODO: test that TocCache actually works
+        crazyflie.clearTocCache();
+
+        crazyflie.addConnectionListener(new TestConnectionAdapter() {
+
+            public void setupFinished(String connectionInfo) {
+                System.out.println("SETUP FINISHED: " + connectionInfo);
+                mParam = crazyflie.getParam();
+                System.out.println("Number of TOC elements: " + mParam.getToc().getElements().size());
+                mParam.requestUpdateOfAllParams();
+            }
+
+        });
+
+        crazyflie.connect(10, 0);
+
+        for (int i = 0; i < 800; i++) {
+            crazyflie.sendPacket(new CommanderPacket(0, 0, 0, (char) 0));
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                break;
+            }
+        }
+        crazyflie.disconnect();
+
+        Map<String, Number> valuesMap = mParam.getValuesMap();
+        //TODO: why are not all values fetched in a reasonable time?
+//        assertEquals(mParam.getToc().getTocSize(), valuesMap.keySet().size());
+        System.out.println("TocSize: " + mParam.getToc().getTocSize() + ", ValuesSize: " + valuesMap.keySet().size());
+
+        for(String s : valuesMap.keySet()) {
+            System.out.println(s + ": " + valuesMap.get(s));
+        }
+
+        //TODO: use values that hardly change, they might differ between CF1 and CF2
+
+        //identify CF1 and CF2 by CPU id?
+
+        //uint8_t
+        //32 is the correct value for CF1 according to Python client
+        assertEquals(32, valuesMap.get("imu_acc_lpf.factor"));
+
+        //uint16_t
+        //43000 is the correct value for CF1 according to Python client
+        assertEquals(43000, valuesMap.get("altHold.baseThrust"));
+        //38444 is the correct value for CF1 according to Python client
+        assertEquals(38444, valuesMap.get("firmware.revision1"));
+
+        //uint32_t == Long
+        //48041289 is the correct value for CF1 according to Python client
+        assertEquals(48041289L, valuesMap.get("firmware.revision0"));
+
+        //float
+        //0.180000007153 is the correct value for CF1 according to Python client
+        //TODO: is 0.18 exact enough, or is there too much rounding?
+        assertEquals(0.18f, valuesMap.get("altHold.ki"));
+    }
+
+    @Test @Ignore
     public void testParamElements() {
         //TODO: refactor this into a test utility method
         Crazyflie crazyflie = new Crazyflie(new RadioDriver(new UsbLinkJava()));
@@ -49,7 +117,7 @@ public class ParamTest {
         }
 
         //TODO: are IDs always the same? No, they can change after firmware upgrades!
-        //TODO: get rid of pytype
+        //TODO: check getPytype
 
         //TODO: can this be checked easier?
         TocElement id00 = toc.getElementById(0);

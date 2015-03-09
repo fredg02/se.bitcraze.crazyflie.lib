@@ -251,17 +251,20 @@ public class Crazyflie {
         //Skipping log and param setup for now
         //this.mLog.refreshToc(self._log_toc_updated_cb, self._toc_cache);
 
-        TocFetchFinishedListener tocFetchFinishedListener = new TocFetchFinishedListener() {
+        mParam = new Param(this);
+        TocFetchFinishedListener paramTocFetchFinishedListener = new TocFetchFinishedListener() {
 
             public void tocFetchFinished() {
+                //_param_toc_updated_cb(self):
+                mLogger.info("Param TOC finished updating.");
+                //mParam.requestUpdateOfAllParams();
+                //TODO: should be set only after log, param, mems are all updated
                 mState = State.SETUP_FINISHED;
                 notifySetupFinished();
 
             }
         };
-
-        mParam = new Param(this);
-        mParam.refreshToc(tocFetchFinishedListener, mTocCache);
+        mParam.refreshToc(paramTocFetchFinishedListener, mTocCache);
     }
 
     public Param getParam() {
