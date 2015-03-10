@@ -15,7 +15,6 @@ public class TocElement {
     private String mGroup = "";
     private String mName = "";
     private VariableType mCtype;
-    private String mPytype = "";
     private int mAccess = RO_ACCESS;
 
     public TocElement() {
@@ -57,14 +56,6 @@ public class TocElement {
 
     public void setCtype(VariableType ctype) {
         this.mCtype = ctype;
-    }
-
-    public String getPytype() {
-        return mPytype;
-    }
-
-    public void setPytype(String pytype) {
-        this.mPytype = pytype;
     }
 
     public int getAccess() {

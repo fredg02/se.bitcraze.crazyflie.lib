@@ -116,8 +116,6 @@ public class ParamTest {
         }
 
         //TODO: are IDs always the same? No, they can change after firmware upgrades!
-        //TODO: check getPytype
-
         //TODO: can this be checked easier?
         TocElement id00 = toc.getElementById(0);
         assertEquals("imu_tests.MPU6050", id00.getCompleteName());

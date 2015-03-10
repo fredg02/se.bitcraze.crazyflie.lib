@@ -5,7 +5,6 @@ import static org.junit.Assert.fail;
 
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import se.bitcraze.crazyflie.lib.TestConnectionAdapter;
@@ -35,7 +34,7 @@ public class TocCacheTest {
         }
     }
 
-    @Test @Ignore
+    @Test
     public void testTocCacheAgainstFetchedToc() {
         final Crazyflie crazyflie = new Crazyflie(new RadioDriver(new UsbLinkJava()));
 
