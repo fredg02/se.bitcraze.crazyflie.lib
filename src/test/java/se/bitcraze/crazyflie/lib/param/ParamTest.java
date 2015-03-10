@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import se.bitcraze.crazyflie.lib.TestConnectionAdapter;
@@ -88,7 +87,7 @@ public class ParamTest {
         assertEquals(0.18f, valuesMap.get("altHold.ki"));
     }
 
-    @Test @Ignore
+    @Test
     public void testParamElements() {
         //TODO: refactor this into a test utility method
         Crazyflie crazyflie = new Crazyflie(new RadioDriver(new UsbLinkJava()));

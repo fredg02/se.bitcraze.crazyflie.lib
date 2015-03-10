@@ -3,15 +3,25 @@ package se.bitcraze.crazyflie.lib.toc;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.util.List;
+
+import org.junit.Ignore;
 import org.junit.Test;
+
+import se.bitcraze.crazyflie.lib.TestConnectionAdapter;
+import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie;
+import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
+import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
+import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
 
 public class TocCacheTest {
 
+    private final static String CURRENT_CRC = "BE353DB4";
+
     @Test
     public void testTocCache() {
-        String crc = "BE353DB4";
         TocCache tocCache = new TocCache(null, "src/test");
-        Toc fetchedToc = tocCache.fetch((int) Long.parseLong(crc, 16));
+        Toc fetchedToc = tocCache.fetch((int) Long.parseLong(CURRENT_CRC, 16));
 
         if (fetchedToc != null) {
             int tocSize = fetchedToc.getTocSize();
@@ -22,6 +32,42 @@ public class TocCacheTest {
             }
         } else {
             fail("fetchedToc is null");
+        }
+    }
+
+    @Test @Ignore
+    public void testTocCacheAgainstFetchedToc() {
+        final Crazyflie crazyflie = new Crazyflie(new RadioDriver(new UsbLinkJava()));
+
+        crazyflie.clearTocCache();
+
+        crazyflie.addConnectionListener(new TestConnectionAdapter() {});
+
+        crazyflie.connect(10, 0);
+
+        for (int i = 0; i < 300; i++) {
+            crazyflie.sendPacket(new CommanderPacket(0, 0, 0, (char) 0));
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                break;
+            }
+        }
+        crazyflie.disconnect();
+
+        Toc fetchedToc = crazyflie.getParam().getToc();
+        List<TocElement> fetchedElements = fetchedToc.getElements();
+        System.out.println("Number of Param TOC elements (fetched): " + fetchedElements.size());
+        assertEquals(53, fetchedElements.size());
+
+        TocCache tocCache = new TocCache(null, "src/test");
+        Toc cachedToc = tocCache.fetch((int) Long.parseLong(CURRENT_CRC, 16));
+        List<TocElement> cachedElements = cachedToc.getElements();
+        System.out.println("Number of Param TOC elements (cached): " + cachedElements.size());
+        assertEquals(53, cachedElements.size());
+
+        for(int i = 0; i < fetchedElements.size(); i++) {
+            assertEquals(fetchedElements.get(i), cachedElements.get(i));
         }
     }
 
