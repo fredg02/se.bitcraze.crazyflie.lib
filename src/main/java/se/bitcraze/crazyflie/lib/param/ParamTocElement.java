@@ -9,7 +9,6 @@ import se.bitcraze.crazyflie.lib.toc.VariableType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-
 /**
  * An element in the Param TOC
  *
@@ -46,6 +45,9 @@ public class ParamTocElement extends TocElement {
         VARIABLE_TYPE_MAP.put(0x07, VariableType.DOUBLE);
     }
 
+    // empty constructor is needed for (de)serialization
+    public ParamTocElement() {
+    }
 
     /**
      * TocElement creator. Data is the binary payload of the element.

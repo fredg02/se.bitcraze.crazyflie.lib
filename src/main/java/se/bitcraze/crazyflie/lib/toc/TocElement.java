@@ -79,4 +79,51 @@ public class TocElement {
     public String toString() {
         return "Ident: " + getIdent() + ", Group: " + getGroup() + ", Name: " + getName() + ", Ctype: " + getCtype() + ", Access: " + (getAccess() == 0 ? "RO" : "RW");
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + mAccess;
+        result = prime * result + ((mCtype == null) ? 0 : mCtype.hashCode());
+        result = prime * result + ((mGroup == null) ? 0 : mGroup.hashCode());
+        result = prime * result + ((mName == null) ? 0 : mName.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof TocElement)) {
+            return false;
+        }
+        TocElement other = (TocElement) obj;
+        if (mAccess != other.mAccess) {
+            return false;
+        }
+        if (mCtype != other.mCtype) {
+            return false;
+        }
+        if (mGroup == null) {
+            if (other.mGroup != null) {
+                return false;
+            }
+        } else if (!mGroup.equals(other.mGroup)) {
+            return false;
+        }
+        if (mName == null) {
+            if (other.mName != null) {
+                return false;
+            }
+        } else if (!mName.equals(other.mName)) {
+            return false;
+        }
+        return true;
+    }
+
 }

@@ -112,7 +112,8 @@ public class TocFetcher {
                 Toc cacheData = (mTocCache != null) ? mTocCache.fetch(mCrc) : null;
                 if (cacheData != null) {
                     // self.toc.toc = cache_data
-                    mToc = cacheData;
+                    // assigning a toc to another toc directly does not work
+                    mToc.setTocElementMap(cacheData.getTocElementMap());
                     mLogger.info("TOC for port " + mPort + " found in cache.");
                     tocFetchFinished();
                 } else {

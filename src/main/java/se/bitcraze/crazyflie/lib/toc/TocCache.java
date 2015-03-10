@@ -79,6 +79,7 @@ public class TocCache {
                 fetchedToc = new Toc();
                 Map<String, Map<String, TocElement>> readValue = mMapper.readValue(hit, new TypeReference<Map<String, Map<String, TocElement>>>() { });
                 fetchedToc.setTocElementMap(readValue);
+                mLogger.debug("Number of cached elements: " + fetchedToc.getElements().size());
                 //TODO: file leak?
             } catch (JsonParseException jpe) {
                 mLogger.error("Error while parsing cache file " + hit.getName() + ": " + jpe.getMessage());
