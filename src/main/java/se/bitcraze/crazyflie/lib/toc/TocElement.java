@@ -75,9 +75,14 @@ public class TocElement {
         this.mAccess = access;
     }
 
+    @JsonIgnore
+    public String getReadableAccess() {
+        return (getAccess() == RO_ACCESS) ? "RO" : "RW";
+    }
+
     @Override
     public String toString() {
-        return "Ident: " + getIdent() + ", Group: " + getGroup() + ", Name: " + getName() + ", Ctype: " + getCtype() + ", Access: " + (getAccess() == 0 ? "RO" : "RW");
+        return this.getClass().getSimpleName() + ": " + this.getGroup() + "." + this.getName() + " (" + this.getIdent() + ", " + this.getCtype() + ", " + this.getReadableAccess() + ")";
     }
 
     @Override

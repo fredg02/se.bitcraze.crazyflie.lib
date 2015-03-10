@@ -7,7 +7,6 @@ import java.util.Map;
 import se.bitcraze.crazyflie.lib.toc.TocElement;
 import se.bitcraze.crazyflie.lib.toc.VariableType;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * An element in the Param TOC
@@ -48,6 +47,7 @@ public class ParamTocElement extends TocElement {
     // empty constructor is needed for (de)serialization
     public ParamTocElement() {
     }
+
 
     /**
      * TocElement creator. Data is the binary payload of the element.
@@ -110,14 +110,4 @@ public class ParamTocElement extends TocElement {
         setName(variableName);
     }
 
-    @JsonIgnore
-    public String getReadableAccess() {
-        return (getAccess() == RO_ACCESS) ? "RO" : "RW";
-    }
-
-    @Override
-    public String toString() {
-        return "ParamTocElement: " + this.getGroup() + "." + this.getName() + " (" + this.getIdent() + ", " + this.getCtype() + ", " + this.getReadableAccess() + ")";
-
-    }
 }
