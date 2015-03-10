@@ -23,7 +23,6 @@ public interface CrazyUsbInterface {
      */
     public boolean isUsbConnected();
 
-    //TODO: set transfer timeout?
     /**
      * Send control data
      *
@@ -51,7 +50,6 @@ public interface CrazyUsbInterface {
      * @return
      */
     public List<UsbDevice> findDevices();
-
 
     /**
      * Returns the firmware version of the USB device

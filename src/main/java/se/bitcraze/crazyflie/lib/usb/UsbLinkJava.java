@@ -1,7 +1,5 @@
 package se.bitcraze.crazyflie.lib.usb;
 
-
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -331,11 +329,5 @@ public class UsbLinkJava implements CrazyUsbInterface {
             return "N/A";
         }
     }
-
-    //TODO: should isCrazyradio be generalized??
-//    public static boolean isCrazyradio(UsbDevice device){
-//        return device.getVendorId() == CrazyradioLink.VENDOR_ID &&
-//               device.getProductId() == CrazyradioLink.PRODUCT_ID;
-//    }
 
 }
