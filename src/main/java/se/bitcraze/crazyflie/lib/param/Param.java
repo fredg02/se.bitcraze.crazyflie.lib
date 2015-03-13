@@ -39,7 +39,6 @@ public class Param {
     private Map<String, Number> mValues = new HashMap<String, Number>();
     private boolean mHaveUpdated = false;
 
-
     // Possible states
     private int IDLE = 0;
     private int WAIT_TOC = 1;
@@ -54,6 +53,7 @@ public class Param {
     private int TOC_RESET = 0;
     private int TOC_GETNEXT = 1;
     private int TOC_GETCRC32 = 2;
+
 
 
     public Param(Crazyflie crazyflie) {
@@ -118,12 +118,10 @@ public class Param {
     /**
      * Callback with data for an updated parameter
      */
-    //def _param_updated(self, pk):
     public void paramUpdated(CrtpPacket packet) {
         int varId = packet.getPayload()[0];
         TocElement tocElement = mToc.getElementById(varId);
         if (tocElement != null) {
-
             //s = struct.unpack(element.pytype, pk.data[1:])[0]
             //s = s.__str__()
             ByteBuffer payload = ByteBuffer.wrap(packet.getPayload(), 1, packet.getPayload().length-1);
@@ -167,7 +165,7 @@ public class Param {
      */
     //def remove_update_callback(self, group, name=None, cb=None):
     public void removeUpdateCallback() {
-        /*
+            /*
         if not cb:
             return
 
@@ -178,8 +176,8 @@ public class Param {
             paramname = "{}.{}".format(group, name)
             if paramname in self.param_update_callbacks:
                 self.param_update_callbacks[paramname].remove_callback(cb)
-        */
-    }
+            */
+        }
 
     /**
      * Add a callback for a specific parameter name. This callback will be
@@ -187,18 +185,18 @@ public class Param {
      */
     //def add_update_callback(self, group, name=None, cb=None):
     public void addUpdateCallback() {
-        /*
+            /*
         if not name:
             if not group in self.group_update_callbacks:
                 self.group_update_callbacks[group] = Caller()
-            self.group_update_callbacks[group].add_callback(cb)
+                self.group_update_callbacks[group].add_callback(cb)
         else:
             paramname = "{}.{}".format(group, name)
             if not paramname in self.param_update_callbacks:
                 self.param_update_callbacks[paramname] = Caller()
             self.param_update_callbacks[paramname].add_callback(cb)
-        */
-    }
+            */
+        }
 
     /**
      * Initiate a refresh of the parameter TOC.
@@ -336,6 +334,7 @@ public class Param {
                 //if (pk.channel != TOC_CHANNEL and self._req_param == var_id and pk is not None):
                 if (channel != TOC_CHANNEL && mReqParam == varId) {
                     //self.updated_callback(pk)
+
                     paramUpdated(packet);
                     //self._req_param = -1
                     mReqParam = -1;
@@ -379,13 +378,12 @@ public class Param {
                 //self.wait_lock.acquire()
                 //if self.cf.link:
                 if (mCrazyflie.getDriver() != null && packet != null) {
-                    //self._req_param = pk.datal[0]
-                    mReqParam = packet.getPayload()[0];
-                    //System.out.println("Param request payload: " + UsbLinkJava.getByteString(packet.getPayload()));
-                    //self.cf.send_packet(pk, expected_reply=(pk.datat[0:2]))
-                    packet.setExpectedReply(new byte[]{packet.getPayload()[0]});
-//                    packet.setExpectedReply(new byte[]{packet.getPayload()[0], packet.getPayload()[1], packet.getPayload()[2]});
-                    mCrazyflie.sendPacket(packet);
+                    if (packet.getPayload().length > 0) {
+                        mReqParam = packet.getPayload()[0];
+                        //self.cf.send_packet(pk, expected_reply=(pk.datat[0:2]))
+                        packet.setExpectedReply(new byte[]{packet.getPayload()[0]});
+                        mCrazyflie.sendPacket(packet);
+                    }
                 } else {
                     //self.wait_lock.release()
                 }
