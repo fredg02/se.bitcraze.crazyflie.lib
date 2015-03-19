@@ -152,6 +152,11 @@ public class Crazyflie {
         }
     }
 
+    // TODO: should this be public?
+    public State getState() {
+        return mState;
+    }
+
     /**
      * Send a packet through the driver interface
      *

@@ -9,6 +9,8 @@ import org.junit.Test;
 
 import se.bitcraze.crazyflie.lib.TestConnectionAdapter;
 import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie;
+import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie.State;
+import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
 import se.bitcraze.crazyflie.lib.toc.Toc;
@@ -22,6 +24,8 @@ public class ParamTest {
     //TODO: separate testing of ParamTocElement class
 
     Param mParam;
+
+    ConnectionData mConnectionData = new ConnectionData(10, 0);
 
     @Test
     public void testParam() {
@@ -42,7 +46,7 @@ public class ParamTest {
 
         });
 
-        crazyflie.connect(10, 0);
+        crazyflie.connect(mConnectionData);
 
         for (int i = 0; i < 800; i++) {
             crazyflie.sendPacket(new CommanderPacket(0, 0, 0, (char) 0));
@@ -96,7 +100,7 @@ public class ParamTest {
 
         crazyflie.addConnectionListener(new TestConnectionAdapter() {});
 
-        crazyflie.connect(10, 0);
+        crazyflie.connect(mConnectionData);
 
         for (int i = 0; i < 200; i++) {
             crazyflie.sendPacket(new CommanderPacket(0, 0, 0, (char) 0));
@@ -334,4 +338,55 @@ public class ParamTest {
         assertEquals(ParamTocElement.RO_ACCESS, id52.getAccess());
     }
 
+    @Test
+    public void testParamSet() throws InterruptedException {
+        //TODO: refactor this into a test utility method
+        final Crazyflie crazyflie = new Crazyflie(new RadioDriver(new UsbLinkJava()));
+
+        //crazyflie.clearTocCache();
+
+        crazyflie.connect(mConnectionData);
+
+        // wait until setup is finished
+        while (crazyflie.getState() != State.SETUP_FINISHED) {
+            try {
+                Thread.sleep(250);
+            } catch (InterruptedException e) {
+                break;
+            }
+        }
+
+        mParam = crazyflie.getParam();
+        System.out.println("Number of TOC elements: " + mParam.getToc().getElements().size());
+        // Requesting initial param update
+        mParam.requestParamUpdate("altHold.maxThrust");
+        Thread.sleep(150);
+
+        // Getting original param value
+        Number originalValue = mParam.getValuesMap().get("altHold.maxThrust");
+        System.out.println("altHold.maxThrust - original value: " + originalValue);
+        assertEquals(60000, originalValue);
+
+        // Setting new param value
+        mParam.setValue("altHold.maxThrust", 60001);
+        Thread.sleep(150);
+
+        // Requesting param update
+        mParam.requestParamUpdate("altHold.maxThrust");
+        Thread.sleep(150);
+        Number newValue = mParam.getValuesMap().get("altHold.maxThrust");
+        System.out.println("altHold.maxThrust - new value: " + newValue);
+        assertEquals(60001, newValue);
+
+        // Reset param value to original value
+        mParam.setValue("altHold.maxThrust", 60000);
+        Thread.sleep(150);
+        mParam.requestParamUpdate("altHold.maxThrust");
+        Thread.sleep(150);
+        Number resetValue = mParam.getValuesMap().get("altHold.maxThrust");
+        System.out.println("altHold.maxThrust - reset value: " + resetValue);
+        assertEquals(60000, resetValue);
+
+        crazyflie.disconnect();
+    }
 }

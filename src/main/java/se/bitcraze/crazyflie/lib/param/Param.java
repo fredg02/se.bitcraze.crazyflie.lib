@@ -249,15 +249,18 @@ public class Param {
         } else if (tocElement.getAccess() == TocElement.RO_ACCESS) {
             mLogger.debug(completeName + " is read only, not trying to set value");
         } else {
-            int varId = tocElement.getIdent();
             //TODO: extract into method
             Header header = new Header(WRITE_CHANNEL, CrtpPort.PARAMETERS);
             //pk.data = struct.pack('<B', varid)
             //pk.data += struct.pack(element.pytype, eval(value))
             //TODO: value.byteValue() might not be the right method to use, because it can involve rounding or truncation!
-            //CrtpPacket packet = new CrtpPacket(header.getByte(), new byte[]{(byte) varId, (byte) tocElement.getPytype(), value.byteValue()});
+            byte[] parse = tocElement.getCtype().parse(value);
+            ByteBuffer bb = ByteBuffer.allocate(parse.length+1);
+            bb.put((byte) tocElement.getIdent());
+            bb.put(parse);
+            CrtpPacket packet = new CrtpPacket(header.getByte(), bb.array());
             //self.param_updater.request_param_setvalue(pk)
-            //mPut.requestParamSetValue(packet);
+            mPut.requestParamSetValue(packet);
         }
     }
 
@@ -334,7 +337,6 @@ public class Param {
                 //if (pk.channel != TOC_CHANNEL and self._req_param == var_id and pk is not None):
                 if (channel != TOC_CHANNEL && mReqParam == varId) {
                     //self.updated_callback(pk)
-
                     paramUpdated(packet);
                     //self._req_param = -1
                     mReqParam = -1;
