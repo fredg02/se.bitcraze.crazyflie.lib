@@ -48,7 +48,6 @@ public class ParamTocElement extends TocElement {
     public ParamTocElement() {
     }
 
-
     /**
      * TocElement creator. Data is the binary payload of the element.
      */
@@ -79,35 +78,15 @@ public class ParamTocElement extends TocElement {
         }
     }
 
-    /*
-    strs = struct.unpack("s" * len(data[2:]), data[2:])
-    strs = ("{}" * len(strs)).format(*strs).split("\0")
-    self.group = strs[0]
-    self.name = strs[1]
-     */
-//    ByteBuffer buffer = ByteBuffer.wrap(payload, 2, payload.length - 2).order(CrtpPacket.BYTE_ORDER);
-//    String temp = new String(buffer.array(), Charset.forName("US-ASCII"));
-//    System.out.println("ParamTocElement: " + temp);
-//    String[] split = temp.split("\0");
-//    setGroup(split[0]);
-//    setName(split[1]);
-    //TODO: Make it simpler
     private void setGroupAndName(byte[] payload) {
+        //TODO: offset should be 2
         int offset = 3;
-        int byteCount;
-        // search end of first null terminated string
-        for (byteCount = 0; byteCount + offset < payload.length && payload[byteCount + offset] != 0; byteCount++) {
-        }
-        final String groupName = new String(payload, offset, byteCount, Charset.forName("US-ASCII"));
-        // offset of second null terminated string is last character of first + 1
-        offset = offset + byteCount + 1;
-        // search end of second null terminated string
-        for (byteCount = 0; byteCount + offset < payload.length && payload[byteCount + offset] != 0; byteCount++) {
-        }
-        final String variableName = new String(payload, offset, byteCount, Charset.forName("US-ASCII"));
-
-        setGroup(groupName);
-        setName(variableName);
+        byte[] trimmedPayload = new byte[payload.length-offset];
+        System.arraycopy(payload, offset, trimmedPayload, 0, trimmedPayload.length);
+        String temp = new String(trimmedPayload, Charset.forName("US-ASCII"));
+        String[] split = temp.split("\0");
+        setGroup(split[0]);
+        setName(split[1]);
     }
 
 }
