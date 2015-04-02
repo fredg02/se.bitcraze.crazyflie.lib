@@ -51,26 +51,17 @@ public class ParamTocElement extends TocElement {
     /**
      * TocElement creator. Data is the binary payload of the element.
      */
-    //TODO: strip first byte of payload
-    public ParamTocElement(byte[] payload) {
-        if (payload != null) {
-            setGroupAndName(payload);
+    public ParamTocElement(byte[] data) {
+        if (data != null) {
+            setGroupAndName(data);
 
-            //self.ident = ord(data[0])
-            setIdent(payload[1]);
+            setIdent(data[0]);
 
-            // self.ctype = self.types[ord(data[1]) & 0x0F][0]
-            setCtype(VARIABLE_TYPE_MAP.get(payload[2] & 0x0F));
-            // self.pytype = self.types[ord(data[1]) & 0x0F][1]
-            // setPytype(mTypes[payload[1] & 0x0F]);
+            setCtype(VARIABLE_TYPE_MAP.get(data[1] & 0x0F));
 
-            /*
-            if ((ord(data[1]) & 0x40) != 0):
-                self.access = ParamTocElement.RO_ACCESS
-            else:
-                self.access = ParamTocElement.RW_ACCESS
-            */
-            if ((payload[2] & 0x40) != 0) {
+            // setting pytype not needed in Java cf lib
+
+            if ((data[1] & 0x40) != 0) {
                 setAccess(RO_ACCESS);
             } else {
                 setAccess(RW_ACCESS);
@@ -79,8 +70,7 @@ public class ParamTocElement extends TocElement {
     }
 
     private void setGroupAndName(byte[] payload) {
-        //TODO: offset should be 2
-        int offset = 3;
+        int offset = 2;
         byte[] trimmedPayload = new byte[payload.length-offset];
         System.arraycopy(payload, offset, trimmedPayload, 0, trimmedPayload.length);
         String temp = new String(trimmedPayload, Charset.forName("US-ASCII"));

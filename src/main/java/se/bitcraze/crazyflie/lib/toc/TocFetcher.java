@@ -30,7 +30,7 @@ public class TocFetcher {
     private TocCache mTocCache;
     private Toc mToc;
 
-    private final int TOC_CHANNEL = 0;
+    public static final int TOC_CHANNEL = 0;
     public static final int CMD_TOC_ELEMENT = 0;
     public static final int CMD_TOC_INFO= 1;
 
@@ -91,20 +91,27 @@ public class TocFetcher {
         return this.mState;
     }
 
+    // TODO: only for testing, try to remove
+    public void setState(TocState state) {
+        this.mState = state;
+    }
+
     public void newPacketReceived(CrtpPacket packet) {
         if (packet.getHeader().getChannel() != TOC_CHANNEL) {
             return;
         }
         // payload = struct.pack("B" * (len(packet.datal) - 1), *packet.datal[1:])
-        ByteBuffer payload = ByteBuffer.wrap(packet.getPayload(), 1, packet.getPayload().length-1);
+
+        int offset = 1;
+        byte[] payload = new byte[packet.getPayload().length-offset];
+        System.arraycopy(packet.getPayload(), offset, payload, 0, payload.length);
+        ByteBuffer payloadBuffer = ByteBuffer.wrap(payload);
 
         if (mState == TocState.GET_TOC_INFO) {
             if (packet.getPayload()[0] == CMD_TOC_INFO) {
-                /*
-                [self.nbr_of_items, self._crc] = struct.unpack("<BI", payload[:5])
-                 */
-                this.mNoOfItems = payload.get();
-                this.mCrc = payload.getInt();
+                // [self.nbr_of_items, self._crc] = struct.unpack("<BI", payload[:5])
+                this.mNoOfItems = payloadBuffer.get();
+                this.mCrc = payloadBuffer.getInt();
 
                 mLogger.debug("[" + this.mPort + "]: Got TOC CRC, " + this.mNoOfItems + " items and CRC=" + String.format("0x%08X", this.mCrc));
 
@@ -129,7 +136,7 @@ public class TocFetcher {
                 // Always add new element, but only request new if it's not the last one.
 
                 // if self.requested_index != ord(payload[0]):
-                if (this.mRequestedIndex != payload.get(1)) {
+                if (this.mRequestedIndex != payloadBuffer.get(0)) {
                     /*
                         # TODO: There might be a timing issue here with resending old
                         #       packets while loosing new ones. Then if 7 is requested
@@ -137,7 +144,7 @@ public class TocFetcher {
                         #       while 7 is lost then we will never resend for 7.
                         #       This is pretty hard to reproduce but happens...
                      */
-                    mLogger.warn("[" + this.mPort + "]: Was expecting " + this.mRequestedIndex + " but got " + payload.get(1));
+                    mLogger.warn("[" + this.mPort + "]: Was expecting " + this.mRequestedIndex + " but got " + payloadBuffer.get(0));
                     return;
                 }
 
@@ -146,7 +153,7 @@ public class TocFetcher {
                 if (mPort == CrtpPort.LOGGING) {
                     //TODO: mToc.addElement(new LogTocElement(payload));
                 } else {
-                    ParamTocElement paramTocElement = new ParamTocElement(payload.array());
+                    ParamTocElement paramTocElement = new ParamTocElement(payloadBuffer.array());
                     mToc.addElement(paramTocElement);
                 }
 

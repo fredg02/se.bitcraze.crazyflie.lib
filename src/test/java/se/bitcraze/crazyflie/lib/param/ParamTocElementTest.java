@@ -13,9 +13,11 @@ public class ParamTocElementTest {
     @Test
     public void testParamTocElement() {
 
+        // First three bytes of payload need to be stripped away?
+
         //UINT8_T
         //original byte: 1,32,0,0,72,105,109,117,95,116,101,115,116,115,0,77,80,85,54,48,53,48,0,0,0,0,0,0,0,0,0,0,0
-        byte[] id0 = new byte[] {0,0,72,105,109,117,95,116,101,115,116,115,0,77,80,85,54,48,53,48,0,0,0,0,0,0,0,0,0,0,0};
+        byte[] id0 = new byte[] {0,72,105,109,117,95,116,101,115,116,115,0,77,80,85,54,48,53,48,0,0,0,0,0,0,0,0,0,0,0};
 
         ParamTocElement pteId00 = new ParamTocElement(id0);
 
@@ -29,7 +31,7 @@ public class ParamTocElementTest {
 
         //UINT16_T
         //original byte: 1,32,0,6,73,99,112,117,0,102,108,97,115,104,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        byte[] id6 = new byte[] {0,6,73,99,112,117,0,102,108,97,115,104,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+        byte[] id6 = new byte[] {6,73,99,112,117,0,102,108,97,115,104,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
         ParamTocElement pteId06 = new ParamTocElement(id6);
 
@@ -43,7 +45,7 @@ public class ParamTocElementTest {
 
         //UINT32_T
         //original byte: 1,32,0,7,74,99,112,117,0,105,100,48,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        byte[] id7 = new byte[] {0,7,74,99,112,117,0,105,100,48,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+        byte[] id7 = new byte[] {7,74,99,112,117,0,105,100,48,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
         ParamTocElement pteId07 = new ParamTocElement(id7);
 
@@ -57,7 +59,7 @@ public class ParamTocElementTest {
 
         //FLOAT
         //original byte: 1,32,0,11,6,112,105,100,95,114,97,116,101,0,114,111,108,108,95,107,112,0,0,0,0,0,0,0,0,0,0,0,0
-        byte[] id11 = new byte[] {0,11,6,112,105,100,95,114,97,116,101,0,114,111,108,108,95,107,112,0,0,0,0,0,0,0,0,0,0,0,0};
+        byte[] id11 = new byte[] {11,6,112,105,100,95,114,97,116,101,0,114,111,108,108,95,107,112,0,0,0,0,0,0,0,0,0,0,0,0};
 
         ParamTocElement pteId11 = new ParamTocElement(id11);
 
