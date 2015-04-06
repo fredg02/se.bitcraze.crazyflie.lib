@@ -11,11 +11,14 @@ import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
 
 public class CrazyflieTest {
 
+    public static int channel = 10;
+    public static int datarate = 0;
+
     @Test
     public void testCrazyflie() {
         Crazyflie crazyflie = new Crazyflie(new RadioDriver(new UsbLinkJava()));
 
-        crazyflie.connect(10, 0);
+        crazyflie.connect(channel, datarate);
 
         for (int i = 0; i < 10; i++) {
             crazyflie.sendPacket(new CommanderPacket(0, 0, 0, (char) 0));
@@ -41,7 +44,7 @@ public class CrazyflieTest {
 
         });
 
-        crazyflie.connect(10, 0);
+        crazyflie.connect(channel, datarate);
 
         for (int i = 0; i < 30; i++) {
             crazyflie.sendPacket(new CommanderPacket(0, 0, 0, (char) 0));
@@ -66,7 +69,7 @@ public class CrazyflieTest {
 
         });
 
-        crazyflie.connect(10, 0);
+        crazyflie.connect(channel, datarate);
 
         for (int i = 0; i < 30; i++) {
             crazyflie.sendPacket(new CommanderPacket(0, 0, 0, (char) 0));

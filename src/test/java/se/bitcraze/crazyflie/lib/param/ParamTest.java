@@ -10,6 +10,7 @@ import org.junit.Test;
 import se.bitcraze.crazyflie.lib.TestConnectionAdapter;
 import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie;
 import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie.State;
+import se.bitcraze.crazyflie.lib.crazyflie.CrazyflieTest;
 import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
@@ -25,7 +26,7 @@ public class ParamTest {
 
     Param mParam;
 
-    ConnectionData mConnectionData = new ConnectionData(10, 0);
+    ConnectionData mConnectionData = new ConnectionData(CrazyflieTest.channel, CrazyflieTest.datarate);
 
     @Test
     public void testParam() {

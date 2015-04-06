@@ -9,6 +9,7 @@ import org.junit.Test;
 import se.bitcraze.crazyflie.lib.DummyDriver;
 import se.bitcraze.crazyflie.lib.TestConnectionAdapter;
 import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie;
+import se.bitcraze.crazyflie.lib.crazyflie.CrazyflieTest;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
@@ -81,7 +82,7 @@ public class TocFetcherTest {
 
         });
 
-        crazyflie.connect(10, 0);
+        crazyflie.connect(CrazyflieTest.channel, CrazyflieTest.datarate);
 
         for (int i = 0; i < 200; i++) {
             crazyflie.sendPacket(new CommanderPacket(0, 0, 0, (char) 0));
