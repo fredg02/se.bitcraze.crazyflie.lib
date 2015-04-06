@@ -58,10 +58,18 @@ public class ParamTest {
         }
         crazyflie.disconnect();
 
-        Map<String, Number> valuesMap = mParam.getValuesMap();
+        Map<String, Map<String, Number>> valuesMap = mParam.getValuesMap();
+
+        int noOfValueMapElements = 0;
+        for(String g : valuesMap.keySet()) {
+            for(String n : valuesMap.get(g).keySet()) {
+                noOfValueMapElements++;
+            }
+        }
+
         //TODO: why are not all values fetched in a reasonable time?
 //        assertEquals(mParam.getToc().getTocSize(), valuesMap.keySet().size());
-        System.out.println("TocSize: " + mParam.getToc().getTocSize() + ", ValuesSize: " + valuesMap.keySet().size());
+        System.out.println("TocSize: " + mParam.getToc().getTocSize() + ", No of valueMap elements: " + noOfValueMapElements);
 
         for(String s : valuesMap.keySet()) {
             System.out.println(s + ": " + valuesMap.get(s));
@@ -73,22 +81,22 @@ public class ParamTest {
 
         //uint8_t
         //32 is the correct value for CF1 according to Python client
-        assertEquals(32, valuesMap.get("imu_acc_lpf.factor"));
+        assertEquals(32, valuesMap.get("imu_acc_lpf").get("factor"));
 
         //uint16_t
         //43000 is the correct value for CF1 according to Python client
-        assertEquals(43000, valuesMap.get("altHold.baseThrust"));
+        assertEquals(43000, valuesMap.get("altHold").get("baseThrust"));
         //38444 is the correct value for CF1 according to Python client
-        assertEquals(38444, valuesMap.get("firmware.revision1"));
+        assertEquals(38444, valuesMap.get("firmware").get("revision1"));
 
         //uint32_t == Long
         //48041289 is the correct value for CF1 according to Python client
-        assertEquals(48041289L, valuesMap.get("firmware.revision0"));
+        assertEquals(48041289L, valuesMap.get("firmware").get("revision0"));
 
         //float
         //0.180000007153 is the correct value for CF1 according to Python client
         //TODO: is 0.18 exact enough, or is there too much rounding?
-        assertEquals(0.18f, valuesMap.get("altHold.ki"));
+        assertEquals(0.18f, valuesMap.get("altHold").get("ki"));
     }
 
     @Test
@@ -363,7 +371,7 @@ public class ParamTest {
         Thread.sleep(150);
 
         // Getting original param value
-        Number originalValue = mParam.getValuesMap().get("altHold.maxThrust");
+        Number originalValue = mParam.getValuesMap().get("altHold").get("maxThrust");
         System.out.println("altHold.maxThrust - original value: " + originalValue);
         assertEquals(60000, originalValue);
 
@@ -374,7 +382,7 @@ public class ParamTest {
         // Requesting param update
         mParam.requestParamUpdate("altHold.maxThrust");
         Thread.sleep(150);
-        Number newValue = mParam.getValuesMap().get("altHold.maxThrust");
+        Number newValue = mParam.getValuesMap().get("altHold").get("maxThrust");
         System.out.println("altHold.maxThrust - new value: " + newValue);
         assertEquals(60001, newValue);
 
@@ -383,7 +391,7 @@ public class ParamTest {
         Thread.sleep(150);
         mParam.requestParamUpdate("altHold.maxThrust");
         Thread.sleep(150);
-        Number resetValue = mParam.getValuesMap().get("altHold.maxThrust");
+        Number resetValue = mParam.getValuesMap().get("altHold").get("maxThrust");
         System.out.println("altHold.maxThrust - reset value: " + resetValue);
         assertEquals(60000, resetValue);
 

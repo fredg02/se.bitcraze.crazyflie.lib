@@ -36,7 +36,7 @@ public class Param {
 
     private Thread mParamUpdaterThread;
     private ParamUpdaterThread mPut;
-    private Map<String, Number> mValues = new HashMap<String, Number>();
+    private Map<String, Map<String, Number>> mValues = new HashMap<String, Map<String, Number>>();
     private boolean mHaveUpdated = false;
 
     // Possible states
@@ -108,8 +108,12 @@ public class Param {
         return True
         */
         for (TocElement tocElement : mToc.getElements()) {
-            if (mValues.get(tocElement.getCompleteName()) == null) {
+            if (mValues.get(tocElement.getGroup()) == null) {
                 return false;
+            } else {
+                if (mValues.get(tocElement.getGroup()).get(tocElement.getName()) == null) {
+                    return false;
+                }
             }
         }
         return true;
@@ -124,20 +128,17 @@ public class Param {
         if (tocElement != null) {
             //s = struct.unpack(element.pytype, pk.data[1:])[0]
             //s = s.__str__()
+            // TODO: probably does not work as intended, use System.arrayCopy instead
             ByteBuffer payload = ByteBuffer.wrap(packet.getPayload(), 1, packet.getPayload().length-1);
             Number number = tocElement.getCtype().parse(payload);
 
             String completeName = tocElement.getCompleteName();
 
             // Save the value for synchronous access
-
-            /*
-            if not element.group in self.values:
-                self.values[element.group] = {}
-            self.values[element.group][element.name] = s
-             */
-            mValues.put(completeName, number);
-
+            if (!mValues.containsKey(tocElement.getGroup())) {
+                mValues.put(tocElement.getGroup(), new HashMap<String, Number>());
+            }
+            mValues.get(tocElement.getGroup()).put(tocElement.getName(), number);
 
             // This will only be called once
             if (checkIfAllUpdated() && !mHaveUpdated) {
@@ -156,7 +157,7 @@ public class Param {
         }
     }
 
-    public Map<String, Number> getValuesMap() {
+    public Map<String, Map<String, Number>> getValuesMap() {
         return mValues;
     }
 
