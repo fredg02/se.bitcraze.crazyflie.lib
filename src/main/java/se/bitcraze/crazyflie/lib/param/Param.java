@@ -39,6 +39,11 @@ public class Param {
     private Map<String, Map<String, Number>> mValues = new HashMap<String, Map<String, Number>>();
     private boolean mHaveUpdated = false;
 
+    // TODO: use only one map for both
+    // TODO: ParamListener already contains group/completeName
+    private Map<String, ParamListener> mUpdateListeners = new HashMap<String, ParamListener>();         // completeName
+    private Map<String, ParamListener> mGroupUpdateListeners = new HashMap<String, ParamListener>();    // group
+
     // Possible states
     private int IDLE = 0;
     private int WAIT_TOC = 1;
@@ -55,13 +60,8 @@ public class Param {
     private int TOC_GETCRC32 = 2;
 
 
-
     public Param(Crazyflie crazyflie) {
         this.mCrazyflie = crazyflie;
-        /*
-        self.param_update_callbacks = {}
-        self.group_update_callbacks = {}
-        */
 
         // self.param_updater = None
         // self.param_updater = _ParamUpdater(self.cf, self._param_updated)
@@ -146,12 +146,13 @@ public class Param {
                 // self.all_updated.call()
             }
             mLogger.debug("Updated parameter " + completeName);
-            /*
-            if complete_name in self.param_update_callbacks:
-                self.param_update_callbacks[complete_name].call(complete_name, s)
-            if element.group in self.group_update_callbacks:
-                self.group_update_callbacks[element.group].call(complete_name, s)
-            */
+
+            if (mUpdateListeners.containsKey(completeName)) {
+                mUpdateListeners.get(completeName).updated(completeName, number);
+            }
+            if (mGroupUpdateListeners.containsKey(tocElement.getGroup())) {
+                mGroupUpdateListeners.get(tocElement.getGroup()).updated(completeName, number);
+            }
         } else {
             mLogger.debug("Variable id " + varId + " not found in TOC");
         }
@@ -162,42 +163,36 @@ public class Param {
     }
 
     /**
-     * Remove the supplied callback for a group or a group.name
+     * Remove the listener for a group or a complete name (group.name)
      */
-    //def remove_update_callback(self, group, name=None, cb=None):
-    public void removeUpdateCallback() {
-            /*
-        if not cb:
-            return
-
-        if not name:
-            if group in self.group_update_callbacks:
-                self.group_update_callbacks[group].remove_callback(cb)
-        else:
-            paramname = "{}.{}".format(group, name)
-            if paramname in self.param_update_callbacks:
-                self.param_update_callbacks[paramname].remove_callback(cb)
-            */
+    public void removeParamListeners(String group, String name) {
+        if (name == null || name.isEmpty()) {
+            if (mGroupUpdateListeners.containsKey(group)) {
+                mGroupUpdateListeners.remove(group);
+            }
+        } else {
+            String completeName = group + "." + name;
+            if (mUpdateListeners.containsKey(completeName)) {
+                mUpdateListeners.remove(completeName);
+            }
         }
+    }
 
     /**
-     * Add a callback for a specific parameter name. This callback will be
+     * Add a listener for a specific parameter name. This callback will be
      * executed when a new value is read from the Crazyflie.
      */
-    //def add_update_callback(self, group, name=None, cb=None):
-    public void addUpdateCallback() {
-            /*
-        if not name:
-            if not group in self.group_update_callbacks:
-                self.group_update_callbacks[group] = Caller()
-                self.group_update_callbacks[group].add_callback(cb)
-        else:
-            paramname = "{}.{}".format(group, name)
-            if not paramname in self.param_update_callbacks:
-                self.param_update_callbacks[paramname] = Caller()
-            self.param_update_callbacks[paramname].add_callback(cb)
-            */
+    public void addParamListener(ParamListener paramListener) {
+        if (paramListener.getName() == null || paramListener.getName().isEmpty()) {
+            if (!mGroupUpdateListeners.containsKey(paramListener.getGroup())) {
+                mGroupUpdateListeners.put(paramListener.getGroup(), paramListener);
+            }
+        } else {
+            if (!mUpdateListeners.containsKey(paramListener.getCompleteName())) {
+                mUpdateListeners.put(paramListener.getCompleteName(), paramListener);
+            }
         }
+    }
 
     /**
      * Initiate a refresh of the parameter TOC.
