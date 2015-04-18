@@ -1,14 +1,24 @@
 package se.bitcraze.crazyflie.lib.usb;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.usb.UsbDevice;
+import javax.usb.UsbException;
 
 /**
  * Abstract USB interface to be independent of different implementations (eg. Java/Android)
  *
  */
 public interface CrazyUsbInterface {
+
+    /**
+     * Init device
+     *
+     * @param usbVid
+     * @param usbPid
+     */
+    public void initDevice(int usbVid, int usbPid) throws IOException, SecurityException, UsbException;
 
     /**
      * Release UsbInterface
@@ -66,5 +76,9 @@ public interface CrazyUsbInterface {
      * @return serial number
      */
     public String getSerialNumber();
+
+    public void bulkWrite(byte[] data);
+
+    public byte[] bulkRead();
 
 }

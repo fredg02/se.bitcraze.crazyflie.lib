@@ -3,7 +3,6 @@ package se.bitcraze.crazyflie.lib.crazyflie;
 import org.junit.Test;
 
 import se.bitcraze.crazyflie.lib.TestConnectionAdapter;
-import se.bitcraze.crazyflie.lib.crazyradio.Crazyradio;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
 import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
@@ -17,7 +16,7 @@ public class CrazyflieTest {
     public static int datarate = 0;
 
     public static CrtpDriver getConnectionImpl() {
-        return new RadioDriver(new UsbLinkJava(Crazyradio.CRADIO_VID, Crazyradio.CRADIO_PID));
+        return new RadioDriver(new UsbLinkJava());
     }
 
     @Test

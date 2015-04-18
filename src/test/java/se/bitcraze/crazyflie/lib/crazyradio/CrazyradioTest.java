@@ -25,7 +25,7 @@ public class CrazyradioTest {
 
     @Before
     public void setUp() throws Exception {
-        mCrazyradio = new Crazyradio(new UsbLinkJava(Crazyradio.CRADIO_VID,Crazyradio.CRADIO_PID));
+        mCrazyradio = new Crazyradio(new UsbLinkJava());
     }
 
     @After

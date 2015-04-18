@@ -4,6 +4,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
@@ -24,7 +25,16 @@ public class UsbLinkJavaTest {
 
     @Before
     public void setUp() throws Exception {
-        mUsbLinkJava = new UsbLinkJava(Crazyradio.CRADIO_VID, Crazyradio.CRADIO_PID);
+        this.mUsbLinkJava = new UsbLinkJava();
+        try {
+            this.mUsbLinkJava.initDevice(Crazyradio.CRADIO_VID, Crazyradio.CRADIO_PID);
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (UsbException e) {
+            e.printStackTrace();
+        }
     }
 
     @After

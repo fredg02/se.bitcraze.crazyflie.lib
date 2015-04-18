@@ -2,9 +2,12 @@ package se.bitcraze.crazyflie.lib.crazyradio;
 
 
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.usb.UsbException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,9 +59,20 @@ public class Crazyradio {
 
     /**
      * Create object and scan for USB dongle if no device is supplied
+     *
+     * @param usbInterface
      */
     public Crazyradio(CrazyUsbInterface usbInterface) {
         this.mUsbInterface = usbInterface;
+        try {
+            this.mUsbInterface.initDevice(CRADIO_VID, CRADIO_PID);
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (UsbException e) {
+            e.printStackTrace();
+        }
 
         /*
         def __init__(self, device=None, devid=0):

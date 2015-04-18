@@ -42,18 +42,7 @@ public class UsbLinkJava implements CrazyUsbInterface {
 
     private UsbHub mRootHub;
 
-    public UsbLinkJava(int vid, int pid) {
-        try {
-            if(mIntf == null || !mIntf.isClaimed()){
-                initDevice(vid, pid);
-            }
-        } catch (SecurityException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (UsbException e) {
-            e.printStackTrace();
-        }
+    public UsbLinkJava() {
     }
 
     /**
@@ -65,7 +54,11 @@ public class UsbLinkJava implements CrazyUsbInterface {
      * @throws SecurityException
      * @throws UsbException
      */
-    private void initDevice(int vid, int pid) throws IOException, SecurityException, UsbException {
+    public void initDevice(int vid, int pid) throws IOException, SecurityException, UsbException {
+        if(mIntf != null && mIntf.isClaimed()){
+            mLogger.warn("USB device is already initialized or claimed.");
+            return;
+        }
         UsbServices services = UsbHostManager.getUsbServices();
         mRootHub = services.getRootUsbHub();
         List<UsbDevice> usbDevices = findUsbDevices(mRootHub, (short) vid, (short) pid);
@@ -191,6 +184,32 @@ public class UsbLinkJava implements CrazyUsbInterface {
         return returnCode;
     }
 
+    public void bulkWrite(byte[] data) {
+        if(mUsbDevice != null){
+            try {
+                sendBulkTransfer(mEpOut, data);
+            } catch (UsbException e) {
+                e.printStackTrace();
+            }
+        } else {
+            mLogger.error("bulkWrite failed because mUsbDevice was null");
+        }
+    }
+
+    public byte[] bulkRead() {
+        int returnCode = -1;
+        byte[] data = new byte[33];
+        if(mUsbDevice != null){
+            try {
+                returnCode = sendBulkTransfer(mEpIn, data);
+                mLogger.debug("bulkRead: return code = " + returnCode);
+            } catch (UsbException e) {
+                e.printStackTrace();
+            }
+        }
+        return data;
+    }
+
     //TODO: better method name?
     private int sendBulkTransfer(UsbEndpoint usbEndpoint, byte[] data) throws UsbException{
         int returnCode = -1;
@@ -207,8 +226,9 @@ public class UsbLinkJava implements CrazyUsbInterface {
             if (usbPipe.isOpen()) {
                 UsbIrp usbIrp = usbPipe.createUsbIrp();
                 usbIrp.setData(data);
-                int dataLength = (data == null) ? 0 : data.length;
-                usbIrp.setLength(dataLength);
+                //TODO: data length does not need to be set explicitly
+//                int dataLength = (data == null) ? 0 : data.length;
+//                usbIrp.setLength(dataLength);
                 usbPipe.syncSubmit(usbIrp);
                 if (!usbIrp.isUsbException()) {
                     returnCode = usbIrp.getActualLength();
