@@ -23,8 +23,6 @@ import javax.usb.UsbServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import se.bitcraze.crazyflie.lib.crazyradio.Crazyradio;
-
 
 /**
  * TODO: While multiple Crazyradios can be found with findDevices() only the first Crazyradio
@@ -44,10 +42,10 @@ public class UsbLinkJava implements CrazyUsbInterface {
 
     private UsbHub mRootHub;
 
-    public UsbLinkJava() {
+    public UsbLinkJava(int vid, int pid) {
         try {
             if(mIntf == null || !mIntf.isClaimed()){
-                initDevice();
+                initDevice(vid, pid);
             }
         } catch (SecurityException e) {
             e.printStackTrace();
@@ -61,22 +59,24 @@ public class UsbLinkJava implements CrazyUsbInterface {
     /**
      * Initialize the USB device. Determines endpoints and prepares communication.
      *
+     * @param vid
+     * @param pid
      * @throws IOException if the device cannot be opened
-     * @throws UsbException
      * @throws SecurityException
+     * @throws UsbException
      */
-    private void initDevice() throws IOException, SecurityException, UsbException {
+    private void initDevice(int vid, int pid) throws IOException, SecurityException, UsbException {
         UsbServices services = UsbHostManager.getUsbServices();
         mRootHub = services.getRootUsbHub();
-        List<UsbDevice> usbDevices = findDevices();
+        List<UsbDevice> usbDevices = findUsbDevices(mRootHub, (short) vid, (short) pid);
         if (usbDevices.isEmpty()) {
-            mLogger.info("Crazyradio not found.");
+            mLogger.warn("USB device not found. (VID: " + vid + ", PID: " + pid + ")");
             return;
         }
         this.mUsbDevice = usbDevices.get(0);
-        // TODO: Only gets the first Crazyradio that is found
+        // TODO: Only gets the first USB device that is found
         if (mUsbDevice == null) {
-            mLogger.info("Crazyradio not found.");
+            mLogger.warn("USB device not found. (VID: " + vid + ", PID: " + pid + ")");
             return;
         }
 
@@ -132,6 +132,7 @@ public class UsbLinkJava implements CrazyUsbInterface {
             try {
                 mIntf.release();
                 mIntf = null;
+                mLogger.debug("UsbInterface released");
             } catch (UsbException e) {
                 e.printStackTrace();
             }
@@ -272,8 +273,8 @@ public class UsbLinkJava implements CrazyUsbInterface {
         }
     }
 
-    public List<UsbDevice> findDevices() {
-        return findUsbDevices(mRootHub, (short) Crazyradio.CRADIO_VID, (short) Crazyradio.CRADIO_PID);
+    public List<UsbDevice> findDevices(int vid, int pid) {
+        return findUsbDevices(mRootHub, (short) vid, (short) pid);
     }
 
     @SuppressWarnings("unchecked")
@@ -283,7 +284,7 @@ public class UsbLinkJava implements CrazyUsbInterface {
             for (UsbDevice device : (List<UsbDevice>) hub.getAttachedUsbDevices()) {
                 UsbDeviceDescriptor desc = device.getUsbDeviceDescriptor();
                 if (desc.idVendor() == vendorId && desc.idProduct() == productId){
-                    mLogger.debug("Found Crazyradio!");
+                    mLogger.debug("Found USB device!");
                     usbDeviceList.add(device);
                 }
                 if (device.isUsbHub()) {

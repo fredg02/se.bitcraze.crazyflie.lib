@@ -10,9 +10,7 @@ import org.junit.Test;
 import se.bitcraze.crazyflie.lib.TestConnectionAdapter;
 import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie;
 import se.bitcraze.crazyflie.lib.crazyflie.CrazyflieTest;
-import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
-import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
 
 public class TocCacheTest {
 
@@ -37,7 +35,7 @@ public class TocCacheTest {
 
     @Test
     public void testTocCacheAgainstFetchedToc() {
-        final Crazyflie crazyflie = new Crazyflie(new RadioDriver(new UsbLinkJava()));
+        final Crazyflie crazyflie = new Crazyflie(CrazyflieTest.getConnectionImpl());
 
         crazyflie.clearTocCache();
 

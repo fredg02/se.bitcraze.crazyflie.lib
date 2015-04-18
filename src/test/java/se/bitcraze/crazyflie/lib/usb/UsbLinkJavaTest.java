@@ -15,6 +15,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import se.bitcraze.crazyflie.lib.crazyradio.Crazyradio;
+
 
 public class UsbLinkJavaTest {
 
@@ -22,7 +24,7 @@ public class UsbLinkJavaTest {
 
     @Before
     public void setUp() throws Exception {
-        mUsbLinkJava = new UsbLinkJava();
+        mUsbLinkJava = new UsbLinkJava(Crazyradio.CRADIO_VID, Crazyradio.CRADIO_PID);
     }
 
     @After
@@ -49,7 +51,7 @@ public class UsbLinkJavaTest {
 
     @Test
     public void testGetFirmwareVersionMutipleRadios() throws UnsupportedEncodingException, UsbDisconnectedException, UsbException {
-        List<UsbDevice> usbDeviceList = mUsbLinkJava.findDevices();
+        List<UsbDevice> usbDeviceList = mUsbLinkJava.findDevices(Crazyradio.CRADIO_VID, Crazyradio.CRADIO_PID);
         if (usbDeviceList.isEmpty()) {
             fail("No Crazyradios found");
         } else {

@@ -10,14 +10,12 @@ import se.bitcraze.crazyflie.lib.DummyDriver;
 import se.bitcraze.crazyflie.lib.TestConnectionAdapter;
 import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie;
 import se.bitcraze.crazyflie.lib.crazyflie.CrazyflieTest;
-import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket.Header;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
 import se.bitcraze.crazyflie.lib.param.ParamTocElement;
 import se.bitcraze.crazyflie.lib.toc.TocFetcher.TocState;
-import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
 
 public class TocFetcherTest {
 
@@ -54,7 +52,7 @@ public class TocFetcherTest {
 
     @Test
     public void testTocFetcher() {
-        final Crazyflie crazyflie = new Crazyflie(new RadioDriver(new UsbLinkJava()));
+        final Crazyflie crazyflie = new Crazyflie(CrazyflieTest.getConnectionImpl());
 
         crazyflie.clearTocCache();
 

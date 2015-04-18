@@ -3,8 +3,10 @@ package se.bitcraze.crazyflie.lib.crazyflie;
 import org.junit.Test;
 
 import se.bitcraze.crazyflie.lib.TestConnectionAdapter;
+import se.bitcraze.crazyflie.lib.crazyradio.Crazyradio;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
+import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
 import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
@@ -14,9 +16,13 @@ public class CrazyflieTest {
     public static int channel = 10;
     public static int datarate = 0;
 
+    public static CrtpDriver getConnectionImpl() {
+        return new RadioDriver(new UsbLinkJava(Crazyradio.CRADIO_VID, Crazyradio.CRADIO_PID));
+    }
+
     @Test
     public void testCrazyflie() {
-        Crazyflie crazyflie = new Crazyflie(new RadioDriver(new UsbLinkJava()));
+        Crazyflie crazyflie = new Crazyflie(getConnectionImpl());
 
         crazyflie.connect(channel, datarate);
 
@@ -33,7 +39,7 @@ public class CrazyflieTest {
 
     @Test
     public void testDataListener() {
-        Crazyflie crazyflie = new Crazyflie(new RadioDriver(new UsbLinkJava()));
+        Crazyflie crazyflie = new Crazyflie(getConnectionImpl());
 
         crazyflie.addDataListener(new DataListener(CrtpPort.CONSOLE) {
 
@@ -59,7 +65,7 @@ public class CrazyflieTest {
 
     @Test
     public void testConnectionListener() {
-        Crazyflie crazyflie = new Crazyflie(new RadioDriver(new UsbLinkJava()));
+        Crazyflie crazyflie = new Crazyflie(getConnectionImpl());
 
         crazyflie.addConnectionListener(new TestConnectionAdapter() {
 

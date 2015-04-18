@@ -12,12 +12,10 @@ import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie;
 import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie.State;
 import se.bitcraze.crazyflie.lib.crazyflie.CrazyflieTest;
 import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
-import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
 import se.bitcraze.crazyflie.lib.toc.Toc;
 import se.bitcraze.crazyflie.lib.toc.TocElement;
 import se.bitcraze.crazyflie.lib.toc.VariableType;
-import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
 
 public class ParamTest {
 
@@ -31,7 +29,7 @@ public class ParamTest {
     @Test
     public void testParam() {
         //TODO: refactor this into a test utility method
-        final Crazyflie crazyflie = new Crazyflie(new RadioDriver(new UsbLinkJava()));
+        final Crazyflie crazyflie = new Crazyflie(CrazyflieTest.getConnectionImpl());
 
         //TODO: test that TocCache actually works
         crazyflie.clearTocCache();
@@ -103,7 +101,7 @@ public class ParamTest {
     @Test
     public void testParamElements() {
         //TODO: refactor this into a test utility method
-        Crazyflie crazyflie = new Crazyflie(new RadioDriver(new UsbLinkJava()));
+        Crazyflie crazyflie = new Crazyflie(CrazyflieTest.getConnectionImpl());
 
         crazyflie.clearTocCache();
 
@@ -350,7 +348,7 @@ public class ParamTest {
     @Test
     public void testParamSet() throws InterruptedException {
         //TODO: refactor this into a test utility method
-        final Crazyflie crazyflie = new Crazyflie(new RadioDriver(new UsbLinkJava()));
+        final Crazyflie crazyflie = new Crazyflie(CrazyflieTest.getConnectionImpl());
 
         //crazyflie.clearTocCache();
 

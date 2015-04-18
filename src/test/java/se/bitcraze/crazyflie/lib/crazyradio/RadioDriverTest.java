@@ -20,7 +20,7 @@ public class RadioDriverTest {
 
     @Before
     public void setUp() throws Exception {
-        mUsbLinkJava = new UsbLinkJava();
+        mUsbLinkJava = new UsbLinkJava(Crazyradio.CRADIO_VID,Crazyradio.CRADIO_PID);
         mRadioDriver = new RadioDriver(mUsbLinkJava);
     }
 

@@ -47,9 +47,11 @@ public interface CrazyUsbInterface {
     /**
      * Returns a list of CrazyRadio devices currently connected to the computer
      *
+     * @param usbVid
+     * @param usbPid
      * @return
      */
-    public List<UsbDevice> findDevices();
+    public List<UsbDevice> findDevices(int usbVid, int usbPid);
 
     /**
      * Returns the firmware version of the USB device
