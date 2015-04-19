@@ -22,9 +22,13 @@ public class ParamTest {
     //TODO: separate testing of Param class methods
     //TODO: separate testing of ParamTocElement class
 
-    Param mParam;
+    private Param mParam;
+    private boolean mSetupFinished = false;
 
     ConnectionData mConnectionData = new ConnectionData(CrazyflieTest.channel, CrazyflieTest.datarate);
+
+
+    //TODO: when cf disconnects, testParam is still stuck in the while loop
 
     @Test
     public void testParam() {
@@ -41,20 +45,43 @@ public class ParamTest {
                 mParam = crazyflie.getParam();
                 System.out.println("Number of TOC elements: " + mParam.getToc().getElements().size());
                 mParam.requestUpdateOfAllParams();
+                mSetupFinished = true;
             }
 
         });
 
         crazyflie.connect(mConnectionData);
 
-        for (int i = 0; i < 800; i++) {
-            crazyflie.sendPacket(new CommanderPacket(0, 0, 0, (char) 0));
+        boolean isTimeout = false;
+        long startTime = System.currentTimeMillis();
+        while(!mSetupFinished && !isTimeout) {
+            isTimeout = (System.currentTimeMillis() - startTime) > 30000;
             try {
-                Thread.sleep(50);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 break;
             }
         }
+        long endTime = System.currentTimeMillis();
+        System.out.println("It took " + (endTime - startTime) + "ms until setup finished.");
+
+        boolean isTimeout2 = false;
+        long startTime2 = System.currentTimeMillis();
+        while(!mParam.checkIfAllUpdated() && !isTimeout2) {
+            isTimeout2 = (System.currentTimeMillis() - startTime2) > 30000;
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                break;
+            }
+        }
+        long endTime2 = System.currentTimeMillis();
+        if(isTimeout2) {
+            System.out.println("Timeout2!");
+        } else {
+            System.out.println("It took " + (endTime2 - startTime2) + "ms until all parameters were updated.");
+        }
+
         crazyflie.disconnect();
 
         Map<String, Map<String, Number>> valuesMap = mParam.getValuesMap();
@@ -70,32 +97,48 @@ public class ParamTest {
 //        assertEquals(mParam.getToc().getTocSize(), valuesMap.keySet().size());
         System.out.println("TocSize: " + mParam.getToc().getTocSize() + ", No of valueMap elements: " + noOfValueMapElements);
 
-        for(String s : valuesMap.keySet()) {
-            System.out.println(s + ": " + valuesMap.get(s));
+        if(mParam.getToc().getTocSize() != noOfValueMapElements) {
+            for(String group : mParam.getToc().getTocElementMap().keySet()) {
+                for(String name : mParam.getToc().getTocElementMap().get(group).keySet()) {
+                    if(valuesMap.get(group) == null) {
+                        System.out.println("Missing param in ValueMap: " + group);
+                        continue;
+                    }
+                    if(valuesMap.get(group).get(name) == null) {
+                        System.out.println("Missing param in ValueMap: " + group + "." + name + " ID: " + mParam.getToc().getElementId(group+"."+name));
+                    }
+                }
+            }
         }
 
-        //TODO: use values that hardly change, they might differ between CF1 and CF2
+        if(!isTimeout2) {
+            for(String s : valuesMap.keySet()) {
+                System.out.println(s + ": " + valuesMap.get(s));
+            }
 
-        //identify CF1 and CF2 by CPU id?
+            //TODO: use values that hardly change, they might differ between CF1 and CF2
 
-        //uint8_t
-        //32 is the correct value for CF1 according to Python client
-        assertEquals(32, valuesMap.get("imu_acc_lpf").get("factor"));
+            //identify CF1 and CF2 by CPU id?
 
-        //uint16_t
-        //43000 is the correct value for CF1 according to Python client
-        assertEquals(43000, valuesMap.get("altHold").get("baseThrust"));
-        //38444 is the correct value for CF1 according to Python client
-        assertEquals(38444, valuesMap.get("firmware").get("revision1"));
+            //uint8_t
+            //32 is the correct value for CF1 according to Python client
+            assertEquals(32, valuesMap.get("imu_acc_lpf").get("factor"));
 
-        //uint32_t == Long
-        //48041289 is the correct value for CF1 according to Python client
-        assertEquals(48041289L, valuesMap.get("firmware").get("revision0"));
+            //uint16_t
+            //43000 is the correct value for CF1 according to Python client
+            assertEquals(43000, valuesMap.get("altHold").get("baseThrust"));
+            //38444 is the correct value for CF1 according to Python client
+            assertEquals(38444, valuesMap.get("firmware").get("revision1"));
 
-        //float
-        //0.180000007153 is the correct value for CF1 according to Python client
-        //TODO: is 0.18 exact enough, or is there too much rounding?
-        assertEquals(0.18f, valuesMap.get("altHold").get("ki"));
+            //uint32_t == Long
+            //48041289 is the correct value for CF1 according to Python client
+            assertEquals(48041289L, valuesMap.get("firmware").get("revision0"));
+
+            //float
+            //0.180000007153 is the correct value for CF1 according to Python client
+            //TODO: is 0.18 exact enough, or is there too much rounding?
+            assertEquals(0.18f, valuesMap.get("altHold").get("ki"));
+        }
     }
 
     @Test
@@ -348,7 +391,7 @@ public class ParamTest {
     @Test
     public void testParamSet() throws InterruptedException {
         //TODO: refactor this into a test utility method
-        final Crazyflie crazyflie = new Crazyflie(CrazyflieTest.getConnectionImpl());
+        Crazyflie crazyflie = new Crazyflie(CrazyflieTest.getConnectionImpl());
 
         //crazyflie.clearTocCache();
 
