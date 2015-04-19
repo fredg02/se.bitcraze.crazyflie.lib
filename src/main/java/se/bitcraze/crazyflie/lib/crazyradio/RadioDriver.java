@@ -52,7 +52,7 @@ public class RadioDriver extends CrtpDriver{
         if(mCradio == null) {
             this.mCradio = new Crazyradio(mUsbInterface);
         } else {
-            System.err.println("Link already open");
+            mLogger.error("Crazyradio already open");
         }
 
         /*

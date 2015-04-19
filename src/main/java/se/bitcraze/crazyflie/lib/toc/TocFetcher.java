@@ -75,12 +75,7 @@ public class TocFetcher {
      * Callback for when the TOC fetching is finished
      */
     public void tocFetchFinished() {
-        /*
-        self.cf.remove_port_callback(self.port, self._new_packet_cb)
-        logger.debug("[%d]: Done!", self.port)
-        self.finished_callback()
-         */
-        // this.mCrazyFlie.removeDataListener(mDataListener);
+        this.mCrazyFlie.removeDataListener(mDataListener);
         mLogger.debug("Fetching TOC (Port: " + this.mPort + ") done.");
         this.mState = TocState.TOC_FETCH_FINISHED;
         // finishedCallback();
