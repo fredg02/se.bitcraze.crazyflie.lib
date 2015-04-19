@@ -186,22 +186,24 @@ public class Crazyflie {
      */
     private void checkReceivedPackets(CrtpPacket packet) {
         // compare received packet with expectedReplies in resend queue
-
-        boolean same = true;
-        for(CrtpPacket resendPacket : mResendQueue) {
-            byte[] expectedReply = resendPacket.getExpectedReply();
-            for(int i = 0; i < expectedReply.length; i++) {
-                if (expectedReply[i] != packet.getPayload()[i]) {
-                    same = false;
-                    break;
-                }
-            }
-            if(same) {
-                mResendQueue.remove(resendPacket);
-                mLogger.debug("QUEUE REMOVE");
+        for(CrtpPacket resendQueuePacket : mResendQueue) {
+            if(isPacketMatchingExpectedReply(resendQueuePacket, packet)) {
+                mResendQueue.remove(resendQueuePacket);
+                mLogger.debug("QUEUE REMOVE: " + resendQueuePacket);
+                break;
             }
         }
+    }
 
+    private boolean isPacketMatchingExpectedReply(CrtpPacket resendQueuePacket, CrtpPacket packet) {
+        //Only check equality for the amount of bytes in expected reply
+        byte[] expectedReply = resendQueuePacket.getExpectedReply();
+        for(int i = 0; i < expectedReply.length;i++) {
+            if(expectedReply[i] != packet.getPayload()[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private class ResendQueueHandler implements Runnable {
@@ -210,11 +212,11 @@ public class Crazyflie {
             while(true) {
                 if (!mResendQueue.isEmpty()) {
                     CrtpPacket resendPacket = mResendQueue.poll();
-                    mLogger.debug("RESEND: " + resendPacket);
+                    mLogger.debug("RESEND: " + resendPacket + " ID: " + resendPacket.getPayload()[0]);
                     sendPacket(resendPacket);
                 }
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(500);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     break;
@@ -313,7 +315,6 @@ public class Crazyflie {
             dataListener.dataReceived(inPacket);
         }
     }
-
 
     /* PACKET LISTENER */
 
