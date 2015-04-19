@@ -227,9 +227,11 @@ public class Param {
     //TODO: public?
     public void requestParamUpdate(String completeName) {
         // self.param_updater.request_param_update(self.toc.get_element_id(complete_name))
-        mPut.requestParamUpdate(mToc.getElementId(completeName));
+        int elementId = mToc.getElementId(completeName);
+        Header header = new Header(READ_CHANNEL, CrtpPort.PARAMETERS);
+        CrtpPacket requestPacket = new CrtpPacket(header.getByte(), new byte[]{(byte) elementId});
+        mPut.addParamRequest(requestPacket);
     }
-
 
     /**
      * Set the value for the supplied parameter.
@@ -256,7 +258,7 @@ public class Param {
             bb.put(parse);
             CrtpPacket packet = new CrtpPacket(header.getByte(), bb.array());
             //self.param_updater.request_param_setvalue(pk)
-            mPut.requestParamSetValue(packet);
+            mPut.addParamRequest(packet);
         }
     }
 
@@ -307,12 +309,11 @@ public class Param {
         }
 
         /**
-         * Place a param set value request on the queue. When this is sent to
-         * the Crazyflie it will answer with the updated param value.
+         * Place a param request (update request or set value) on the queue.
          *
          * @param packet
          */
-        public void requestParamSetValue(CrtpPacket packet) {
+        public void addParamRequest(CrtpPacket packet) {
             try {
                 //TODO: is put() the right method?
                 mRequestQueue.put(packet);
@@ -346,23 +347,6 @@ public class Param {
             }
         }
 
-        /**
-         * Place a param update request on the queue
-         *
-         * @param varId
-         */
-        public void requestParamUpdate(int varId) {
-            Header header = new Header(READ_CHANNEL, CrtpPort.PARAMETERS);
-            CrtpPacket packet = new CrtpPacket(header.getByte(), new byte[]{(byte) varId});
-            mLogger.debug("Requesting update for param with ID " + varId);
-            try {
-                //TODO: is put() the right method?
-                mRequestQueue.put(packet);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
         public void run() {
             while (true) {
                 CrtpPacket packet = null;
@@ -380,6 +364,11 @@ public class Param {
                         mReqParam = packet.getPayload()[0];
                         //self.cf.send_packet(pk, expected_reply=(pk.datat[0:2]))
                         packet.setExpectedReply(new byte[]{packet.getPayload()[0]});
+                        if(packet.getHeader().getChannel() == READ_CHANNEL) {
+                            mLogger.debug("Requesting updated for param with ID " + mReqParam);
+                        } else {
+                            mLogger.debug("Setting param with ID " + mReqParam);
+                        }
                         mCrazyflie.sendPacket(packet);
                     }
                 } else {
