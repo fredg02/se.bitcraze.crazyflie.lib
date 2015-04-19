@@ -332,7 +332,16 @@ public class Param {
             if (channel == READ_CHANNEL || channel == WRITE_CHANNEL) {
                 int varId = packet.getPayload()[0];
                 //if (pk.channel != TOC_CHANNEL and self._req_param == var_id and pk is not None):
-                if (channel != TOC_CHANNEL && mReqParam == varId) {
+
+                // TODO: is this even a problem!?
+                if (channel != TOC_CHANNEL && mReqParam != varId) {
+                    mLogger.warn("mReqParam != varId: " + mReqParam + " : " + varId);
+                }
+
+                /* if mReqParam == varId is actually checked, resend or late packets are dismissed,
+                 * which makes the param update fragile
+                 */
+                if (channel != TOC_CHANNEL /* && mReqParam == varId */) {
                     //self.updated_callback(pk)
                     paramUpdated(packet);
                     //self._req_param = -1
