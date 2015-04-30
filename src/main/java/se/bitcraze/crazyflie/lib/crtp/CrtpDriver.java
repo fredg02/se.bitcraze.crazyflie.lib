@@ -1,5 +1,6 @@
 package se.bitcraze.crazyflie.lib.crtp;
 
+import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
 import se.bitcraze.crazyflie.lib.crazyradio.LinkListener;
 
 /**
@@ -17,12 +18,17 @@ public abstract class CrtpDriver {
 
     /**
      * Connect the driver
-     *
-     * @param channel
-     * @param datarate
+     * 
+     * @param connectionData
      */
-    public abstract void connect(int channel, int datarate);
+    public abstract void connect(ConnectionData connectionData);
 
+    /**
+     * Close the link
+     */
+    public abstract void disconnect();
+
+    
     /**
      * Send a CRTP packet
      *
@@ -53,8 +59,4 @@ public abstract class CrtpDriver {
      */
     public abstract void removeLinkListener(LinkListener linkListener);
 
-    /**
-     * Close the link
-     */
-    public abstract void close();
 }

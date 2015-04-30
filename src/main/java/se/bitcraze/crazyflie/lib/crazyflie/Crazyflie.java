@@ -94,7 +94,7 @@ public class Crazyflie {
         addPacketListener(mPacketListener);
 
         // try to connect
-        mDriver.connect(mConnectionData.getChannel(), mConnectionData.getDataRate());
+        mDriver.connect(mConnectionData);
 
         if (mIncomingPacketHandlerThread == null) {
             IncomingPacketHandler iph = new IncomingPacketHandler();
@@ -141,7 +141,7 @@ public class Crazyflie {
                 mDriver.removeLinkListener(mLinkListener);
                 //Send commander packet with all values set to 0 before closing the connection
                 sendPacket(new CommanderPacket(0, 0, 0, (char) 0));
-                mDriver.close();
+                mDriver.disconnect();
                 mDriver = null;
             }
             if(mIncomingPacketHandlerThread != null) {

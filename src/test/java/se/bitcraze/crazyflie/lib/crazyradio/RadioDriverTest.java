@@ -27,7 +27,7 @@ public class RadioDriverTest {
     @After
     public void tearDown() throws Exception {
         if (mRadioDriver != null) {
-            mRadioDriver.close();
+            mRadioDriver.disconnect();
             mRadioDriver = null;
         }
     }
@@ -38,7 +38,7 @@ public class RadioDriverTest {
         if (connectionDataList.isEmpty()) {
             fail("No active connections found. Please make sure at least one Crazyflie is turned on");
         } else {
-            mRadioDriver.connect(connectionDataList.get(0).getChannel(), connectionDataList.get(0).getDataRate());
+            mRadioDriver.connect(connectionDataList.get(0));
             for (int i = 0; i <= 50; i++) {
                 mRadioDriver.sendPacket(CrtpPacket.NULL_PACKET);
                 try {
@@ -57,7 +57,7 @@ public class RadioDriverTest {
         if (connectionDataList.isEmpty()) {
             fail("No active connections found. Please make sure at least one Crazyflie is turned on");
         } else {
-            mRadioDriver.connect(connectionDataList.get(0).getChannel(), connectionDataList.get(0).getDataRate());
+            mRadioDriver.connect(connectionDataList.get(0));
             for (int i = 0; i <= 10; i++) {
                 mRadioDriver.sendPacket(CrtpPacket.NULL_PACKET);
                 try {
@@ -90,7 +90,7 @@ public class RadioDriverTest {
 
     @Test
     public void testClose() {
-        mRadioDriver.close();
+        mRadioDriver.disconnect();
         assertFalse(mUsbLinkJava.isUsbConnected());
     }
 

@@ -1,5 +1,6 @@
 package se.bitcraze.crazyflie.lib;
 
+import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
 import se.bitcraze.crazyflie.lib.crazyradio.LinkListener;
 import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
@@ -11,7 +12,7 @@ import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
 public class DummyDriver extends CrtpDriver {
 
     @Override
-    public void connect(int channel, int datarate) {
+    public void connect(ConnectionData connectionData) {
         // TODO Auto-generated method stub
     }
 
@@ -37,7 +38,7 @@ public class DummyDriver extends CrtpDriver {
     }
 
     @Override
-    public void close() {
+    public void disconnect() {
         // TODO Auto-generated method stub
     }
 

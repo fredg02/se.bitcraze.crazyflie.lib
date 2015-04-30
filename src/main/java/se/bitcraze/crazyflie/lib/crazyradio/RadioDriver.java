@@ -46,9 +46,9 @@ public class RadioDriver extends CrtpDriver{
     }
 
     /* (non-Javadoc)
-     * @see se.bitcraze.crazyflie.lib.crtp.CrtpDriver#connect(int, int)
+     * @see se.bitcraze.crazyflie.lib.crtp.CrtpDriver#connect(se.bitcraze.crazyflie.lib.crazyradio.ConnectionData)
      */
-    public void connect(int channel, int datarate) {
+    public void connect(ConnectionData connectionData) {
         if(mCradio == null) {
             this.mCradio = new Crazyradio(mUsbInterface);
         } else {
@@ -68,8 +68,8 @@ public class RadioDriver extends CrtpDriver{
             mLogger.warn("Radio version <0.4 will be obsolete soon!");
         }
 
-        this.mCradio.setChannel(channel);
-        this.mCradio.setDatarate(datarate);
+        this.mCradio.setChannel(connectionData.getChannel());
+        this.mCradio.setDatarate(connectionData.getDataRate());
 
         /*
         if uri_data.group(9):
@@ -140,7 +140,7 @@ public class RadioDriver extends CrtpDriver{
      * @see cflib.crtp.CrtpDriver#close()
      */
     @Override
-    public void close() {
+    public void disconnect() {
         mLogger.debug("close");
         // Stop the comm thread
         if (this.mRadioDriverThread != null) {
