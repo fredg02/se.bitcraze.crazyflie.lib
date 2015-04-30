@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
-import se.bitcraze.crazyflie.lib.crazyradio.LinkListener;
 import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
 import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
@@ -347,8 +346,6 @@ public class Crazyflie {
 
     /**
      * Notify all registered listeners about a requested connection
-     *
-     * @param linkUri
      */
     private void notifyConnectionRequested() {
             for (ConnectionListener cl : this.mConnectionListeners) {
@@ -377,6 +374,8 @@ public class Crazyflie {
 
     /**
      * Notify all registered listeners about a failed connection attempt.
+     *
+     * @param msg
      */
     private void notifyConnectionFailed(String msg) {
             for (ConnectionListener cl : this.mConnectionListeners) {
@@ -386,6 +385,8 @@ public class Crazyflie {
 
     /**
      * Notify all registered listeners about a lost connection.
+     *
+     * @param msg
      */
     private void notifyConnectionLost(String msg) {
             for (ConnectionListener cl : this.mConnectionListeners) {
@@ -404,6 +405,8 @@ public class Crazyflie {
 
     /**
      * Notify all registered listeners about a link quality update.
+     *
+     * @param percent quality of the link (0 = connection lost, 100 = good)
      */
     private void notifyLinkQualityUpdated(int percent) {
             for (ConnectionListener cl : this.mConnectionListeners) {

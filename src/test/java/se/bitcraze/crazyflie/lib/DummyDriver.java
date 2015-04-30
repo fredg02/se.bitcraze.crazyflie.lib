@@ -1,7 +1,7 @@
 package se.bitcraze.crazyflie.lib;
 
+import se.bitcraze.crazyflie.lib.crazyflie.LinkListener;
 import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
-import se.bitcraze.crazyflie.lib.crazyradio.LinkListener;
 import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
 

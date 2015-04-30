@@ -3,8 +3,8 @@ package se.bitcraze.crazyflie.lib.crtp;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import se.bitcraze.crazyflie.lib.crazyflie.LinkListener;
 import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
-import se.bitcraze.crazyflie.lib.crazyradio.LinkListener;
 
 /**
  * CTRP Driver main class
