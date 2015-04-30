@@ -1,5 +1,8 @@
 package se.bitcraze.crazyflie.lib.crtp;
 
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+
 import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
 import se.bitcraze.crazyflie.lib.crazyradio.LinkListener;
 
@@ -10,6 +13,8 @@ import se.bitcraze.crazyflie.lib.crazyradio.LinkListener;
  */
 public abstract class CrtpDriver {
 
+    protected Set<LinkListener> mLinkListeners = new CopyOnWriteArraySet<LinkListener>();
+
     /**
      * Driver constructor. Throw an exception if the driver is unable to open the URI
      */
@@ -18,7 +23,7 @@ public abstract class CrtpDriver {
 
     /**
      * Connect the driver
-     * 
+     *
      * @param connectionData
      */
     public abstract void connect(ConnectionData connectionData);
@@ -28,7 +33,7 @@ public abstract class CrtpDriver {
      */
     public abstract void disconnect();
 
-    
+
     /**
      * Send a CRTP packet
      *
@@ -45,18 +50,35 @@ public abstract class CrtpDriver {
     public abstract CrtpPacket receivePacket(int wait);
 
 
+    /* LINK LISTENER */
+
     /**
      * Add a link listener
      *
      * @param linkListener
      */
-    public abstract void addLinkListener(LinkListener linkListener);
+    public void addLinkListener(LinkListener listener) {
+        this.mLinkListeners.add(listener);
+    }
 
     /**
      * Remove a link listener
      *
      * @param linkListener
      */
-    public abstract void removeLinkListener(LinkListener linkListener);
+    public void removeLinkListener(LinkListener listener) {
+        this.mLinkListeners.remove(listener);
+    }
 
+    protected void notifyLinkQualityUpdated(int percent) {
+        for (LinkListener pl : this.mLinkListeners) {
+            pl.linkQualityUpdated(percent);
+        }
+    }
+
+    protected void notifyLinkError(String msg) {
+        for (LinkListener pl : this.mLinkListeners) {
+            pl.linkError(msg);
+        }
+    }
 }

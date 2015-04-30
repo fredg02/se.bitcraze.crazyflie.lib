@@ -3,9 +3,7 @@ package se.bitcraze.crazyflie.lib.crazyradio;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
@@ -31,8 +29,6 @@ public class RadioDriver extends CrtpDriver{
 
     private final BlockingDeque<CrtpPacket> mInQueue;
     private final BlockingDeque<CrtpPacket> mOutQueue;
-
-    private Set<LinkListener> mLinkListeners = new CopyOnWriteArraySet<LinkListener>();
 
     /**
      * Create the link driver
@@ -199,30 +195,6 @@ public class RadioDriver extends CrtpDriver{
 
         return connectionDataList;
     }
-
-
-    /* LINK LISTENER */
-
-    public void addLinkListener(LinkListener listener) {
-        this.mLinkListeners.add(listener);
-    }
-
-    public void removeLinkListener(LinkListener listener) {
-        this.mLinkListeners.remove(listener);
-    }
-
-    private void notifyLinkQualityUpdated(int percent) {
-        for (LinkListener pl : this.mLinkListeners) {
-            pl.linkQualityUpdated(percent);
-        }
-    }
-
-    private void notifyLinkError(String msg) {
-        for (LinkListener pl : this.mLinkListeners) {
-            pl.linkError(msg);
-        }
-    }
-
 
     /**
      * Radio link receiver thread is used to read data from the Crazyradio USB driver.
