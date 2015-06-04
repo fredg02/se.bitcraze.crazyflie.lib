@@ -62,41 +62,5 @@ public class LogTocElement extends TocElement {
             }
         }
     }
-    /*
-        @staticmethod
-        def get_id_from_cstring(name):
-            """Return variable type id given the C-storage name"""
-            for key in LogTocElement.types.keys():
-                if (LogTocElement.types[key][0] == name):
-                    return key
-            raise KeyError("Type [%s] not found in LogTocElement.types!" % name)
-
-        @staticmethod
-        def get_cstring_from_id(ident):
-            """Return the C-storage name given the variable type id"""
-            try:
-                return LogTocElement.types[ident][0]
-            except KeyError:
-                raise KeyError("Type [%d] not found in LogTocElement.types"
-                               "!" % ident)
-
-        @staticmethod
-        def get_size_from_id(ident):
-            """Return the size in bytes given the variable type id"""
-            try:
-                return LogTocElement.types[ident][2]
-            except KeyError:
-                raise KeyError("Type [%d] not found in LogTocElement.types"
-                               "!" % ident)
-
-        @staticmethod
-        def get_unpack_string_from_id(ident):
-            """Return the Python unpack string given the variable type id"""
-            try:
-                return LogTocElement.types[ident][1]
-            except KeyError:
-                raise KeyError("Type [%d] not found in LogTocElement.types"
-                               "!" % ident)
-    */
 
 }
