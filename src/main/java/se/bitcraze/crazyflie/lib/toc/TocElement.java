@@ -1,5 +1,7 @@
 package se.bitcraze.crazyflie.lib.toc;
 
+import java.nio.charset.Charset;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
@@ -69,6 +71,16 @@ public class TocElement {
     @JsonIgnore
     public String getReadableAccess() {
         return (getAccess() == RO_ACCESS) ? "RO" : "RW";
+    }
+
+    protected void setGroupAndName(byte[] payload) {
+        int offset = 2;
+        byte[] trimmedPayload = new byte[payload.length-offset];
+        System.arraycopy(payload, offset, trimmedPayload, 0, trimmedPayload.length);
+        String temp = new String(trimmedPayload, Charset.forName("US-ASCII"));
+        String[] split = temp.split("\0");
+        setGroup(split[0]);
+        setName(split[1]);
     }
 
     @Override

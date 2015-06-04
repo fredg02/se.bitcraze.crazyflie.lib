@@ -1,6 +1,5 @@
 package se.bitcraze.crazyflie.lib.param;
 
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,6 +39,7 @@ public class ParamTocElement extends TocElement {
         VARIABLE_TYPE_MAP.put(0x01, VariableType.INT16_T);
         VARIABLE_TYPE_MAP.put(0x02, VariableType.INT32_T);
         VARIABLE_TYPE_MAP.put(0x03, VariableType.INT64_T);
+        /*TODO: 0x05 FP16*/
         VARIABLE_TYPE_MAP.put(0x06, VariableType.FLOAT);
         VARIABLE_TYPE_MAP.put(0x07, VariableType.DOUBLE);
     }
@@ -67,16 +67,6 @@ public class ParamTocElement extends TocElement {
                 setAccess(RW_ACCESS);
             }
         }
-    }
-
-    private void setGroupAndName(byte[] payload) {
-        int offset = 2;
-        byte[] trimmedPayload = new byte[payload.length-offset];
-        System.arraycopy(payload, offset, trimmedPayload, 0, trimmedPayload.length);
-        String temp = new String(trimmedPayload, Charset.forName("US-ASCII"));
-        String[] split = temp.split("\0");
-        setGroup(split[0]);
-        setName(split[1]);
     }
 
 }
