@@ -11,8 +11,8 @@ import se.bitcraze.crazyflie.lib.toc.VariableType;
  */
 public class LogVariable {
 
-    private final static int TOC_TYPE = 0;
-    private final static int MEM_TYPE = 1;
+    public final static int TOC_TYPE = 0;
+    public final static int MEM_TYPE = 1;
 
     private String mName;
     private VariableType mVariableType;
