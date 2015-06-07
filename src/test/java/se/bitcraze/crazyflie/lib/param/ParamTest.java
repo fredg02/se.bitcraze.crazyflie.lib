@@ -52,6 +52,7 @@ public class ParamTest {
 
         crazyflie.connect(mConnectionData);
 
+        // setup finished timeout
         boolean isTimeout = false;
         long startTime = System.currentTimeMillis();
         while(!mSetupFinished && !isTimeout) {

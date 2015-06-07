@@ -13,6 +13,7 @@ import se.bitcraze.crazyflie.lib.crazyflie.DataListener;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket.Header;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
+import se.bitcraze.crazyflie.lib.log.LogTocElement;
 import se.bitcraze.crazyflie.lib.param.ParamTocElement;
 
 /**
@@ -144,15 +145,16 @@ public class TocFetcher {
                 }
 
                 // self.toc.add_element(self.element_class(payload))
-
+                TocElement tocElement;
                 if (mPort == CrtpPort.LOGGING) {
-                    //TODO: mToc.addElement(new LogTocElement(payload));
+                    tocElement = new LogTocElement(payloadBuffer.array());
                 } else {
-                    ParamTocElement paramTocElement = new ParamTocElement(payloadBuffer.array());
-                    mToc.addElement(paramTocElement);
+                    tocElement = new ParamTocElement(payloadBuffer.array());
                 }
+                mToc.addElement(tocElement);
 
                 //logger.debug("Added element [%s]", self.element_class(payload).ident)
+                mLogger.debug("Added "+ tocElement.getClass().getSimpleName() + " [" + tocElement.getIdent() + "] to TOC");
 
                 if(mRequestedIndex < (mNoOfItems - 1)) {
                     mLogger.debug("[" + this.mPort + "]: More variables, requesting index " + (this.mRequestedIndex + 1));

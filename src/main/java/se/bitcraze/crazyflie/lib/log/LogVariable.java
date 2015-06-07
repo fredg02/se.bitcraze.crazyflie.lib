@@ -16,7 +16,7 @@ public class LogVariable {
 
     private String mName;
     private VariableType mVariableType;
-    private int mType = MEM_TYPE;;
+    private int mType = TOC_TYPE; // default is TOC_TYPE
     private int mAddress = 0; //TODO: long?
 
     public LogVariable(String name) {
