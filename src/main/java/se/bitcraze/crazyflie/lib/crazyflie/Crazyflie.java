@@ -126,7 +126,6 @@ public class Crazyflie {
 
         if (mState == State.CONNECTED) {
             startConnectionSetup();
-
         } else {
             notifyConnectionFailed("Connection failed");
             disconnect();
@@ -147,6 +146,9 @@ public class Crazyflie {
             }
             if(mIncomingPacketHandlerThread != null) {
                 mIncomingPacketHandlerThread.interrupt();
+            }
+            if(mResendQueueHandlerThread != null) {
+                mResendQueueHandlerThread.interrupt();
             }
             notifyDisconnected();
             mState = State.DISCONNECTED;
@@ -219,7 +221,7 @@ public class Crazyflie {
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    mLogger.debug("ResendQueueHandlerThread was interrupted.");
                     break;
                 }
             }

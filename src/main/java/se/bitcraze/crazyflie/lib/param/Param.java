@@ -78,6 +78,9 @@ public class Param {
             @Override
             public void disconnected(String connectionInfo) {
                 mPut.close();
+                if (mParamUpdaterThread != null) {
+                    mParamUpdaterThread.interrupt();
+                }
             }
         });
 
@@ -364,7 +367,8 @@ public class Param {
                     //TODO: is "take()" the right method?
                     packet = mRequestQueue.take();
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    mLogger.debug("ParamUpdaterThread was interrupted.1");
+                    break;
                 }
                 //self.wait_lock.acquire()
                 //if self.cf.link:
@@ -387,7 +391,8 @@ public class Param {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    mLogger.debug("ParamUpdaterThread was interrupted.2");
+                    break;
                 }
             }
         }
