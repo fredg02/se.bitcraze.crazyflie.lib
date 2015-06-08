@@ -19,7 +19,7 @@ import se.bitcraze.crazyflie.lib.toc.TocFetcher;
 import se.bitcraze.crazyflie.lib.toc.TocFetcher.TocFetchFinishedListener;
 
 //TODO: find better name
-//TODO: instead of "block" always use "log config"
+//TODO: add remaining callbacks/listeners
 public class Logg {
 
     final Logger mLogger = LoggerFactory.getLogger("Logging");
@@ -32,8 +32,9 @@ public class Logg {
     private TocCache mTocCache = null;
     private TocFetchFinishedListener mTocFetchFinishedListener;
 
-    private List<LogConfig> mLogBlocks = new ArrayList<LogConfig>();
+    private List<LogConfig> mLogConfigs = new ArrayList<LogConfig>();
     private int mLogConfigIdCounter = 0;
+
 
     /*
      * These codes can be decoded using os.stderror, but
@@ -43,9 +44,9 @@ public class Logg {
     public enum ErrCodes {
         ENOMEM ("No more memory available"),
         ENOEXEC ("Command not found"),
-        ENOENT ("No such block ID"),
-        E2BIG ("Block too large"),
-        EEXIST ("Block already exists");
+        ENOENT ("No such log config ID"),
+        E2BIG ("Log config too large"),
+        EEXIST ("Log config already exists");
 
         private String mMsg;
 
@@ -90,13 +91,14 @@ public class Logg {
     }
 
     /**
-     * Add a log configuration to the logging framework
-     *
+     * Add a log configuration to the logging framework <br/>
+     * <br/>
      * When doing this the contents of the log configuration will be validated
-     * and listeners for new log configurations will be notified.
+     * and listeners for new log configurations will be notified.<br/>
      * When validating the configuration the variables are checked against the TOC
-     * to see that they actually exist. If they don't then the configuration
-     * cannot be used. Since a valid TOC is required, a Crazyflie has to be
+     * to see that they actually exist. If they don't exist then the configuration
+     * cannot be used.<br/>
+     * Since a valid TOC is required, a Crazyflie has to be
      * connected when calling this method, otherwise it will fail.
      *
      * @param logConfig
@@ -110,14 +112,14 @@ public class Logg {
         /*
          * If the log configuration contains variables that we added without
          * type (i.e we want the stored as type for fetching as well) then
-         * resolve this now and add them to the block again.
+         * resolve this now and add the variable type.
          */
         for(LogVariable logVariable : logConfig.getLogVariables()) {
             if (logVariable.getVariableType() == null) {
                 String name = logVariable.getName();
                 TocElement tocElement = mToc.getElementByCompleteName(name);
                 if (tocElement == null) {
-                    mLogger.warn(name + "is not in TOC, this block cannot be used!");
+                    mLogger.warn(name + "is not in TOC, this log config cannot be used!");
                     logConfig.setValid(false);
                     // raise KeyError("Variable {} not in TOC".format(name))
                 } else {
@@ -146,7 +148,7 @@ public class Logg {
             // TODO: seems to be redundant
             if (logVariable.isTocVariable()) {
                 if (mToc.getElementByCompleteName(logVariable.getName()) == null) {
-                    mLogger.warn("Log: " + logVariable.getName() + " not in TOC, this block cannot be used!");
+                    mLogger.warn(logVariable.getName() + " not in TOC, this log config cannot be used!");
                     logConfig.setValid(false);
                     // raise KeyError("Variable {} not in TOC".format(var.name))
                 }
@@ -160,7 +162,7 @@ public class Logg {
             // set log config ID
             logConfig.setId((mLogConfigIdCounter + 1) % 255);
 
-            mLogBlocks.add(logConfig);
+            mLogConfigs.add(logConfig);
             // TODO: self.block_added_cb.call(logconf)
         } else {
             logConfig.setValid(false);
@@ -185,7 +187,7 @@ public class Logg {
     }
 
     private LogConfig findLogConfig (int id) {
-        for (LogConfig logConfig : mLogBlocks) {
+        for (LogConfig logConfig : mLogConfigs) {
             if (logConfig.getId() == id) {
                 return logConfig;
             }
@@ -215,11 +217,11 @@ public class Logg {
             int errorStatus = payload[2];
             LogConfig logConfig = findLogConfig(id);
 
-            if (cmd == CMD_CREATE_BLOCK) {
+            if (cmd == CMD_CREATE_LOGCONFIG) {
                 if (logConfig != null) {
                     if (errorStatus == 0x00) {
                         if (!logConfig.isAdded()) {
-                            mLogger.debug("Have successfully added id=" + id);
+                            mLogger.debug("Have successfully added log config ID=" + id);
 
                             // TODO: call start(LogConfig) instead?
                             // TODO: double check with start method (add & start vs just add)
@@ -235,7 +237,7 @@ public class Logg {
                     } else {
                         // msg = self._err_codes[error_status]
                         String msg = ErrCodes.values()[errorStatus].getMsg();
-                        mLogger.warn("Error " + errorStatus + " when adding id=" + id + "(" + msg + ")");
+                        mLogger.warn("Error " + errorStatus + " when adding ID=" + id + "(" + msg + ")");
 
                         logConfig.setErrNo(errorStatus);
                         /*
@@ -245,18 +247,18 @@ public class Logg {
                         */
                     }
                 } else {
-                    mLogger.warn("No LogEntry to assign block to !!!");
+                    mLogger.warn("No LogEntry to assign log config to !!!");
                 }
             } else if (cmd == CMD_START_LOGGING) {
                 if (errorStatus == 0x00) {
-                    mLogger.info("Have successfully started logging for id=" +id);
+                    mLogger.info("Have successfully started logging for log config ID=" +id);
                     if (logConfig != null) {
                         logConfig.setStarted(true);
                     }
                 } else {
                     // msg = self._err_codes[error_status]
                     String msg = ErrCodes.values()[errorStatus].getMsg();
-                    mLogger.warn("Error " + errorStatus + " when starting id=" + id + "(" + msg + ")");
+                    mLogger.warn("Error " + errorStatus + " when starting ID=" + id + "(" + msg + ")");
 
                     if (logConfig != null) {
                         logConfig.setErrNo(errorStatus);
@@ -264,7 +266,7 @@ public class Logg {
                         block.started_cb.call(False)
                         # This is a temporary fix, we are adding a new issue
                         # for this. For some reason we get an error back after
-                        # the block has been started and added. This will show
+                        # the log config has been started and added. This will show
                         # an error in the UI, but everything is still working.
                         #block.error_cb.call(block, msg)
                         */
@@ -272,18 +274,18 @@ public class Logg {
                 }
             } else if (cmd == CMD_STOP_LOGGING) {
                 if (errorStatus == 0x00) {
-                    mLogger.info("Have successfully stopped logging for id=" + id);
+                    mLogger.info("Have successfully stopped logging for ID=" + id);
                     if (logConfig != null) {
                         logConfig.setStarted(false);
                     }
                 }
-            } else if (cmd == CMD_DELETE_BLOCK) {
+            } else if (cmd == CMD_DELETE_LOGCONFIG) {
                 /*
-                 * Accept deletion of a block that isn't added. This could
+                 * Accept deletion of a log config that hasn't been added. This could
                  * happen due to timing (i.e add/start/delete in fast sequence)
                  */
                 if (errorStatus == 0x00) {
-                    mLogger.info("Have successfully deleted id=" + id);
+                    mLogger.info("Have successfully deleted log config ID=" + id);
                     if (logConfig != null) {
                         logConfig.setStarted(false);
                         logConfig.setAdded(false);
@@ -293,7 +295,7 @@ public class Logg {
                 // Guard against multiple responses due to re-sending
                 if (mToc == null) {
                     mLogger.debug("Logging reset, continue with TOC download");
-                    mLogBlocks = new ArrayList<LogConfig>();
+                    mLogConfigs = new ArrayList<LogConfig>();
 
                     mToc = new Toc();
                     // toc_fetcher = TocFetcher(self.cf, LogTocElement, CRTPPort.LOGGING, self.toc, self._refresh_callback, self._toc_cache)
@@ -319,7 +321,7 @@ public class Logg {
                 //TODO: what to do with the unpacked data?
                 //TODO: timestamps and callback (either here or in LogConfig.unpackLogData())
 
-                mLogger.debug("Unpacked log data (ID: " + id + ") with timestamp + " + timestamp);
+                mLogger.debug("Unpacked log data (ID: " + id + ") with time stamp " + timestamp);
             } else {
                 mLogger.warn("Error no LogEntry to handle id=" + id);
             }
@@ -342,9 +344,9 @@ public class Logg {
     /* Methods from LogConfig class */
 
     // Commands used when accessing the Log configurations
-    private final static int CMD_CREATE_BLOCK = 0;
-    private final static int CMD_APPEND_BLOCK = 1;
-    private final static int CMD_DELETE_BLOCK = 2;
+    private final static int CMD_CREATE_LOGCONFIG = 0;
+    private final static int CMD_APPEND_LOGCONFIG = 1;
+    private final static int CMD_DELETE_LOGCONFIG = 2;
     private final static int CMD_START_LOGGING = 3;
     private final static int CMD_STOP_LOGGING = 4;
     private final static int CMD_RESET_LOGGING = 5;
@@ -370,13 +372,13 @@ public class Logg {
         int id = logConfig.getId();
 
         ByteBuffer bb = ByteBuffer.allocate(31);
-        bb.put((byte) CMD_CREATE_BLOCK);
+        bb.put((byte) CMD_CREATE_LOGCONFIG);
         bb.put((byte) logConfig.getId());
 
         for (LogVariable variable : logConfig.getLogVariables()) {
             if(!variable.isTocVariable()) { // Memory location
                 // logger.debug("Logging to raw memory %d, 0x%04X", var.get_storage_and_fetch_byte(), var.address)
-                mLogger.debug("Logging to raw memory.");
+                mLogger.debug("Logging to raw memory, address: " + variable.getAddress());
                 // pk.data += struct.pack('<B', var.get_storage_and_fetch_byte())
                 // pk.data += struct.pack('<I', var.address)
                 bb.put(new byte[] {(byte) variable.getVariableType().ordinal(), (byte) variable.getAddress()});
@@ -389,12 +391,12 @@ public class Logg {
                 bb.put(new byte[] {(byte) variable.getVariableType().ordinal(), (byte) variableId});
             }
         }
-        mLogger.debug("Adding log block ID " + id);
+        mLogger.debug("Adding log config ID " + id);
 
         // Create packet
         Header header = new Header(CHAN_SETTINGS, CrtpPort.LOGGING);
         CrtpPacket packet = new CrtpPacket(header.getByte(), bb.array());
-        packet.setExpectedReply(new byte[]{CMD_CREATE_BLOCK, (byte) id});
+        packet.setExpectedReply(new byte[]{CMD_CREATE_LOGCONFIG, (byte) id});
         this.mCrazyflie.sendPacket(packet);
     }
 
@@ -408,9 +410,9 @@ public class Logg {
         if (mCrazyflie.getDriver() != null) {
             if (!logConfig.isAdded()) {
                 create(logConfig);
-                mLogger.debug("First time block is started, add block");
+                mLogger.debug("First time log config is started, add log config");
             } else {
-                mLogger.debug("Block already registered, starting logging for id" + logConfig.getId());
+                mLogger.debug("Log config already registered, starting logging for ID=" + logConfig.getId());
             }
 
             Header header = new Header(CHAN_SETTINGS, CrtpPort.LOGGING);
@@ -429,9 +431,9 @@ public class Logg {
         // if (mCrazyflie.getDriver() != null && mCrazyflie.getDriver().isConnected()) {
         if (mCrazyflie.getDriver() != null) {
             if (logConfig.getId() == -1) {
-                mLogger.warn("Stopping block, but no block registered");
+                mLogger.warn("Stopping log config, but no log config registered");
             } else {
-                mLogger.debug("Sending stop logging for block id=" + logConfig.getId());
+                mLogger.debug("Sending stop logging for ID=" + logConfig.getId());
                 Header header = new Header(CHAN_SETTINGS, CrtpPort.LOGGING);
                 CrtpPacket packet = new CrtpPacket(header.getByte(), new byte[] {CMD_STOP_LOGGING, (byte) logConfig.getId()});
                 packet.setExpectedReply(new byte[]{CMD_STOP_LOGGING, (byte) logConfig.getId()});
@@ -448,12 +450,12 @@ public class Logg {
         // if (mCrazyflie.getDriver() != null && mCrazyflie.getDriver().isConnected()) {
         if (mCrazyflie.getDriver() != null) {
             if (logConfig.getId() == -1) {
-                mLogger.warn("Delete block, but no block registered");
+                mLogger.warn("Delete log config, but no log config registered");
             } else {
                 mLogger.debug("Sending delete logging for ID=" + logConfig.getId());
                 Header header = new Header(CHAN_SETTINGS, CrtpPort.LOGGING);
-                CrtpPacket packet = new CrtpPacket(header.getByte(), new byte[] {CMD_DELETE_BLOCK, (byte) logConfig.getId()});
-                packet.setExpectedReply(new byte[]{CMD_DELETE_BLOCK, (byte) logConfig.getId()});
+                CrtpPacket packet = new CrtpPacket(header.getByte(), new byte[] {CMD_DELETE_LOGCONFIG, (byte) logConfig.getId()});
+                packet.setExpectedReply(new byte[]{CMD_DELETE_LOGCONFIG, (byte) logConfig.getId()});
                 mCrazyflie.sendPacket(packet);
             }
         }
