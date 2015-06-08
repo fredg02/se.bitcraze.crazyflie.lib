@@ -11,6 +11,7 @@ import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
 import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
 import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
+import se.bitcraze.crazyflie.lib.log.Logg;
 import se.bitcraze.crazyflie.lib.param.Param;
 import se.bitcraze.crazyflie.lib.toc.TocCache;
 import se.bitcraze.crazyflie.lib.toc.TocFetcher.TocFetchFinishedListener;
@@ -37,6 +38,7 @@ public class Crazyflie {
     private PacketListener mPacketListener;
 
     private Param mParam;
+    private Logg mLogg;
     private TocCache mTocCache;
 
     /**
@@ -253,13 +255,10 @@ public class Crazyflie {
      */
     public void startConnectionSetup() {
         mLogger.info("We are connected [" + mConnectionData.toString() + "], requesting connection setup...");
-        //FIXME
-        //Skipping log and param setup for now
-        //this.mLog.refreshToc(self._log_toc_updated_cb, self._toc_cache);
 
         mParam = new Param(this);
-        TocFetchFinishedListener paramTocFetchFinishedListener = new TocFetchFinishedListener() {
-
+        //must be defined first to be usable in Log TocFetchFinishedListener
+        final TocFetchFinishedListener paramTocFetchFinishedListener = new TocFetchFinishedListener() {
             public void tocFetchFinished() {
                 //_param_toc_updated_cb(self):
                 mLogger.info("Param TOC finished updating.");
@@ -267,14 +266,30 @@ public class Crazyflie {
                 //TODO: should be set only after log, param, mems are all updated
                 mState = State.SETUP_FINISHED;
                 notifySetupFinished();
-
             }
         };
-        mParam.refreshToc(paramTocFetchFinishedListener, mTocCache);
+
+        //mLog.refreshToc(self._log_toc_updated_cb, self._toc_cache);
+        mLogg = new Logg(this);
+        TocFetchFinishedListener loggTocFetchFinishedListener = new TocFetchFinishedListener() {
+            public void tocFetchFinished() {
+                mLogger.info("Logg TOC finished updating.");
+
+                //after log toc has been fetched, fetch param toc
+                mParam.refreshToc(paramTocFetchFinishedListener, mTocCache);
+            }
+        };
+        mLogg.refreshToc(loggTocFetchFinishedListener, mTocCache);
+
+        //TODO: self.mem.refresh(self._mems_updated_cb)
     }
 
     public Param getParam() {
         return mParam;
+    }
+
+    public Logg getLogg() {
+        return mLogg;
     }
 
     //TODO: do this properly
@@ -309,9 +324,16 @@ public class Crazyflie {
     /**
      * @param inPacket
      */
-    private void notifyDataReceived(CrtpPacket inPacket) {
+    private void notifyDataReceived(CrtpPacket packet) {
+        boolean found = false;
         for (DataListener dataListener : mDataListeners) {
-            dataListener.dataReceived(inPacket);
+            if (dataListener.getPort() == packet.getHeader().getPort()) {
+                dataListener.dataReceived(packet);
+                found = true;
+            }
+        }
+        if (!found) {
+            //mLogger.warn("Got packet on port [" + packet.getHeader().getPort() + "] but found no data listener to handle it.");
         }
     }
 
@@ -442,16 +464,7 @@ public class Crazyflie {
                     //self.cf.packet_received.call(pk)
                     notifyPacketReceived(packet);
 
-                    boolean found = false;
-                    for (DataListener dataListener : mDataListeners) {
-                        if (dataListener.getPort() == packet.getHeader().getPort()) {
-                            notifyDataReceived(packet);
-                            found = true;
-                        }
-                    }
-                    if (!found) {
-                        //mLogger.warn("Got packet on port [" + packet.getHeader().getPort() + "] but found no data listener to handle it.");
-                    }
+                    notifyDataReceived(packet);
                 } catch(InterruptedException e) {
                     mLogger.debug("IncomingPacketHandlerThread was interrupted.");
                     break;

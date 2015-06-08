@@ -16,21 +16,24 @@ import se.bitcraze.crazyflie.lib.toc.Toc;
 import se.bitcraze.crazyflie.lib.toc.TocCache;
 import se.bitcraze.crazyflie.lib.toc.TocElement;
 import se.bitcraze.crazyflie.lib.toc.TocFetcher;
+import se.bitcraze.crazyflie.lib.toc.TocFetcher.TocFetchFinishedListener;
 
 //TODO: find better name
 //TODO: instead of "block" always use "log config"
 public class Logg {
 
-    final Logger mLogger = LoggerFactory.getLogger("Logger");
+    final Logger mLogger = LoggerFactory.getLogger("Logging");
 
     // The max size of a CRTP packet payload
     private final static int MAX_LOG_DATA_PACKET_SIZE = 30;
 
     private Crazyflie mCrazyflie;
-    private List<LogConfig> mLogBlocks = new ArrayList<LogConfig>();
     private Toc mToc = null;
     private TocCache mTocCache = null;
+    private TocFetchFinishedListener mTocFetchFinishedListener;
 
+    private List<LogConfig> mLogBlocks = new ArrayList<LogConfig>();
+    private int mLogConfigIdCounter = 0;
 
     /*
      * These codes can be decoded using os.stderror, but
@@ -63,6 +66,7 @@ public class Logg {
         self.block_added_cb = Caller()
          */
 
+        // TODO: there are two dataListeners active on CrtpPort.LOGGING (one in Logg and one in TocFetcher)
         // self.cf.add_port_callback(CRTPPort.LOGGING, self._new_packet_cb)
         mCrazyflie.addDataListener(new DataListener(CrtpPort.LOGGING) {
             @Override
@@ -78,6 +82,11 @@ public class Logg {
 
         self._refresh_callback = None
         */
+    }
+
+    //TODO: only for debugging
+    public Toc getToc() {
+        return this.mToc;
     }
 
     /**
@@ -147,6 +156,10 @@ public class Logg {
         if (size <= MAX_LOG_DATA_PACKET_SIZE && (logConfig.getPeriod() > 0 && logConfig.getPeriod() < 0xFF)) {
             logConfig.setValid(true);
             // logconf.cf = self.cf         -> not necessary in Java
+
+            // set log config ID
+            logConfig.setId((mLogConfigIdCounter + 1) % 255);
+
             mLogBlocks.add(logConfig);
             // TODO: self.block_added_cb.call(logconf)
         } else {
@@ -159,11 +172,11 @@ public class Logg {
      * Start refreshing the table of loggable variables
      */
     // def refresh_toc(self, refresh_done_callback, toc_cache):
-    public void refreshToc(/*RefreshDoneListener listener, */TocCache tocCache) {
-
+    public void refreshToc(TocFetchFinishedListener listener, TocCache tocCache) {
+        this.mToc = null;
         this.mTocCache = tocCache;
         // self._refresh_callback = refresh_done_callback
-        this.mToc = null;
+        this.mTocFetchFinishedListener = listener;
 
         Header header = new Header(CHAN_SETTINGS, CrtpPort.LOGGING);
         CrtpPacket packet = new CrtpPacket(header.getByte(), new byte[]{CMD_RESET_LOGGING});
@@ -188,16 +201,18 @@ public class Logg {
     public void newPacketReceived(CrtpPacket packet) {
         int channel = packet.getHeader().getChannel();
 
-        //TODO
+        //TODO: cmd vs id in payload[0] !?!
         //cmd = packet.datal[0]
-        byte cmd = 1;
+        byte cmd = packet.getPayload()[0];
 
         // payload = struct.pack("B" * (len(packet.datal) - 1), *packet.datal[1:])
+        //TODO: payload starts on third byte!?
+
         byte[] payload = packet.getPayload();
 
         if (channel == CHAN_SETTINGS) {
-            int id = payload[0];
-            int errorStatus = payload[1];
+            int id = payload[1];
+            int errorStatus = payload[2];
             LogConfig logConfig = findLogConfig(id);
 
             if (cmd == CMD_CREATE_BLOCK) {
@@ -283,11 +298,13 @@ public class Logg {
                     mToc = new Toc();
                     // toc_fetcher = TocFetcher(self.cf, LogTocElement, CRTPPort.LOGGING, self.toc, self._refresh_callback, self._toc_cache)
                     TocFetcher tocFetcher = new TocFetcher(mCrazyflie, CrtpPort.LOGGING, mToc, mTocCache);
+                    tocFetcher.addTocFetchFinishedListener(mTocFetchFinishedListener);
                     tocFetcher.start();
                 }
             }
         } else if (channel == CHAN_LOGDATA) {
             // TODO: extract into separate method
+            // TODO: fix payload offset
             int id = payload[0];
             LogConfig logConfig = findLogConfig(id);
 
@@ -365,10 +382,11 @@ public class Logg {
                 bb.put(new byte[] {(byte) variable.getVariableType().ordinal(), (byte) variable.getAddress()});
             } else { // Item in TOC
                 // logger.debug("Adding %s with id=%d and type=0x%02X", var.name, self.cf.log.toc.get_element_id(var.name), var.get_storage_and_fetch_byte())
-                mLogger.debug("Adding " + variable.getName() + " with id " + id + " and type " + variable.getVariableType());
+                int variableId = mToc.getElementId(variable.getName());
+                mLogger.debug("Adding " + variable.getName() + " with id " + mToc.getElementId(variable.getName()) + " and type " + variable.getVariableType());
                 // pk.data += struct.pack('<B', var.get_storage_and_fetch_byte())
                 // pk.data += struct.pack('<B', self.cf.log.toc.get_element_id(var.name))
-                bb.put(new byte[] {(byte) variable.getVariableType().ordinal(), (byte) mToc.getElementId(variable.getName())});
+                bb.put(new byte[] {(byte) variable.getVariableType().ordinal(), (byte) variableId});
             }
         }
         mLogger.debug("Adding log block ID " + id);
@@ -432,7 +450,7 @@ public class Logg {
             if (logConfig.getId() == -1) {
                 mLogger.warn("Delete block, but no block registered");
             } else {
-                // mLogger.debug("LogEntry: Sending delete logging for block id=%d" % self.id)
+                mLogger.debug("Sending delete logging for ID=" + logConfig.getId());
                 Header header = new Header(CHAN_SETTINGS, CrtpPort.LOGGING);
                 CrtpPacket packet = new CrtpPacket(header.getByte(), new byte[] {CMD_DELETE_BLOCK, (byte) logConfig.getId()});
                 packet.setExpectedReply(new byte[]{CMD_DELETE_BLOCK, (byte) logConfig.getId()});

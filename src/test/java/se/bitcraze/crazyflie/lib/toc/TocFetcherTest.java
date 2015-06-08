@@ -82,7 +82,7 @@ public class TocFetcherTest {
 
         crazyflie.connect(CrazyflieTest.channel, CrazyflieTest.datarate);
 
-        for (int i = 0; i < 200; i++) {
+        for (int i = 0; i < 500; i++) {
             crazyflie.sendPacket(new CommanderPacket(0, 0, 0, (char) 0));
             try {
                 Thread.sleep(50);
@@ -97,14 +97,28 @@ public class TocFetcherTest {
         assertEquals(true, mStateSetupFinished);
         assertEquals(true, mStateDisconnected);
 
-        Toc toc = crazyflie.getParam().getToc();
-        List<TocElement> elements = toc.getElements();
-        System.out.println("Number of Param TOC elements: " + elements.size());
+        // PARAM
+        Toc paramToc = crazyflie.getParam().getToc();
+        List<TocElement> paramElements = paramToc.getElements();
+        System.out.println("Number of Param TOC elements: " + paramElements.size());
 
-        assertEquals(53, elements.size());
+        assertEquals(53, paramElements.size());
 
-        for (TocElement tocElement : elements) {
-            System.out.println(tocElement);
+        for (TocElement paramTocElement : paramElements) {
+            System.out.println(paramTocElement);
+        }
+
+        System.out.println();
+
+        // LOGG
+        Toc logToc = crazyflie.getLogg().getToc();
+        List<TocElement> logElements = logToc.getElements();
+        System.out.println("Number of Logg TOC elements: " + logElements.size());
+
+        assertEquals(37, logElements.size());
+
+        for (TocElement logTocElement : logElements) {
+            System.out.println(logTocElement);
         }
     }
 
