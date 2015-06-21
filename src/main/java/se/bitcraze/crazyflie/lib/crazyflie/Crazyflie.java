@@ -440,9 +440,6 @@ public class Crazyflie {
 
     /**
      * Handles incoming packets and sends the data to the correct listeners
-     *
-     * TODO: respect also channel specific data listeners?
-     *
      */
     public class IncomingPacketHandler implements Runnable {
 

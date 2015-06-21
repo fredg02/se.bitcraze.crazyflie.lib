@@ -121,6 +121,7 @@ public class Logg {
                 if (tocElement == null) {
                     mLogger.warn(name + "is not in TOC, this log config cannot be used!");
                     logConfig.setValid(false);
+                    return;
                     // raise KeyError("Variable {} not in TOC".format(name))
                 } else {
                     // Now that we know what type this variable has, set the correct type
@@ -150,6 +151,7 @@ public class Logg {
                 if (mToc.getElementByCompleteName(logVariable.getName()) == null) {
                     mLogger.warn(logVariable.getName() + " not in TOC, this log config cannot be used!");
                     logConfig.setValid(false);
+                    return;
                     // raise KeyError("Variable {} not in TOC".format(var.name))
                 }
             }
@@ -166,6 +168,7 @@ public class Logg {
             // TODO: self.block_added_cb.call(logconf)
         } else {
             logConfig.setValid(false);
+            return;
             // raise AttributeError("The log configuration is too large or has an invalid parameter")
         }
     }
@@ -221,7 +224,7 @@ public class Logg {
                 if (logConfig != null) {
                     if (errorStatus == 0x00) {
                         if (!logConfig.isAdded()) {
-                            mLogger.debug("Have successfully added log config ID=" + id);
+                            mLogger.debug("Successfully added log config ID=" + id);
 
                             // TODO: call start(LogConfig) instead?
                             // TODO: double check with start method (add & start vs just add)
@@ -236,7 +239,13 @@ public class Logg {
 
                     } else {
                         // msg = self._err_codes[error_status]
-                        String msg = ErrCodes.values()[errorStatus].getMsg();
+                        // TODO: quick workaround for errorStatus 17 ?!
+                        String msg = "";
+                        if (errorStatus == 17) {
+                            msg = "17!?";
+                        } else {
+                            msg = ErrCodes.values()[errorStatus].getMsg();
+                        }
                         mLogger.warn("Error " + errorStatus + " when adding ID=" + id + "(" + msg + ")");
 
                         logConfig.setErrNo(errorStatus);
@@ -251,7 +260,7 @@ public class Logg {
                 }
             } else if (cmd == CMD_START_LOGGING) {
                 if (errorStatus == 0x00) {
-                    mLogger.info("Have successfully started logging for log config ID=" +id);
+                    mLogger.info("Successfully started logging for log config ID=" +id);
                     if (logConfig != null) {
                         logConfig.setStarted(true);
                     }
@@ -274,7 +283,7 @@ public class Logg {
                 }
             } else if (cmd == CMD_STOP_LOGGING) {
                 if (errorStatus == 0x00) {
-                    mLogger.info("Have successfully stopped logging for ID=" + id);
+                    mLogger.info("Successfully stopped logging for ID=" + id);
                     if (logConfig != null) {
                         logConfig.setStarted(false);
                     }
@@ -285,7 +294,7 @@ public class Logg {
                  * happen due to timing (i.e add/start/delete in fast sequence)
                  */
                 if (errorStatus == 0x00) {
-                    mLogger.info("Have successfully deleted log config ID=" + id);
+                    mLogger.info("Successfully deleted log config ID=" + id);
                     if (logConfig != null) {
                         logConfig.setStarted(false);
                         logConfig.setAdded(false);
@@ -358,45 +367,42 @@ public class Logg {
     private final static int CHAN_LOGDATA = 2;
 
 
-    /*
-    this.mId = mConfigIdCounter;
-    mConfigIdCounter = (mConfigIdCounter + 1) % 255;
-    */
-
     //TODO: callbacks
 
     /**
      * Save the log configuration in the Crazyflie
      */
     public void create(LogConfig logConfig) {
-        int id = logConfig.getId();
+        int logConfigId = logConfig.getId();
 
         ByteBuffer bb = ByteBuffer.allocate(31);
         bb.put((byte) CMD_CREATE_LOGCONFIG);
-        bb.put((byte) logConfig.getId());
+        bb.put((byte) logConfigId);
 
         for (LogVariable variable : logConfig.getLogVariables()) {
+            int ordinal = variable.getVariableType().ordinal();
             if(!variable.isTocVariable()) { // Memory location
                 // logger.debug("Logging to raw memory %d, 0x%04X", var.get_storage_and_fetch_byte(), var.address)
                 mLogger.debug("Logging to raw memory, address: " + variable.getAddress());
                 // pk.data += struct.pack('<B', var.get_storage_and_fetch_byte())
                 // pk.data += struct.pack('<I', var.address)
-                bb.put(new byte[] {(byte) variable.getVariableType().ordinal(), (byte) variable.getAddress()});
+                bb.put(new byte[] {(byte) ordinal, (byte) variable.getAddress()});
             } else { // Item in TOC
+                String name = variable.getName();
+                int variableId = mToc.getElementId(name);
                 // logger.debug("Adding %s with id=%d and type=0x%02X", var.name, self.cf.log.toc.get_element_id(var.name), var.get_storage_and_fetch_byte())
-                int variableId = mToc.getElementId(variable.getName());
-                mLogger.debug("Adding " + variable.getName() + " with id " + mToc.getElementId(variable.getName()) + " and type " + variable.getVariableType());
+                mLogger.debug("Adding " + name + " with id " + variableId + " and type " + variable.getVariableType().name());
                 // pk.data += struct.pack('<B', var.get_storage_and_fetch_byte())
                 // pk.data += struct.pack('<B', self.cf.log.toc.get_element_id(var.name))
-                bb.put(new byte[] {(byte) variable.getVariableType().ordinal(), (byte) variableId});
+                bb.put(new byte[] {(byte) ordinal, (byte) variableId});
             }
         }
-        mLogger.debug("Adding log config ID " + id);
+        mLogger.debug("Adding log config ID " + logConfigId);
 
         // Create packet
         Header header = new Header(CHAN_SETTINGS, CrtpPort.LOGGING);
         CrtpPacket packet = new CrtpPacket(header.getByte(), bb.array());
-        packet.setExpectedReply(new byte[]{CMD_CREATE_LOGCONFIG, (byte) id});
+        packet.setExpectedReply(new byte[]{CMD_CREATE_LOGCONFIG, (byte) logConfigId});
         this.mCrazyflie.sendPacket(packet);
     }
 
