@@ -448,10 +448,13 @@ public class Crazyflie {
         public void run() {
             while(true) {
                 try {
+                    //TODO: does that even make sense!?
+                    //problems during disconnect, loop continues indefinitely
                     if (getDriver() == null) {
                         // time.sleep(1)
                         Thread.sleep(100);
-                        continue;
+//                        continue;
+                        break;
                     }
 
                     CrtpPacket packet = getDriver().receivePacket(1);
