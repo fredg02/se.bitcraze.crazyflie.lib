@@ -3,6 +3,9 @@ package se.bitcraze.crazyflie.lib.log;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +23,7 @@ import se.bitcraze.crazyflie.lib.toc.TocFetcher.TocFetchFinishedListener;
 
 //TODO: find better name
 //TODO: add remaining callbacks/listeners
+//TODO: dataReceived callback in Logg or LogConfig?
 public class Logg {
 
     final Logger mLogger = LoggerFactory.getLogger("Logging");
@@ -35,6 +39,7 @@ public class Logg {
     private List<LogConfig> mLogConfigs = new ArrayList<LogConfig>();
     private int mLogConfigIdCounter = 0;
 
+    private Set<LogListener> mLogListeners = new CopyOnWriteArraySet<LogListener>();
 
     /*
      * These codes can be decoded using os.stderror, but
@@ -234,6 +239,7 @@ public class Logg {
                             this.mCrazyflie.sendPacket(newPacket);
 
                             logConfig.setAdded(true);
+                            notifyLogAdded(logConfig);
                         }
                         //TODO else?
 
@@ -254,6 +260,8 @@ public class Logg {
                         block.added_cb.call(False)
                         block.error_cb.call(block, msg)
                         */
+                        notifyLogAdded(logConfig);
+                        notifyLogError(logConfig);
                     }
                 } else {
                     mLogger.warn("No LogEntry to assign log config to !!!");
@@ -263,6 +271,7 @@ public class Logg {
                     mLogger.info("Successfully started logging for log config ID=" +id);
                     if (logConfig != null) {
                         logConfig.setStarted(true);
+                        notifyLogStarted(logConfig);
                     }
                 } else {
                     // msg = self._err_codes[error_status]
@@ -279,6 +288,7 @@ public class Logg {
                         # an error in the UI, but everything is still working.
                         #block.error_cb.call(block, msg)
                         */
+                        notifyLogError(logConfig);
                     }
                 }
             } else if (cmd == CMD_STOP_LOGGING) {
@@ -286,6 +296,7 @@ public class Logg {
                     mLogger.info("Successfully stopped logging for ID=" + id);
                     if (logConfig != null) {
                         logConfig.setStarted(false);
+                        notifyLogStarted(logConfig);
                     }
                 }
             } else if (cmd == CMD_DELETE_LOGCONFIG) {
@@ -298,6 +309,8 @@ public class Logg {
                     if (logConfig != null) {
                         logConfig.setStarted(false);
                         logConfig.setAdded(false);
+                        notifyLogStarted(logConfig);
+                        notifyLogAdded(logConfig);
                     }
                 }
             } else if (cmd == CMD_RESET_LOGGING) {
@@ -326,9 +339,11 @@ public class Logg {
                 byte[] logData = new byte[payload.length-offset];
                 System.arraycopy(payload, offset, logData, 0, logData.length);
 
-                logConfig.unpackLogData(logData);
+                Map<String, Number> logDataMap = logConfig.unpackLogData(logData);
                 //TODO: what to do with the unpacked data?
                 //TODO: timestamps and callback (either here or in LogConfig.unpackLogData())
+                notifyLogDataReceived(logConfig, logDataMap);
+
 
                 mLogger.debug("Unpacked log data (ID: " + id + ") with time stamp " + timestamp);
             } else {
@@ -466,5 +481,48 @@ public class Logg {
             }
         }
     }
+
+    /* Log listener methods*/
+
+
+    /**
+     * Add a log listener
+     */
+    public void addLogListener(LogListener logListener) {
+        mLogListeners.add(logListener);
+    }
+
+    /**
+     * Remove the log listener
+     */
+    public void removeLogListeners(LogListener logListener) {
+        mLogListeners.remove(logListener);
+    }
+
+    public void notifyLogAdded(LogConfig logConfig) {
+        for(LogListener ll : this.mLogListeners) {
+            ll.logConfigAdded(logConfig);
+        }
+    }
+
+    public void notifyLogError(LogConfig logConfig) {
+        for(LogListener ll : this.mLogListeners) {
+            ll.logConfigError(logConfig);
+        }
+    }
+
+    public void notifyLogStarted(LogConfig logConfig) {
+        for(LogListener ll : this.mLogListeners) {
+            ll.logConfigStarted(logConfig);
+        }
+    }
+
+    // TODO: timestamp?
+    public void notifyLogDataReceived(LogConfig logConfig, Map<String, Number> data) {
+        for(LogListener ll : this.mLogListeners) {
+            ll.logDataReceived(logConfig, data);
+        }
+    }
+
 
 }

@@ -3,6 +3,9 @@ package se.bitcraze.crazyflie.lib.log;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import org.junit.Test;
 
 import se.bitcraze.crazyflie.lib.TestConnectionAdapter;
@@ -13,6 +16,7 @@ import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
 public class LoggTest {
 
     //TODO: test adding multiple log configs
+    //TODO: improve timeout handling
 
 
     private Logg mLogg;
@@ -43,13 +47,46 @@ public class LoggTest {
                 // Add config
                 mLogg.addConfig(testConfig);
 
+                assertFalse(testConfig.isAdded());
+                assertFalse(testConfig.isStarted());
+
                 // Start config
                 mLogg.start(testConfig);
 
-//                mLogg.stop(logConfig);
-//                mLogg.delete(logConfig);
+                // Start a timer to disconnect after 5s
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
 
+                    @Override
+                    public void run() {
+                        assertTrue(testConfig.isAdded());
+                        assertTrue(testConfig.isStarted());
+                        mLogg.stop(testConfig);
+                    }
+
+                }, 3000);
+
+                timer.schedule(new TimerTask() {
+
+                    @Override
+                    public void run() {
+                        assertTrue(testConfig.isAdded());
+                        assertFalse(testConfig.isStarted());
+                        mLogg.delete(testConfig);
+                    }
+
+                }, 6000);
+
+                timer.schedule(new TimerTask() {
+
+                    @Override
+                    public void run() {
+                        assertFalse(testConfig.isAdded());
+                        assertFalse(testConfig.isStarted());
                 mSetupFinished = true;
+            }
+
+                }, 10000);
             }
 
         });
@@ -69,44 +106,6 @@ public class LoggTest {
         }
         long endTime = System.currentTimeMillis();
         System.out.println("It took " + (endTime - startTime) + "ms until setup finished.");
-
-        // timeout
-        boolean isTimeout2 = false;
-        long startTime2 = System.currentTimeMillis();
-        while(/*!mLogg.checkIfAllUpdated() &&*/ !isTimeout2) {
-            isTimeout2 = (System.currentTimeMillis() - startTime2) > 15000;
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                break;
-            }
-        }
-        long endTime2 = System.currentTimeMillis();
-        if(isTimeout2) {
-            System.out.println("Timeout2!");
-        } else {
-            //TODO: fix text
-            System.out.println("It took " + (endTime2 - startTime2) + "ms until all parameters were updated.");
-        }
-
-        assertTrue(testConfig.isAdded());
-        assertTrue(testConfig.isStarted());
-
-        mLogg.stop(testConfig);
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-        }
-
-        assertFalse(testConfig.isStarted());
-
-        mLogg.delete(testConfig);
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-        }
-
-        assertFalse(testConfig.isAdded());
 
         crazyflie.disconnect();
     }
