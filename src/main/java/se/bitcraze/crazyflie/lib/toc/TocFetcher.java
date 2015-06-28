@@ -144,7 +144,6 @@ public class TocFetcher {
                     return;
                 }
 
-                // self.toc.add_element(self.element_class(payload))
                 TocElement tocElement;
                 if (mPort == CrtpPort.LOGGING) {
                     tocElement = new LogTocElement(payloadBuffer.array());
@@ -153,7 +152,6 @@ public class TocFetcher {
                 }
                 mToc.addElement(tocElement);
 
-                //logger.debug("Added element [%s]", self.element_class(payload).ident)
                 mLogger.debug("Added "+ tocElement.getClass().getSimpleName() + " [" + tocElement.getIdent() + "] to TOC");
 
                 if(mRequestedIndex < (mNoOfItems - 1)) {
@@ -163,7 +161,6 @@ public class TocFetcher {
                 } else {
                     // No more variables in TOC
                     mLogger.info("No more variables in TOC.");
-                    //self._toc_cache.insert(self._crc, self.toc.toc)
                     mTocCache.insert(mCrc, mToc);
                     tocFetchFinished();
                 }

@@ -242,13 +242,11 @@ public class RadioDriver extends CrtpDriver{
 
                     // Analyze the data packet
                     if (ackStatus == null) {
-                        // self.link_error_callback("Dongle communication error (ackStatus==None)")
                         notifyLinkError("Dongle communication error (ackStatus == null)");
                         mLogger.warn("Dongle communication error (ackStatus == null)");
                         continue;
                     }
 
-                    // self.link_quality_callback((10 - ackStatus.retry) * 10)
                     notifyLinkQualityUpdated((10 - ackStatus.getRetry()) * 10);
 
                     // If no copter, retry

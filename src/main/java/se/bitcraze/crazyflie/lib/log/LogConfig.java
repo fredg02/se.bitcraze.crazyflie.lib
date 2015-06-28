@@ -14,10 +14,10 @@ import se.bitcraze.crazyflie.lib.toc.VariableType;
  * Represents a log configuration that contains different {@link LogVariable}s.
  *
  * TODO: deal with maximum number of variables per log config
- *
+ * <br/>
  * NOTE: LogConfig is a pure data structure that can not interact directly with the crazyflie,
- * that's why it does not contain the following methods: create(), start(), stop(), delete(), unpackLogData().
- * These methods are instead contained in the Logg class.
+ * that's why it does not contain the following methods: create(), start(), stop(), delete().
+ * These methods are contained in the Logg class instead.<br/>
  *
  */
 public class LogConfig {
@@ -164,7 +164,6 @@ public class LogConfig {
 
     public void setAdded(boolean added){
         this.mAdded = added;
-        //TODO: callback?
     }
 
     public boolean isStarted() {
@@ -173,7 +172,6 @@ public class LogConfig {
 
     public void setStarted(boolean mStarted) {
         this.mStarted = mStarted;
-        //TODO: callback?
     }
 
     public boolean isValid() {
