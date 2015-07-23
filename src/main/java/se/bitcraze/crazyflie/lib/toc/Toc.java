@@ -17,9 +17,19 @@ public class Toc {
 
     final Logger mLogger = LoggerFactory.getLogger("Toc");
 
+    private int mCrc;
+
     private Map<String, Map<String, TocElement>> mTocElementMap = new HashMap<String, Map<String, TocElement>>();
 
     public Toc() {
+    }
+
+    public void setCrc(int crc) {
+        this.mCrc = crc;
+    }
+
+    public int getCrc() {
+        return this.mCrc;
     }
 
     /**

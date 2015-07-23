@@ -108,6 +108,7 @@ public class TocFetcher {
                 // [self.nbr_of_items, self._crc] = struct.unpack("<BI", payload[:5])
                 this.mNoOfItems = payloadBuffer.get();
                 this.mCrc = payloadBuffer.getInt();
+                mToc.setCrc(mCrc);
 
                 mLogger.debug("[" + this.mPort + "]: Got TOC CRC, " + this.mNoOfItems + " items and CRC=" + String.format("0x%08X", this.mCrc));
 

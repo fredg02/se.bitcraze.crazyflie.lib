@@ -54,15 +54,17 @@ public class TocCacheTest {
         crazyflie.disconnect();
 
         Toc fetchedToc = crazyflie.getParam().getToc();
+        int fetchedCrc = fetchedToc.getCrc();
+        System.out.println("Fetched CRC: " + String.format("%08X", fetchedCrc));
         List<TocElement> fetchedElements = fetchedToc.getElements();
         System.out.println("Number of Param TOC elements (fetched): " + fetchedElements.size());
-        assertEquals(53, fetchedElements.size());
 
         TocCache tocCache = new TocCache(null, "src/test");
-        Toc cachedToc = tocCache.fetch((int) Long.parseLong(CURRENT_CRC, 16));
+        Toc cachedToc = tocCache.fetch(fetchedCrc);
         List<TocElement> cachedElements = cachedToc.getElements();
         System.out.println("Number of Param TOC elements (cached): " + cachedElements.size());
-        assertEquals(53, cachedElements.size());
+
+        assertEquals(cachedElements.size(), fetchedElements.size());
 
         for(int i = 0; i < fetchedElements.size(); i++) {
             assertEquals(fetchedElements.get(i), cachedElements.get(i));
