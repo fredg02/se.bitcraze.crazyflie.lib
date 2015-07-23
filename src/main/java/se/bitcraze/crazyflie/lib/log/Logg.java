@@ -24,6 +24,9 @@ import se.bitcraze.crazyflie.lib.toc.TocFetcher.TocFetchFinishedListener;
 //TODO: find better name
 //TODO: add remaining callbacks/listeners
 //TODO: dataReceived callback in Logg or LogConfig?
+
+//TODO: save/load config to/from file (JSON?)
+
 public class Logg {
 
     final Logger mLogger = LoggerFactory.getLogger("Logging");

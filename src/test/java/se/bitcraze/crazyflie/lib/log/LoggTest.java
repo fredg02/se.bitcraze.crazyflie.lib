@@ -31,6 +31,7 @@ public class LoggTest {
 
         crazyflie.clearTocCache();
 
+        // create log config
         final LogConfig testConfig = new LogConfig("testConfig");
         testConfig.addVariable("motor.m1");
         testConfig.addVariable("motor.m2");
