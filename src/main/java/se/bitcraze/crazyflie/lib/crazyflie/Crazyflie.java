@@ -16,10 +16,6 @@ import se.bitcraze.crazyflie.lib.param.Param;
 import se.bitcraze.crazyflie.lib.toc.TocCache;
 import se.bitcraze.crazyflie.lib.toc.TocFetcher.TocFetchFinishedListener;
 
-/**
- * TODO: can packetListener be removed?
- *
- */
 public class Crazyflie {
 
     final Logger mLogger = LoggerFactory.getLogger("Crazyflie");
@@ -38,6 +34,7 @@ public class Crazyflie {
 
     private ConnectionData mConnectionData;
 
+    // TODO: can PacketListener be removed or combined with LinkListener?
     private LinkListener mLinkListener;
     private PacketListener mPacketListener;
 

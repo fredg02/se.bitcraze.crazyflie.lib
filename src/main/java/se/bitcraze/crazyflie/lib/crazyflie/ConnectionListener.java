@@ -3,13 +3,6 @@ package se.bitcraze.crazyflie.lib.crazyflie;
 
 public interface ConnectionListener {
 
-    /*
-    # Called for every packet received
-    packet_received = Caller()
-    # Called for every packet sent
-    packet_sent = Caller()
-    */
-
     /**
      * Callback when the user requests a connection
      *
