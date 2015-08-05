@@ -288,7 +288,7 @@ public class UsbLinkJava implements CrazyUsbInterface {
             usbDevice.syncSubmit(usbControlIrp);
             return true;
         } catch (UsbException uE) {
-            System.out.println("DCP submission failed : " + uE.getMessage());
+            mLogger.error("DCP submission failed : " + uE.getMessage());
             return false;
         }
     }
