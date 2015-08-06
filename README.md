@@ -25,9 +25,8 @@ Integration
 
 The Crazyflie Java library is a [Maven](https://maven.apache.org) project and can therefore be compiled
 into a simple JAR with the following command:
-
 ```
-mvn clean install
+mvn clean install -DskipTests
 ```
 
 The compiled JAR can then be found in the **target** directory (e.g. ``se.bitcraze.crazyflie.lib-0.0.1-SNAPSHOT.jar``).
@@ -40,6 +39,21 @@ Dependencies
 * [Jackson](https://github.com/FasterXML/jackson)
 * [SLF4J](http://www.slf4j.org)
 * [JUnit](http://junit.org)
+
+
+Tests
+-----
+
+JUnit tests can be executed from the command line with:
+```
+mvn clean install
+```
+
+Or from within Eclipse.
+
+**Please make sure that a Crazyradio (PA) is connected and a Crazyflie 1.0 or 2.0 is switched on, when running the tests.**
+(otherwise they will fail)  
+
 
 Examples
 --------
