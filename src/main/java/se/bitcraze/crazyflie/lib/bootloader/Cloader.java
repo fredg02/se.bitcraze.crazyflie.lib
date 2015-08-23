@@ -345,9 +345,13 @@ public class Cloader {
         sendBootloaderPacket(new byte[]{(byte) targetId, (byte) 0x10});
 
         // Wait for the answer
+        //TODO: retryCount?
         CrtpPacket replyPk = this.mDriver.receivePacket(2);
+        while(checkBootloaderReplyPacket(replyPk, targetId, 0x10)) {
+            replyPk = this.mDriver.receivePacket(2);
+        }
 
-        if(checkBootloaderReplyPacket(replyPk, targetId, 0x10)) {
+        if(replyPk != null) {
             Target target = new Target(targetId);
             target.parseData(replyPk.getPayload());
 
@@ -458,10 +462,6 @@ public class Cloader {
                 CrtpPacket replyPk = null;
                 int retryCounter = 5;
 
-                //struct.unpack("<BB", pk.data[0:2]) != (addr, 0x1C))
-                byte data1 = -1;
-                byte data2 = -1;
-
                 while (retryCounter >= 0) {
 
                     //TODO ByteOrder?
@@ -481,6 +481,9 @@ public class Cloader {
                     //how can this be avoided?
                     while(checkBootloaderReplyPacket(replyPk, addr, 0x1C)) {
                         replyPk = this.mDriver.receivePacket(10);
+                    }
+                    if (replyPk != null) {
+                        break;
                     }
                     retryCounter--;
                 }
@@ -544,11 +547,18 @@ public class Cloader {
     }
 
     public boolean checkBootloaderReplyPacket(CrtpPacket paket, int firstByte, int secondByte) {
-        return paket != null && paket.getHeaderByte() == (byte) 0xFF && paket.getPayload()[0] == (byte) firstByte && paket.getPayload()[1] == (byte) secondByte;
+        if (paket == null) {
+            return true;
+        }
+        return paket.getHeaderByte() != (byte) 0xFF || paket.getPayload()[0] != (byte) firstByte || paket.getPayload()[1] != (byte) secondByte;
     }
 
     public List<Target> getTargets() {
-        return (List<Target>) mTargets.values();
+        List<Target> targets = new ArrayList<Target>();
+        for (Target t : mTargets.values()) {
+            targets.add(t);
+        }
+        return targets;
     }
 
     public static String getHexString(byte[] array) {

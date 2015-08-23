@@ -5,6 +5,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Arrays;
+
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -86,7 +90,7 @@ public class CloaderTest {
     }
 
     @Test
-    public void testCloaderCF1_readFlash() {
+    public void testCloaderCF1_readFlash() throws IOException {
         Cloader cloader = new Cloader(new RadioDriver(new UsbLinkJava()));
         System.out.println("Restart the Crazyflie you want to bootload in the next 10 seconds ...");
         ConnectionData bootloaderConnection = cloader.scanForBootloader();
@@ -106,7 +110,15 @@ public class CloaderTest {
             byte[] readFlash = cloader.readFlash(0xFF, 0x00);
             assertNotNull("readFlash should not be null", readFlash);
             assertTrue(readFlash.length > 0);
-            System.out.println("Flash: " + UsbLinkJava.getByteString(readFlash));
+            System.out.println("Readflash length: " + readFlash.length);
+            System.out.println("Flash:");
+            for(int i = 0; i < 40; i++) {
+                System.out.println(UsbLinkJava.getByteString(Arrays.copyOfRange(readFlash, i*25, (i*25)+25)));
+            }
+
+            FileOutputStream fos = new FileOutputStream("flashFromCrazyflie.bin");
+            fos.write(readFlash);
+            fos.close();
 
             //TODO: check if flash data is correct
         } else {
