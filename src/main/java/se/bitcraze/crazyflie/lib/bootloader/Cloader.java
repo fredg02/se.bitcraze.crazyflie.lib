@@ -87,14 +87,12 @@ public class Cloader {
     public boolean resetToBootloader(int targetId) {
         int retryCounter = 5;
 
-        Header header = new Header((byte) 0xFF);
-        //pk.data = (target_id, 0xFF)
-        CrtpPacket pk = new CrtpPacket(header.getByte(), new byte[]{(byte) targetId, (byte) 0xFF});
-        this.mDriver.sendPacket(pk);
+        sendBootloaderPacket(new byte[]{(byte) targetId, (byte) 0xFF});
 
         CrtpPacket replyPk = this.mDriver.receivePacket(1);
         //while ((not pk or pk.header != 0xFF or struct.unpack("<BB", pk.data[0:2]) != (target_id, 0xFF)) and retry_counter >= 0 ):
-        while (replyPk == null || replyPk.getHeader().getByte() != 0xFF || replyPk.getPayload()[0] != (byte) targetId || replyPk.getPayload()[1] != (byte) 0xFF && retryCounter >= 0) {
+
+        while(checkBootloaderReplyPacket(replyPk, targetId, 0xFF) && retryCounter >= 0) {
             replyPk = this.mDriver.receivePacket(1);
             retryCounter -= 1;
         }
@@ -104,9 +102,7 @@ public class Cloader {
             //TODO: new_address = (0xb1, ) + struct.unpack("<BBBB", pk.data[2:6][::-1])
             byte[] newAddress = null;
 
-            //pk.data = (target_id, 0xF0, 0x00)
-            CrtpPacket pk2 = new CrtpPacket(header.getByte(), new byte[]{(byte) targetId, (byte) 0xF0, (byte) 0x00});
-            this.mDriver.sendPacket(pk2);
+            sendBootloaderPacket(new byte[]{(byte) targetId, (byte) 0xF0, (byte) 0x00});
 
             //TODO: addr = int(struct.pack("B"*5, *new_address).encode('hex'), 16)
 
@@ -155,10 +151,8 @@ public class Cloader {
         }
 
         // Send the reset to bootloader request
-        Header header2= new Header((byte) 0xFF);
         //pk.data = (0xFF, 0xFE) + cpu_id
-        CrtpPacket resetPk = new CrtpPacket(header2.getByte(), new byte[]{(byte) 0xFF, (byte) 0xFE, (byte) cpuId});
-        this.mDriver.sendPacket(resetPk);
+        sendBootloaderPacket(new byte[]{(byte) 0xFF, (byte) 0xFE, (byte) cpuId});
 
         //Wait to ack the reset ...
         CrtpPacket replyPk2 = null;
@@ -172,8 +166,8 @@ public class Cloader {
                     replyPk2.getPayload()[0] == (byte) 0xFF &&
                     replyPk2.getPayload()[1] == (byte) 0xFE &&
                     replyPk2.getPayload()[2] == (byte) cpuId) {
-                CrtpPacket resetPk2 = new CrtpPacket(header2.getByte(), new byte[]{(byte) 0xFF, (byte) 0xF0, (byte) cpuId});
-                this.mDriver.sendPacket(replyPk2);
+
+                sendBootloaderPacket(new byte[]{(byte) 0xFF, (byte) 0xF0, (byte) cpuId});
                 break;
             }
         }
@@ -203,36 +197,26 @@ public class Cloader {
          */
 
         // Send the reset to bootloader request
-        //pk.set_header(0xFF, 0xFF)
-        Header header= new Header((byte) 0xFF);
         //pk.data = (target_id, 0xFF) + fake_cpu_id
-        CrtpPacket pk = new CrtpPacket(header.getByte(), new byte[]{(byte) targetId, (byte) 0xFF, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12});
-        this.mDriver.sendPacket(pk);
+        sendBootloaderPacket(new byte[]{(byte) targetId, (byte) 0xFF, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12});
 
         // Wait to ack the reset ...
         CrtpPacket replyPk = null;
         while(true) {
             replyPk = this.mDriver.receivePacket(2);
 
-            if (replyPk != null && replyPk.getHeaderByte() == (byte) 0xFF) {
-                // struct.unpack("<BB", pk.data[0:2]) == (target_id, 0xFF))
-                byte data1 = replyPk.getPayload()[0];
-                byte data2 = replyPk.getPayload()[1];
-
-                if (data1 == (byte) targetId && data2 == (byte) 0xFF) {
-                    // Difference in CF1 and CF2 (CPU ID)
-                    byte[] data = null;
-                    if (targetId == TargetTypes.NRF51) { // CF2
-                        // pk.data = (target_id, 0xF0, 0x01)
-                        data = new byte[] {(byte) targetId, (byte) 0xF0, (byte) 0x01};
-                    } else { // CF1
-                        // pk.data = (target_id, 0xF0) + fake_cpu_id
-                        data = new byte[] {(byte) targetId, (byte) 0xF0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12};
-                    }
-                    CrtpPacket resetPk = new CrtpPacket(header.getByte(), data);
-                    this.mDriver.sendPacket(resetPk);
-                    break;
+            if (checkBootloaderReplyPacket(replyPk, targetId, 0xFF)) {
+                // Difference in CF1 and CF2 (CPU ID)
+                byte[] data = null;
+                if (targetId == TargetTypes.NRF51) { // CF2
+                    // pk.data = (target_id, 0xF0, 0x01)
+                    data = new byte[] {(byte) targetId, (byte) 0xF0, (byte) 0x01};
+                } else { // CF1
+                    // pk.data = (target_id, 0xF0) + fake_cpu_id
+                    data = new byte[] {(byte) targetId, (byte) 0xF0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12};
                 }
+                sendBootloaderPacket(data);
+                break;
             }
         }
         //time.sleep(0.1)
@@ -356,50 +340,38 @@ public class Cloader {
      * Call the command getInfo and fill up the information received in the fields of the object
      */
     public boolean updateInfo(int targetId) {
-
         // Call getInfo ...
-        // pk.set_header(0xFF, 0xFF)
-        Header header = new Header((byte) 0xFF);
         // pk.data = (target_id, 0x10)
-        CrtpPacket pk = new CrtpPacket(header.getByte(), new byte[]{(byte) targetId, (byte) 0x10});
-        this.mDriver.sendPacket(pk);
+        sendBootloaderPacket(new byte[]{(byte) targetId, (byte) 0x10});
 
         // Wait for the answer
         CrtpPacket replyPk = this.mDriver.receivePacket(2);
 
-        if (replyPk != null && replyPk.getHeaderByte() == (byte) 0xFF) {
-            // struct.unpack("<BB", pk.data[0:2]) == (target_id, 0x10))
-            byte data1 = replyPk.getPayload()[0];
-            byte data2 = replyPk.getPayload()[1];
+        if(checkBootloaderReplyPacket(replyPk, targetId, 0x10)) {
+            Target target = new Target(targetId);
+            target.parseData(replyPk.getPayload());
 
-            if (data1 == (byte) targetId && data2 == (byte) 0x10) {
-                Target target = new Target(targetId);
-                target.parseData(replyPk.getPayload());
-
-                if (!this.mTargets.containsKey(targetId)) {
-                    this.mTargets.put(targetId, target);
-                } else {
-                    //TODO: update existing entry
-                }
-
-                if (target.getProtocolVersion() == (byte) 0x10 && targetId == TargetTypes.STM32) {
-                    updateMapping(targetId);
-                }
-                return true;
+            if (!this.mTargets.containsKey(targetId)) {
+                this.mTargets.put(targetId, target);
             } else {
-                System.err.println("Payload problem");
+                //TODO: update existing entry
             }
+
+            if (target.getProtocolVersion() == (byte) 0x10 && targetId == TargetTypes.STM32) {
+                updateMapping(targetId);
+            }
+            return true;
+        } else {
+            System.err.println("Payload problem");
         }
         return false;
     }
 
     public void updateMapping(int targetId) {
-        Header header = new Header((byte) 0xFF);
-        CrtpPacket pk = new CrtpPacket(header.getByte(), new byte[]{(byte) targetId, (byte) 0x12});
-        this.mDriver.sendPacket(pk);
+        sendBootloaderPacket(new byte[]{(byte) targetId, (byte) 0x12});
 
         CrtpPacket replyPk = this.mDriver.receivePacket(2);
-        if (replyPk != null && replyPk.getHeaderByte() == (byte) 0xFF && replyPk.getPayload()[0] == (byte) targetId && replyPk.getPayload()[1] == (byte) 0x12){
+        if (checkBootloaderReplyPacket(replyPk, targetId, 0x12)){
 
             //TODO: m = pk.datat[2:]
             int dataLength = replyPk.getPayload().length-2;
@@ -439,7 +411,6 @@ public class Cloader {
      */
     public void uploadBuffer(int targetId, int page, int address, byte[] buff) {
         int count = 0;
-        Header header = new Header((byte) 0xFF);
         //pk.data = struct.pack("=BBHH", target_id, 0x14, page, address)
         ByteBuffer bb = ByteBuffer.allocate(6+buff.length).order(ByteOrder.LITTLE_ENDIAN);
         bb.put((byte) targetId);
@@ -455,8 +426,7 @@ public class Cloader {
             count++;
 
             if (count > 24) {
-                pk = new CrtpPacket(header.getByte(), bb.array());
-                this.mDriver.sendPacket(pk);
+                sendBootloaderPacket(bb.array());
                 count = 0;
 
                 //pk.data = struct.pack("=BBHH", target_id, 0x14, page, i + address + 1)
@@ -466,8 +436,7 @@ public class Cloader {
                 bb2.putChar((char) page);
                 bb2.putChar((char) (i + address + 1));
 
-                CrtpPacket pk2 = new CrtpPacket(header.getByte(), bb2.array());
-                this.mDriver.sendPacket(pk2);
+                sendBootloaderPacket(bb2.array());
             }
         }
         this.mDriver.sendPacket(pk);
@@ -479,7 +448,6 @@ public class Cloader {
     //def read_flash(self, addr=0xFF, page=0x00):
     public byte[] readFlash(int addr, int page) {
         ByteBuffer buff = null;
-        Header header = new Header((byte) 0xFF);
 
         Target target = this.mTargets.get(addr);
         if (target != null) {
@@ -487,7 +455,6 @@ public class Cloader {
             buff = ByteBuffer.allocate(pageSize + 1);
 
             for (int i = 0; i < Math.ceil(pageSize / 25.0); i++) {
-                CrtpPacket pk = null;
                 CrtpPacket replyPk = null;
                 int retryCounter = 5;
 
@@ -503,28 +470,17 @@ public class Cloader {
                     bb.put((byte) 0x1C);
                     bb.putChar((char) page);
                     bb.putChar((char) (i*25));
-                    pk = new CrtpPacket(header.getByte(), bb.array());
 
-                    this.mDriver.sendPacket(pk);
+                    sendBootloaderPacket(bb.array());
+
                     //System.out.println("ByteString send: " + getHexString(pk.getPayload()) + " " + UsbLinkJava.getByteString(pk.getPayload()));
 
                     //TODO: why is this different than in Python?
                     //does it have something to do with the queue size??
                     //yes, the queue is filled with empty packets
                     //how can this be avoided?
-                    while(replyPk == null || replyPk.getHeaderByte() != (byte) 0xFF || replyPk.getPayload()[1] != (byte) 0x1C) {
+                    while(checkBootloaderReplyPacket(replyPk, addr, 0x1C)) {
                         replyPk = this.mDriver.receivePacket(10);
-                    }
-
-                    if (replyPk != null) {
-                        //System.out.println("ByteString rece: " + UsbLinkJava.getByteString(replyPk.getPayload()));
-
-                        data1 = replyPk.getPayload()[0];
-                        data2 = replyPk.getPayload()[1];
-
-                        if (replyPk.getHeaderByte() == (byte) 0xFF && (data1 == (byte) addr && data2 == (byte) 0x1C)) {
-                            break;
-                        }
                     }
                     retryCounter--;
                 }
@@ -550,12 +506,11 @@ public class Cloader {
         #print "Write page", flashPage
         #print "Writing page [%d] and [%d] forward" % (flashPage, nPage)
         */
-        CrtpPacket pk = null;
-        Header header = new Header((byte) 0xFF);
+        CrtpPacket replyPk = null;
         int retryCounter = 5;
         //#print "Flasing to 0x{:X}".format(addr)
 
-        while (pk == null || pk.getHeaderByte() != (byte) 0xFF || pk.getPayload()[0] != (byte) addr || pk.getPayload()[1] != (byte) 0x18 && retryCounter >= 0) {
+        while(checkBootloaderReplyPacket(replyPk, addr, 0x18) && retryCounter >= 0) {
             //pk.data = struct.pack("<BBHHH", addr, 0x18, page_buffer, target_page, page_count)
             ByteBuffer bb = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
             bb.put((byte) addr);
@@ -563,12 +518,10 @@ public class Cloader {
             bb.putChar((char) pageBuffer);
             bb.putChar((char) targetPage);
             bb.putChar((char) pageCount);
-            pk = new CrtpPacket(header.getByte(), bb.array());
-            this.mDriver.sendPacket(pk);
 
-            //TODO: use two different variables
-            pk = this.mDriver.receivePacket(1);
+            sendBootloaderPacket(bb.array());
 
+            replyPk = this.mDriver.receivePacket(1);
             retryCounter--;
         }
 
@@ -583,6 +536,16 @@ public class Cloader {
     }
 
     //decode_cpu_id has not been implemented, because it's not used anywhere
+
+    public void sendBootloaderPacket(byte[] data) {
+        Header header = new Header((byte) 0xFF);
+        CrtpPacket pk = new CrtpPacket(header.getByte(), data);
+        this.mDriver.sendPacket(pk);
+    }
+
+    public boolean checkBootloaderReplyPacket(CrtpPacket paket, int firstByte, int secondByte) {
+        return paket != null && paket.getHeaderByte() == (byte) 0xFF && paket.getPayload()[0] == (byte) firstByte && paket.getPayload()[1] == (byte) secondByte;
+    }
 
     public List<Target> getTargets() {
         return (List<Target>) mTargets.values();
