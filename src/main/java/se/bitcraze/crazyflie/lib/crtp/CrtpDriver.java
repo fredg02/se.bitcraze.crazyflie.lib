@@ -77,6 +77,8 @@ public abstract class CrtpDriver {
     public abstract CrtpPacket receivePacket(int wait);
 
 
+    public abstract boolean scanSelected(int channel, int datarate, byte[] packet);
+
     /* LINK LISTENER */
 
     /**

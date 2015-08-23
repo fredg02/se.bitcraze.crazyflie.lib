@@ -124,6 +124,11 @@ public class RadioDriver extends CrtpDriver{
         }
     }
 
+    //TODO: Remove
+    public int getInQueueSize() {
+        return mInQueue.size();
+    }
+
     /*
      * Send the packet though the link
      *
@@ -220,6 +225,17 @@ public class RadioDriver extends CrtpDriver{
 //        crazyRadio = null;
 
         return connectionDataList;
+    }
+
+    public boolean scanSelected(int channel, int datarate, byte[] packet) {
+        if (mCradio == null) {
+            mCradio = new Crazyradio(mUsbInterface);
+        }
+        return mCradio.scanSelected(channel, datarate, packet);
+    }
+
+    public Crazyradio getRadio() {
+        return this.mCradio;
     }
 
     /**

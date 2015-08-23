@@ -58,4 +58,10 @@ public class DummyDriver extends CrtpDriver {
         // TODO Auto-generated method stub
     }
 
+    @Override
+    public boolean scanSelected(int channel, int datarate, byte[] packet) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
 }

@@ -83,6 +83,8 @@ public class Crazyradio {
     private float mVersion; // Crazyradio firmware version
     private String mSerialNumber; // Crazyradio serial number
 
+    public final static byte[] NULL_PACKET = new byte[] { (byte) 0xff };
+
 
     /**
      * Create object and scan for USB dongle if no device is supplied
@@ -293,6 +295,7 @@ public class Crazyradio {
         return scanChannels(0, 125);
     }
 
+
     public List<Integer> scanChannels(int start, int stop) {
         List<Integer> result = new ArrayList<Integer>();
 
@@ -301,16 +304,12 @@ public class Crazyradio {
                 result.addAll(firmwareScan(start, stop));
             } else {
                 // Slow PC-driven scan
-                final byte[] packet = new byte[] { (byte) 0xff }; // null packet
                 mLogger.debug("Slow scan...");
                 // for i in range(start, stop + 1):
-                for (int i = start; i <= stop; i++) {
-                    setChannel(i);
-                    RadioAck status = sendPacket(packet);
-                    // if status and status.ack:
-                    if (status != null && status.isAck()) {
-                        mLogger.debug("Found channel: " + i);
-                        result.add(i);
+                for (int channel = start; channel <= stop; channel++) {
+                    if(scanSelected(channel, NULL_PACKET)) {
+                        mLogger.debug("Found channel: " + channel);
+                        result.add(channel);
                     }
                     try {
                         Thread.sleep(20);
@@ -325,14 +324,25 @@ public class Crazyradio {
         return result;
     }
 
+    public boolean scanSelected(int channel, int datarate, byte[] packet) {
+        setDatarate(datarate);
+        return scanSelected(channel, packet);
+    }
+
+    public boolean scanSelected(int channel, byte[] packet) {
+        setChannel(channel);
+        RadioAck status = sendPacket(packet);
+        return (status != null && status.isAck());
+    }
+
+
     /* ### Data transfers ### */
 
     private List<Integer> firmwareScan(int start, int stop) {
         mLogger.debug("Fast scan...");
         List<Integer> result = new ArrayList<Integer>();
-        final byte[] packet = new byte[] { (byte) 0xff }; // null packet
         final byte[] rdata = new byte[64];
-        mUsbInterface.sendControlTransfer(0x40, SCAN_CHANNELS, start, stop, packet);
+        mUsbInterface.sendControlTransfer(0x40, SCAN_CHANNELS, start, stop, NULL_PACKET);
         final int nfound = mUsbInterface.sendControlTransfer(0xc0, SCAN_CHANNELS, 0, 0, rdata);
         for (int i = 0; i < nfound; i++) {
             result.add((int) rdata[i]);
