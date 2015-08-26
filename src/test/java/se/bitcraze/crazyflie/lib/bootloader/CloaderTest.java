@@ -106,7 +106,7 @@ public class CloaderTest {
             if (target.getFlashPages() == 128) { //CF 1.0
                 resetToFirmware = cloader.resetToFirmware(TargetTypes.STM32); //CF1
             } else if (target.getFlashPages() == 1024) { //CF 2.0
-                resetToFirmware = cloader.resetToFirmware(TargetTypes.NRF51); //CF1
+                resetToFirmware = cloader.resetToFirmware(TargetTypes.NRF51); //CF2
 
             }
             assertTrue(resetToFirmware);
@@ -118,7 +118,7 @@ public class CloaderTest {
         cloader.close();
     }
 
-    @Test @Ignore
+    @Test
     public void testCloader_updateMapping() {
         Cloader cloader = new Cloader(new RadioDriver(new UsbLinkJava()));
         System.out.println("Restart the Crazyflie you want to bootload in the next 10 seconds ...");
@@ -139,7 +139,7 @@ public class CloaderTest {
             if (target.getFlashPages() == 128) { //CF 1.0
                 fail("Update mapping can only be tested on CF 2.0.");
             }
-            Integer[] updateMapping = cloader.updateMapping(TargetTypes.STM32);
+            byte[] updateMapping = cloader.updateMapping(TargetTypes.STM32);
             System.out.println("UpdateMapping: " + Arrays.toString(updateMapping));
 
             // TODO: Mapping for STM32: [4, 16, 1, 64, 7, 128]

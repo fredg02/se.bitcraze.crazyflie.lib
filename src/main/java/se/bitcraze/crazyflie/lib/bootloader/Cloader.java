@@ -294,7 +294,7 @@ public class Cloader {
 
             //TODO: deal with other driver implementations
             Crazyradio crazyRadio = ((RadioDriver) this.mDriver).getRadio();
-            //TODO: self.link.cradio.set_address((0xE7,) * 5)
+            //self.link.cradio.set_address((0xE7,) * 5)
             crazyRadio.setAddress(new byte[]{(byte) 0xE7, (byte) 0xE7, (byte) 0xE7, (byte) 0xE7, (byte) 0xE7});
 
             //TODO: is there a more elegant way to do this?
@@ -346,9 +346,9 @@ public class Cloader {
 
         // Wait for the answer
         //TODO: retryCount?
-        CrtpPacket replyPk = this.mDriver.receivePacket(2);
+        CrtpPacket replyPk = this.mDriver.receivePacket(2000);
         while(checkBootloaderReplyPacket(replyPk, targetId, 0x10)) {
-            replyPk = this.mDriver.receivePacket(2);
+            replyPk = this.mDriver.receivePacket(2000);
         }
 
         if(replyPk != null) {
@@ -360,9 +360,9 @@ public class Cloader {
             } else {
                 //TODO: update existing entry
             }
-
+            // Update mapping (CF 2.0 only)
             if (target.getProtocolVersion() == (byte) 0x10 && targetId == TargetTypes.STM32) {
-                updateMapping(targetId);
+//                updateMapping(targetId);
             }
             return true;
         } else {
@@ -371,43 +371,42 @@ public class Cloader {
         return false;
     }
 
-    public void updateMapping(int targetId) {
+    public byte[] updateMapping(int targetId) {
         sendBootloaderPacket(new byte[]{(byte) targetId, (byte) 0x12});
 
         CrtpPacket replyPk = this.mDriver.receivePacket(2);
-        if (checkBootloaderReplyPacket(replyPk, targetId, 0x12)){
+        while (checkBootloaderReplyPacket(replyPk, targetId, 0x12)){
+            replyPk = this.mDriver.receivePacket(2);
+        }
+        //TODO: m = pk.datat[2:]
+        int dataLength = replyPk.getPayload().length-2;
+        byte[] m = new byte[dataLength];
+        System.arraycopy(replyPk.getPayload(), 2, m, 0, dataLength);
 
-            //TODO: m = pk.datat[2:]
-            int dataLength = replyPk.getPayload().length-2;
-            byte[] m = new byte[dataLength];
-            System.arraycopy(replyPk, 2, m, 0, dataLength);
+        if (m.length % 2 != 0){
+            //raise Exception("Malformed flash mapping packet")
+            mLogger.error("Malformed flash mapping packet");
+            //return;
+        }
 
-            if (m.length % 2 != 0){
-                //raise Exception("Malformed flash mapping packet")
-                mLogger.error("Malformed flash mapping packet");
-                return;
-            }
-
-            /*
+        //TODO: is this even necessary?
+        /*
             self.mapping = []
             page = 0
             for i in range(len(m)/2):
                 for j in range(m[2*i]):
                     self.mapping.append(page)
                     page += m[(2*i)+1]
-             */
-            List<Integer> mapping = new ArrayList<Integer>();
-            int page = 0;
-            for (int i = 0; i < m.length/2; i++) {
-                for (int j = 0; j < m[2*i]; j++) {
-                    mapping.add(page);
-                    page += m[(2*i)+1];
-                }
-            }
-
-            System.out.println("Mapping: " + Arrays.toString(mapping.toArray()));
-        }
-
+         */
+//        List<Integer> mapping = new ArrayList<Integer>();
+//        int page = 0;
+//        for (int i = 0; i < m.length/2; i++) {
+//            for (int j = 0; j < m[2*i]; j++) {
+//                mapping.add(page);
+//                page += m[(2*i)+1];
+//            }
+//        }
+        return m; 
     }
 
     /**
