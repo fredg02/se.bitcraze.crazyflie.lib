@@ -3,7 +3,6 @@ package se.bitcraze.crazyflie.lib.bootloader;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +34,8 @@ public class Cloader {
     private List<ConnectionData> mAvailableBootConnections = new ArrayList<ConnectionData>();
 
     private Map<Integer, Target> mTargets = new HashMap<Integer, Target>();
+    private int mErrorCode = -1;
+    private int mProtocolVersion = 0xFF;
 
     /**
      * Init the communication class by starting to communicate with the link given.
@@ -76,7 +77,7 @@ public class Cloader {
                 }
             }
         }
-//        mDriver.disconnect();
+        mDriver.disconnect();
 
         if (resultList.size() > 0) {
             return resultList.get(0);
@@ -229,9 +230,9 @@ public class Cloader {
     }
 
     public void openBootloaderConnection(ConnectionData connectionData) {
-//        if (this.mDriver != null) {
-//            this.mDriver.disconnect();
-//        }
+        if (this.mDriver != null) {
+            this.mDriver.disconnect();
+        }
         if (connectionData != null) {
             this.mDriver.connect(connectionData);
         } else {
@@ -354,6 +355,7 @@ public class Cloader {
         if(replyPk != null) {
             Target target = new Target(targetId);
             target.parseData(replyPk.getPayload());
+            this.mProtocolVersion = target.getProtocolVersion();
 
             if (!this.mTargets.containsKey(targetId)) {
                 this.mTargets.put(targetId, target);
@@ -366,7 +368,7 @@ public class Cloader {
             }
             return true;
         } else {
-            System.err.println("Payload problem");
+            mLogger.error("Payload problem");
         }
         return false;
     }
@@ -406,7 +408,7 @@ public class Cloader {
 //                page += m[(2*i)+1];
 //            }
 //        }
-        return m; 
+        return m;
     }
 
     /**
@@ -539,6 +541,14 @@ public class Cloader {
 
     //decode_cpu_id has not been implemented, because it's not used anywhere
 
+    public int getErrorCode() {
+        return this.mErrorCode;
+    }
+
+    public int getProtocolVersion() {
+        return this.mProtocolVersion;
+    }
+
     public void sendBootloaderPacket(byte[] data) {
         Header header = new Header((byte) 0xFF);
         CrtpPacket pk = new CrtpPacket(header.getByte(), data);
@@ -552,12 +562,16 @@ public class Cloader {
         return paket.getHeaderByte() != (byte) 0xFF || paket.getPayload()[0] != (byte) firstByte || paket.getPayload()[1] != (byte) secondByte;
     }
 
-    public List<Target> getTargets() {
+    public List<Target> getTargetsAsList() {
         List<Target> targets = new ArrayList<Target>();
         for (Target t : mTargets.values()) {
             targets.add(t);
         }
         return targets;
+    }
+
+    public Map<Integer, Target> getTargets() {
+        return this.mTargets;
     }
 
     public static String getHexString(byte[] array) {

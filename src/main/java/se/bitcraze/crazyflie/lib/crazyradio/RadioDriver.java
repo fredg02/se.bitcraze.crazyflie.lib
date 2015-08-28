@@ -180,7 +180,7 @@ public class RadioDriver extends CrtpDriver{
         }
         if(this.mUsbInterface != null) {
             this.mUsbInterface.releaseInterface();
-            this.mUsbInterface = null;
+//            this.mUsbInterface = null;
         }
     }
 

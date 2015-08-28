@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -54,7 +53,7 @@ public class CloaderTest {
             assertTrue(checkLinkAndGetInfo);
 
             // Test values
-            Target target = cloader.getTargets().get(0);
+            Target target = cloader.getTargetsAsList().get(0);
             System.out.println(target.toString());
 
             //CPU ID is different for every Crazyflie, therefore this can't be tested
@@ -99,7 +98,7 @@ public class CloaderTest {
                 e.printStackTrace();
             }
 
-            Target target = cloader.getTargets().get(0);
+            Target target = cloader.getTargetsAsList().get(0);
 
             System.out.println("Reset to firmware mode...");
             boolean resetToFirmware = false;
@@ -135,7 +134,7 @@ public class CloaderTest {
                 e.printStackTrace();
             }
 
-            Target target = cloader.getTargets().get(0);
+            Target target = cloader.getTargetsAsList().get(0);
             if (target.getFlashPages() == 128) { //CF 1.0
                 fail("Update mapping can only be tested on CF 2.0.");
             }
@@ -178,9 +177,9 @@ public class CloaderTest {
                 System.out.println(UsbLinkJava.getByteString(Arrays.copyOfRange(readFlash, i*25, (i*25)+25)));
             }
 
-            FileOutputStream fos = new FileOutputStream("flashFromCrazyflie.bin");
-            fos.write(readFlash);
-            fos.close();
+//            FileOutputStream fos = new FileOutputStream("flashFromCrazyflie.bin");
+//            fos.write(readFlash);
+//            fos.close();
 
             //TODO: check if flash data is correct
         } else {
