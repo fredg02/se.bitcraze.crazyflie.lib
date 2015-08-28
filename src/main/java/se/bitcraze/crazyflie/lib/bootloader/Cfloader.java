@@ -19,16 +19,15 @@ public class Cfloader {
     private CrtpDriver mDriver;
     private String mAction;
     private String mFileName;
-    private String mCpuId;
+    private String mCpuId; //unused?
     private String mBoot = "cold";
     private String clink; //??
     private List<Target> mTargets = new ArrayList<Target>();
 
-
-    // Initialise the CRTP link driver
+    /**
+     * Initialise the CRTP link driver
+     */
     public Cfloader() {
-        this.mDriver = null;
-
         this.mDriver = new RadioDriver(new UsbLinkJava());
         /*
         try:
@@ -61,8 +60,11 @@ public class Cfloader {
         System.out.println("                             mode.");
     }
 
-
-    // Analyse the command line parameters
+    /**
+     * Analyse the command line parameters
+     *
+     * @param args
+     */
     private void analyseCommandLineParameters(String[] args) {
         //sys.argv = sys.argv[1:]
         //argv = []
@@ -87,7 +89,11 @@ public class Cfloader {
         //sys.argv = argv
     }
 
-    // Analyse the command
+    /**
+     * Analyse the command
+     *
+     * @param args
+     */
     private void analyseCommand(String[] args) {
         if (args.length < 1) {
             this.mAction = "info";

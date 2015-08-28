@@ -16,6 +16,7 @@ import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
  */
 //TODO: fix targetId and addr confusion
 //TODO: add flash method (for multiple targets)
+//TODO: fix warmboot
 public class Bootloader {
 
     final Logger mLogger = LoggerFactory.getLogger("Bootloader");
@@ -60,17 +61,15 @@ public class Bootloader {
             }
 
             if (started) {
-                /*
-                self.protocol_version = self._cload.protocol_version
-                if self.protocol_version == BootVersion.CF1_PROTO_VER_0 or\
-                                self.protocol_version == BootVersion.CF1_PROTO_VER_1:
-                    # Nothing more to do
-                    pass
-                elif self.protocol_version == BootVersion.CF2_PROTO_VER:
-                    self._cload.request_info_update(TargetTypes.NRF51)
-                else:
-                    print "Bootloader protocol 0x{:X} not supported!".self.protocol_version
-                */
+                int protocolVersion = this.mCload.getProtocolVersion();
+                if (protocolVersion == BootVersion.CF1_PROTO_VER_0 ||
+                    protocolVersion == BootVersion.CF1_PROTO_VER_1) {
+                    // Nothing to do
+                } else if (protocolVersion == BootVersion.CF2_PROTO_VER) {
+                    this.mCload.requestInfoUpdate(TargetTypes.NRF51);
+                } else {
+                    mLogger.debug("Bootloader protocol " + String.format("0x%02X", protocolVersion) + " not supported!");
+                }
 
                 mLogger.info("startBootloader: started");
             } else {
@@ -137,10 +136,9 @@ public class Bootloader {
     }
 
     // def _internal_flash(self, target, current_file_number=1, total_files=1):
-    public void internalFlash(Target target, byte[] data, String type, int configPage) {
+    public void internalFlash(Target target, byte[] data, String type, int startPage) {
         byte[] image = data;
         Target t_data = target;
-        int startPage = configPage;
         int pageSize = t_data.getPageSize();
 
         mLogger.info("Flashing to " + TargetTypes.toString(t_data.getId()) + " (" + type + ")");
