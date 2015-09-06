@@ -373,42 +373,43 @@ public class Cloader {
         return false;
     }
 
-    public byte[] updateMapping(int targetId) {
+    public Integer[] updateMapping(int targetId) {
         sendBootloaderPacket(new byte[]{(byte) targetId, (byte) 0x12});
 
         CrtpPacket replyPk = this.mDriver.receivePacket(2);
         while (checkBootloaderReplyPacket(replyPk, targetId, 0x12)){
             replyPk = this.mDriver.receivePacket(2);
         }
-        //TODO: m = pk.datat[2:]
-        int dataLength = replyPk.getPayload().length-2;
-        byte[] m = new byte[dataLength];
-        System.arraycopy(replyPk.getPayload(), 2, m, 0, dataLength);
 
-        if (m.length % 2 != 0){
+        //m = pk.datat[2:]
+        int dataLength = replyPk.getPayload().length-2;
+        byte[] mappingData = new byte[dataLength];
+        System.arraycopy(replyPk.getPayload(), 2, mappingData, 0, dataLength);
+
+        if (mappingData.length % 2 != 0){
             //raise Exception("Malformed flash mapping packet")
-            mLogger.error("Malformed flash mapping packet");
-            //return;
+            mLogger.error("Malformed flash mapping packet: length is not even (" + mappingData.length + ")");
+            //TODO: why is the length not even?
+            //return new Integer[0];
         }
 
-        //TODO: is this even necessary?
         /*
-            self.mapping = []
-            page = 0
-            for i in range(len(m)/2):
-                for j in range(m[2*i]):
-                    self.mapping.append(page)
-                    page += m[(2*i)+1]
-         */
-//        List<Integer> mapping = new ArrayList<Integer>();
-//        int page = 0;
-//        for (int i = 0; i < m.length/2; i++) {
-//            for (int j = 0; j < m[2*i]; j++) {
-//                mapping.add(page);
-//                page += m[(2*i)+1];
-//            }
-//        }
-        return m;
+        self.mapping = []
+        page = 0
+        for i in range(len(m)/2):
+            for j in range(m[2*i]):
+                self.mapping.append(page)
+                page += m[(2*i)+1]
+        */
+        List<Integer> mapping = new ArrayList<Integer>();
+        int page = 0;
+        for (int i = 0; i < mappingData.length/2; i++) {
+            for (int j = 0; j < mappingData[2*i]; j++) {
+                mapping.add(page);
+                page += mappingData[(2*i)+1] & 0xFF; // "& 0xFF" deals with unsigned byte
+            }
+        }
+        return (Integer[]) mapping.toArray(new Integer[mapping.size()]);
     }
 
     /**
@@ -515,15 +516,14 @@ public class Cloader {
         //#print "Flasing to 0x{:X}".format(addr)
 
         while(checkBootloaderReplyPacket(replyPk, addr, 0x18) && retryCounter >= 0) {
-            //pk.data = struct.pack("<BBHHH", addr, 0x18, page_buffer, target_page, page_count)
-            ByteBuffer bb = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
-            bb.put((byte) addr);
-            bb.put((byte) 0x18);
-            bb.putChar((char) pageBuffer);
-            bb.putChar((char) targetPage);
-            bb.putChar((char) pageCount);
-
-            sendBootloaderPacket(bb.array());
+        //pk.data = struct.pack("<BBHHH", addr, 0x18, page_buffer, target_page, page_count)
+        ByteBuffer bb = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
+        bb.put((byte) addr);
+        bb.put((byte) 0x18);
+        bb.putChar((char) pageBuffer);
+        bb.putChar((char) targetPage);
+        bb.putChar((char) pageCount);
+        sendBootloaderPacket(bb.array());
 
             replyPk = this.mDriver.receivePacket(1);
             retryCounter--;
@@ -574,7 +574,7 @@ public class Cloader {
         return this.mTargets;
     }
 
-    public static String getHexString(byte[] array) {
+    public static String getHexString(byte... array) {
         StringBuffer sb = new StringBuffer();
         for (byte b : array) {
             sb.append(String.format("0x%02X", b));

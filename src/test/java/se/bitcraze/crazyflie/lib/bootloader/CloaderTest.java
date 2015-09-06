@@ -1,5 +1,6 @@
 package se.bitcraze.crazyflie.lib.bootloader;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -138,11 +139,10 @@ public class CloaderTest {
             if (target.getFlashPages() == 128) { //CF 1.0
                 fail("Update mapping can only be tested on CF 2.0.");
             }
-            byte[] updateMapping = cloader.updateMapping(TargetTypes.STM32);
-            System.out.println("UpdateMapping: " + Arrays.toString(updateMapping));
+            Integer[] decompressedMappingData = cloader.updateMapping(TargetTypes.STM32);
+            System.out.println("Decompressed mapping data: " + Arrays.toString(decompressedMappingData));
 
-            // TODO: Mapping for STM32: [4, 16, 1, 64, 7, 128]
-
+            assertArrayEquals(new Integer[] { 0, 16, 32, 48, 64, 128, 256, 384, 512, 640, 768, 896 }, decompressedMappingData);
         } else {
             cloader.close();
             fail("No bootloader connection found.");
@@ -219,7 +219,5 @@ public class CloaderTest {
         }
         cloader.close();
     }
-
-
 
 }
