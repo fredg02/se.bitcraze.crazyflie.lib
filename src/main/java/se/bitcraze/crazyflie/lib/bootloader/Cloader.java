@@ -510,7 +510,7 @@ public class Cloader {
         */
         CrtpPacket replyPk = null;
         int retryCounter = 5;
-        //#print "Flasing to 0x{:X}".format(addr)
+        //#print "Flashing to 0x{:X}".format(addr)
 
         //pk.data = struct.pack("<BBHHH", addr, 0x18, page_buffer, target_page, page_count)
         ByteBuffer bb = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
@@ -523,10 +523,12 @@ public class Cloader {
 
         while(checkBootloaderReplyPacket(replyPk, addr, 0x18) && retryCounter >= 0) {
             replyPk = this.mDriver.receivePacket(1);
-            retryCounter--;
+            //TODO: why does it not work, when the retryCounter is activated?
+//            retryCounter--;
         }
 
         if (retryCounter < 0) {
+            mLogger.debug("RetryCounter is < 0!");
             //self.error_code = -1
             return false;
         }

@@ -6,9 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
 import org.junit.Test;
 
 import se.bitcraze.crazyflie.lib.bootloader.Target.TargetTypes;
@@ -57,15 +54,20 @@ public class BootloaderTest {
             // Read original CF1 config
             byte[] cf1ConfigOriginal = bootloader.readCF1Config();
             System.out.println("CF1 config (original): " + Cloader.getHexString(cf1ConfigOriginal));
+            Cf1Config oldConfig = new Cf1Config();
+            oldConfig.parse(cf1ConfigOriginal);
+            System.out.println("Old config: " + oldConfig);
 
             // Write new CF1 config
-            System.out.println("Writing CF1 config ...");
-            bootloader.writeCF1Config(prepareConfig(11, 2, 4, 3));
+            System.out.println("\nWriting CF1 config ...");
+            bootloader.writeCF1Config(new Cf1Config(11, 2, 4, 3).prepareConfig());
 
             // Read modified CF1 config (check if write workded)
             byte[] cf1ConfigChanged = bootloader.readCF1Config();
-            System.out.println("CF1 config (changed): " + Cloader.getHexString(cf1ConfigChanged));
+            System.out.println("\nCF1 config (changed): " + Cloader.getHexString(cf1ConfigChanged));
             System.out.println("Reading config block ...");
+            Cf1Config newConfig = new Cf1Config();
+            newConfig.parse(cf1ConfigChanged);
 
             /*
             if data[0:4] == "0xBC":
@@ -81,23 +83,11 @@ public class BootloaderTest {
             System.out.println("BC: " + bcString);
             assertEquals("0xBC", bcString);
 
-            //[channel, speed, pitchTrim, rollTrim] = struct.unpack("<BBff", data[5:15])
-            int offset = 5;
-            ByteBuffer cf1ConfigBuffer = ByteBuffer.wrap(cf1ConfigChanged, offset, 10).order(ByteOrder.LITTLE_ENDIAN);
-            byte channel = cf1ConfigBuffer.get();
-            byte speed = cf1ConfigBuffer.get();
-            float pitchTrim = cf1ConfigBuffer.getFloat();
-            float rollTrim = cf1ConfigBuffer.getFloat();
+            System.out.println("New config: " + newConfig);
 
-            System.out.println("Channel: " + (int) channel);
-            System.out.println("Speed: " + (int) speed);
-            System.out.println("PitchTrim: " + pitchTrim);
-            System.out.println("RollTrim: " + rollTrim);
-
-            //TODO:
-            //store cf1Config
-
-            //reset to original cf1Config
+            //Write original CF1 config
+            System.out.println("\nResetting CF1 config ...");
+            bootloader.writeCF1Config(oldConfig.prepareConfig());
         } else {
             fail("Bootloader not started.");
         }
@@ -105,42 +95,17 @@ public class BootloaderTest {
     }
 
     @Test
-    public void testPrepareConfig() {
-        String hexString = Cloader.getHexString(prepareConfig(11, 2, 4, 3));
+    public void testCf1ConfigPrepareConfig() {
+        Cf1Config cf1Config = new Cf1Config(11,  2,  4,  3);
+        String hexString = Cloader.getHexString(cf1Config.prepareConfig());
         System.out.println("Result: " + hexString);
         assertEquals("0x30 0x78 0x42 0x43 0x00 0x0B 0x02 0x00 0x00 0x40 0x40 0x00 0x00 0x80 0x40 0x86 ", hexString);
     }
 
     @Test
-    public void testChecksum() {
+    public void testCf1ConfigChecksum() {
         byte[] array = new byte[] {47,11,42,13};
-        assertEquals(113, checksum256(array));
-    }
-
-    //TODO: fix order of rollTrim and pitchTrim?
-    private byte[] prepareConfig(int channel, int speed, float rollTrim, float pitchTrim) {
-        ByteBuffer bb = ByteBuffer.allocate(16).order(ByteOrder.LITTLE_ENDIAN);
-        bb.put((byte) '0');
-        bb.put((byte) 'x');
-        bb.put((byte) 'B');
-        bb.put((byte) 'C');
-        bb.put((byte) 0x00);
-        bb.put((byte) channel);
-        bb.put((byte) speed);
-        bb.putFloat(pitchTrim);
-        bb.putFloat(rollTrim);
-        int checksum = checksum256(bb.array());
-        bb.put((byte) (256 - checksum));
-        return bb.array();
-    }
-
-    private int checksum256(byte[] array) {
-        // return reduce(lambda x, y: x + y, map(ord, st)) % 256
-        int result = array[0];
-        for(int i = 1; i < array.length; i++) {
-            result += (int) array[i];
-        }
-        return result % 256;
+        assertEquals(113, new Cf1Config().checksum256(array));
     }
 
     @Test
