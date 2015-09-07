@@ -424,8 +424,6 @@ public class Cloader {
         bb.putChar((char) page);
         bb.putChar((char) address);
 
-        CrtpPacket pk = null;
-
         for (int i = 0; i < buff.length; i++) {
             bb.put(buff[i]);
 
@@ -436,16 +434,15 @@ public class Cloader {
                 count = 0;
 
                 //pk.data = struct.pack("=BBHH", target_id, 0x14, page, i + address + 1)
-                ByteBuffer bb2 = ByteBuffer.allocate(6).order(ByteOrder.LITTLE_ENDIAN);
-                bb2.put((byte) targetId);
-                bb2.put((byte) 0x14);
-                bb2.putChar((char) page);
-                bb2.putChar((char) (i + address + 1));
-
-                sendBootloaderPacket(bb2.array());
+                bb.clear();
+                bb.put((byte) targetId);
+                bb.put((byte) 0x14);
+                bb.putChar((char) page);
+                bb.putChar((char) (i + address + 1));
             }
         }
-        this.mDriver.sendPacket(pk);
+        mLogger.debug("Sending buffer packet: " + Cloader.getHexString(bb.array()));
+        sendBootloaderPacket(bb.array());
     }
 
     /**
@@ -515,7 +512,6 @@ public class Cloader {
         int retryCounter = 5;
         //#print "Flasing to 0x{:X}".format(addr)
 
-        while(checkBootloaderReplyPacket(replyPk, addr, 0x18) && retryCounter >= 0) {
         //pk.data = struct.pack("<BBHHH", addr, 0x18, page_buffer, target_page, page_count)
         ByteBuffer bb = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
         bb.put((byte) addr);
@@ -525,6 +521,7 @@ public class Cloader {
         bb.putChar((char) pageCount);
         sendBootloaderPacket(bb.array());
 
+        while(checkBootloaderReplyPacket(replyPk, addr, 0x18) && retryCounter >= 0) {
             replyPk = this.mDriver.receivePacket(1);
             retryCounter--;
         }
@@ -534,9 +531,10 @@ public class Cloader {
             return false;
         }
         //self.error_code = ord(pk.data[3])
+        mLogger.debug("Error code: " + getHexString(replyPk.getPayload()[3]));
 
         //return ord(pk.data[2]) == 1
-        return true;
+        return replyPk.getPayload()[2] == 1;
     }
 
     //decode_cpu_id has not been implemented, because it's not used anywhere

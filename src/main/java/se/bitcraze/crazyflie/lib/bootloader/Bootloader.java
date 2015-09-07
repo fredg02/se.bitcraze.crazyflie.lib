@@ -185,7 +185,6 @@ public class Bootloader {
         }
         if (bufferCounter > 0) {
             mLogger.info("BufferCounter: " + bufferCounter);
-            System.out.println("BufferCounter: " + bufferCounter);
             if (!this.mCload.writeFlash(t_data.getId(), 0, (startPage + ((image.length - 1) / pageSize)) - (bufferCounter - 1), bufferCounter)) {
                 mLogger.error("Error during flash operation (code " + this.mCload.getErrorCode() + ". Maybe wrong radio link?");
                 //raise Exception()
