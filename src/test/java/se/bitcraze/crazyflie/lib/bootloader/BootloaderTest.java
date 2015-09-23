@@ -56,7 +56,7 @@ public class BootloaderTest {
 
             // Read original CF1 config
             byte[] cf1ConfigOriginal = bootloader.readCF1Config();
-            System.out.println("CF1 config (original): " + Cloader.getHexString(cf1ConfigOriginal));
+            System.out.println("CF1 config (original): " + Utilities.getHexString(cf1ConfigOriginal));
             Cf1Config oldConfig = new Cf1Config();
             oldConfig.parse(cf1ConfigOriginal);
             System.out.println("Old config: " + oldConfig);
@@ -67,7 +67,7 @@ public class BootloaderTest {
 
             // Read modified CF1 config (check if write workded)
             byte[] cf1ConfigChanged = bootloader.readCF1Config();
-            System.out.println("\nCF1 config (changed): " + Cloader.getHexString(cf1ConfigChanged));
+            System.out.println("\nCF1 config (changed): " + Utilities.getHexString(cf1ConfigChanged));
             System.out.println("Reading config block ...");
             Cf1Config newConfig = new Cf1Config();
             newConfig.parse(cf1ConfigChanged);
@@ -100,7 +100,7 @@ public class BootloaderTest {
     @Test
     public void testCf1ConfigPrepareConfig() {
         Cf1Config cf1Config = new Cf1Config(11,  2,  4,  3);
-        String hexString = Cloader.getHexString(cf1Config.prepareConfig());
+        String hexString = Utilities.getHexString(cf1Config.prepareConfig());
         System.out.println("Result: " + hexString);
         assertEquals("0x30 0x78 0x42 0x43 0x00 0x0B 0x02 0x00 0x00 0x40 0x40 0x00 0x00 0x80 0x40 0x86 ", hexString);
     }
@@ -120,8 +120,12 @@ public class BootloaderTest {
 
             //Load firmware file directly into byte array/buffer
             //Flash firmware
+
+            long startTime = System.currentTimeMillis();
             bootloader.flash(new File("cf1-2015.08.bin"), TargetTypes.STM32);
 //            bootloader.flash(new File("Crazyflie1-2015.1.bin"), TargetTypes.STM32);
+
+            System.out.println("Flashing took " + (System.currentTimeMillis() - startTime) + "ms");
 
             bootloader.resetToFirmware();
             //Check if everything still works

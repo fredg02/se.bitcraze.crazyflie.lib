@@ -236,7 +236,7 @@ public class CloaderTest {
 
             byte[] newAddress = new byte[]{(byte) 0xE6, (byte) 0xE6, (byte) 0xE6, (byte) 0xE6, (byte) 0xE6};
 
-            System.out.println("Set address to " + Cloader.getHexString(newAddress));
+            System.out.println("Set address to " + Utilities.getHexString(newAddress));
             cloader.setAddress(newAddress);
 
             //TODO: check address

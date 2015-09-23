@@ -27,7 +27,6 @@ import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
  *
  */
 //TODO: fix resetToBootloader methods
-//TODO: extract getHexString method
 //TODO: fix callbacks
 public class Cloader {
 
@@ -289,7 +288,7 @@ public class Cloader {
             return false;
         }
 
-        mLogger.debug("Setting bootloader radio address to " + getHexString(newAddress));
+        mLogger.debug("Setting bootloader radio address to " + Utilities.getHexString(newAddress));
 
         // TODO: self.link.pause()
 
@@ -319,7 +318,7 @@ public class Cloader {
             if (ack != null) {
                 //logging.info("Bootloader set to radio address" " {}".format(new_address))
 
-                mLogger.info("Bootloader set to radio address " + getHexString(newAddress));;
+                mLogger.info("Bootloader set to radio address " + Utilities.getHexString(newAddress));;
                 //TODO: this.mDriver.restart()
                 return true;
             }
@@ -577,15 +576,6 @@ public class Cloader {
 
     public Map<Integer, Target> getTargets() {
         return this.mTargets;
-    }
-
-    public static String getHexString(byte... array) {
-        StringBuffer sb = new StringBuffer();
-        for (byte b : array) {
-            sb.append(String.format("0x%02X", b));
-            sb.append(" ");
-        }
-        return sb.toString();
     }
 
 }
