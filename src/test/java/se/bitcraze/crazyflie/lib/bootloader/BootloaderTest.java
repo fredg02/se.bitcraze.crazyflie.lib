@@ -7,6 +7,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -182,6 +184,52 @@ public class BootloaderTest {
             fail("Bootloader not started.");
         }
         bootloader.close();
+    }
+
+    @Test
+    public void testReadManifest() {
+        Bootloader bootloader = new Bootloader(new RadioDriver(new UsbLinkJava()));
+        Manifest readManifest = bootloader.readManifest("src/test/manifest.json");
+
+        System.out.println("Version: " + readManifest.getVersion());
+        for (String name : readManifest.getFiles().keySet()) {
+            System.out.println("Name: " + name);
+            System.out.println(readManifest.getFiles().get(name).toString());
+        }
+
+        assertEquals(1, readManifest.getVersion());
+        assertTrue(readManifest.getFiles().containsKey("cflie2.bin"));
+        FirmwareDetails firmwareDetails1 = readManifest.getFiles().get("cflie2.bin");
+        assertEquals("cf2", firmwareDetails1.getPlatform());
+        assertEquals("stm32", firmwareDetails1.getTarget());
+        assertEquals("fw", firmwareDetails1.getType());
+
+        assertTrue(readManifest.getFiles().containsKey("cf2_nrf_1.1.bin"));
+        FirmwareDetails firmwareDetails2 = readManifest.getFiles().get("cf2_nrf_1.1.bin");
+        assertEquals("cf2", firmwareDetails2.getPlatform());
+        assertEquals("nrf51", firmwareDetails2.getTarget());
+        assertEquals("fw", firmwareDetails2.getType());
+    }
+
+    @Test
+    public void writeManifest() {
+        Bootloader bootloader = new Bootloader(new RadioDriver(new UsbLinkJava()));
+
+        Manifest manifest = new Manifest();
+        manifest.setVersion(1);
+        Map<String, FirmwareDetails> map = new HashMap<String, FirmwareDetails>();
+        FirmwareDetails firmwareDetails = new FirmwareDetails("cf2", "stm32", "fw");
+        map.put("cflie2.bin", firmwareDetails);
+        manifest.setFiles(map);
+
+        bootloader.writeManifest("manifestTest.json", manifest);
+
+//        System.out.println("Version: " + readManifest.getVersion());
+//        for (String name : readManifest.getFiles().keySet()) {
+//            System.out.println("Name: " + name);
+//            System.out.println(readManifest.getFiles().get(name).toString());
+//        }
+
     }
 
     /* Utility class */
