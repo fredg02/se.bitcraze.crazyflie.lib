@@ -6,6 +6,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.File;
+
+import org.junit.Ignore;
 import org.junit.Test;
 
 import se.bitcraze.crazyflie.lib.bootloader.Target.TargetTypes;
@@ -109,26 +112,27 @@ public class BootloaderTest {
     }
 
     @Test
-    public void testInternalFlash() throws InterruptedException {
+    public void testFlashSingleTarget() throws InterruptedException {
         System.out.print("Restart the Crazyflie you want to bootload in the next 10 seconds ...");
         Bootloader bootloader = new Bootloader(new RadioDriver(new UsbLinkJava()));
         if (bootloader.startBootloader(false)) {
             System.out.println(" Done!");
 
             //Load firmware file directly into byte array/buffer
-
             //Flash firmware
+            bootloader.flash(new File("cf1-2015.08.bin"), TargetTypes.STM32);
+//            bootloader.flash(new File("Crazyflie1-2015.1.bin"), TargetTypes.STM32);
 
+            bootloader.resetToFirmware();
             //Check if everything still works
-
         } else {
             fail("Bootloader not started.");
         }
         bootloader.close();
     }
 
-    @Test
-    public void testFlash() throws InterruptedException {
+    @Test @Ignore
+    public void testFlashMultipleTargets() throws InterruptedException {
         System.out.print("Restart the Crazyflie you want to bootload in the next 10 seconds ...");
         Bootloader bootloader = new Bootloader(new RadioDriver(new UsbLinkJava()));
         if (bootloader.startBootloader(false)) {

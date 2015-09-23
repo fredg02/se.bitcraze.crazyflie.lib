@@ -26,6 +26,9 @@ import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
  * Bootloader utility for the Crazyflie
  *
  */
+//TODO: fix resetToBootloader methods
+//TODO: extract getHexString method
+//TODO: fix callbacks
 public class Cloader {
 
     final Logger mLogger = LoggerFactory.getLogger("Cloader");
@@ -343,6 +346,7 @@ public class Cloader {
     public boolean updateInfo(int targetId) {
         // Call getInfo ...
         // pk.data = (target_id, 0x10)
+        mLogger.info("Send update info packet");
         sendBootloaderPacket(new byte[]{(byte) targetId, (byte) 0x10});
 
         // Wait for the answer
@@ -434,14 +438,15 @@ public class Cloader {
                 count = 0;
 
                 //pk.data = struct.pack("=BBHH", target_id, 0x14, page, i + address + 1)
-                bb.clear();
+                //TODO: bb.clear() did not work as intended
+                bb = ByteBuffer.allocate(6+buff.length).order(ByteOrder.LITTLE_ENDIAN);
                 bb.put((byte) targetId);
                 bb.put((byte) 0x14);
                 bb.putChar((char) page);
                 bb.putChar((char) (i + address + 1));
             }
         }
-        mLogger.debug("Sending buffer packet: " + Cloader.getHexString(bb.array()));
+        //mLogger.debug("Sending buffer packet: " + Cloader.getHexString(bb.array()));
         sendBootloaderPacket(bb.array());
     }
 
@@ -533,7 +538,7 @@ public class Cloader {
             return false;
         }
         //self.error_code = ord(pk.data[3])
-        mLogger.debug("Error code: " + getHexString(replyPk.getPayload()[3]));
+        //mLogger.debug("Error code: " + getHexString(replyPk.getPayload()[3]));
 
         //return ord(pk.data[2]) == 1
         return replyPk.getPayload()[2] == 1;

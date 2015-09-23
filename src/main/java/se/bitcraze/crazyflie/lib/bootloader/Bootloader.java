@@ -1,5 +1,9 @@
 package se.bitcraze.crazyflie.lib.bootloader;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.Arrays;
 
 import org.slf4j.Logger;
@@ -91,23 +95,52 @@ public class Bootloader {
      * Read a flash page from the specified target
      */
     public byte[] readCF1Config() {
-        Target target = this.mCload.getTargets().get(0xFF);
+        Target target = this.mCload.getTargets().get(TargetTypes.STM32); //CF1
         int configPage = target.getFlashPages() - 1;
 
         return this.mCload.readFlash(0xFF, configPage);
     }
 
     public void writeCF1Config(byte[] data) {
-        Target target = this.mCload.getTargets().get(0xFF);
+        Target target = this.mCload.getTargets().get(TargetTypes.STM32); //CF1
         int configPage = target.getFlashPages() - 1;
 
-        /*
-        to_flash = {"target": target, "data": data, "type": "CF1 config",
-                "start_page": config_page}
-        */
-
-        //self._internal_flash(target=to_flash)
+        //to_flash = {"target": target, "data": data, "type": "CF1 config", "start_page": config_page}
         internalFlash(target, data, "CF1 config", configPage);
+    }
+
+    public void flash(File file, int targetId) {
+        Target target = this.mCload.getTargets().get(targetId);
+        byte[] fileData = readFile(file);
+        if (fileData.length > 0) {
+            internalFlash(target, fileData, "CF1 firmware", target.getStartPage());
+        } else {
+            System.out.println("File size is 0.");
+        }
+    }
+
+    //TODO: improve
+    private byte[] readFile(File file) {
+        byte[] fileData = new byte[(int) file.length()];
+        System.out.println("File size: " +  file.length());
+        RandomAccessFile raf = null;
+        try {
+            raf = new RandomAccessFile(file.getAbsoluteFile(), "r");
+            raf.readFully(fileData);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (raf != null) {
+                try {
+                    raf.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return fileData;
     }
 
     // TODO: def flash(self, filename, targets):
@@ -169,11 +202,13 @@ public class Bootloader {
             this.mCload.uploadBuffer(t_data.getId(), bufferCounter, 0, buffer);
 
             bufferCounter++;
-            System.out.println(".");
+            System.out.print(".");
 
             // Flash when the complete buffers are full
             if (bufferCounter >= t_data.getBufferPages()) {
                 mLogger.info("BufferCounter: " + bufferCounter);
+                mLogger.info("Buffers full. Flashing page " + i + "...");
+                System.out.println("\nBuffers full. Flashing page " + i + "...");
                 if (!this.mCload.writeFlash(t_data.getId(), 0, startPage + i - (bufferCounter - 1), bufferCounter)) {
                     mLogger.error("Error during flash operation (code " + this.mCload.getErrorCode() + ". Maybe wrong radio link?");
                     //raise Exception()

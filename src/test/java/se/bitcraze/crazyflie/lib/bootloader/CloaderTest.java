@@ -189,6 +189,34 @@ public class CloaderTest {
         cloader.close();
     }
 
+    @Test
+    public void testCloader_uploadBuffer() throws IOException {
+        Cloader cloader = new Cloader(new RadioDriver(new UsbLinkJava()));
+        System.out.println("Restart the Crazyflie you want to bootload in the next 10 seconds ...");
+        ConnectionData bootloaderConnection = cloader.scanForBootloader();
+        if (bootloaderConnection != null) {
+            System.out.println("BootloaderConnection: " + bootloaderConnection);
+            cloader.openBootloaderConnection(bootloaderConnection);
+            boolean checkLinkAndGetInfo = cloader.checkLinkAndGetInfo(TargetTypes.STM32); //CF1
+            assertTrue(checkLinkAndGetInfo);
+
+            byte[] buff = new byte[]{1,2,3,4,5,6,7,8,9,10};
+            System.out.println("Uploading buffer...");
+            cloader.uploadBuffer(TargetTypes.STM32, 3, 0, buff);
+
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        } else {
+            cloader.close();
+            fail("No bootloader connection found.");
+        }
+        cloader.close();
+    }
+
     @Test @Ignore
     public void testCloaderCF1_setAddress() {
         Cloader cloader = new Cloader(new RadioDriver(new UsbLinkJava()));
