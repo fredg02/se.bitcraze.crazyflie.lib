@@ -359,12 +359,8 @@ public class Cloader {
             Target target = new Target(targetId);
             target.parseData(replyPk.getPayload());
             this.mProtocolVersion = target.getProtocolVersion();
+            this.mTargets.put(targetId, target);
 
-            if (!this.mTargets.containsKey(targetId)) {
-                this.mTargets.put(targetId, target);
-            } else {
-                //TODO: update existing entry
-            }
             // Update mapping (CF 2.0 only)
             if (target.getProtocolVersion() == (byte) 0x10 && targetId == TargetTypes.STM32) {
 //                updateMapping(targetId);
@@ -385,9 +381,7 @@ public class Cloader {
         }
 
         //m = pk.datat[2:]
-        int dataLength = replyPk.getPayload().length-2;
-        byte[] mappingData = new byte[dataLength];
-        System.arraycopy(replyPk.getPayload(), 2, mappingData, 0, dataLength);
+        byte[] mappingData = Utilities.strip(replyPk.getPayload(), 2);
 
         if (mappingData.length % 2 != 0){
             //raise Exception("Malformed flash mapping packet")

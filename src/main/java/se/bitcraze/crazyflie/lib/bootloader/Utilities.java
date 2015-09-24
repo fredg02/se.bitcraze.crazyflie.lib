@@ -30,4 +30,16 @@ public class Utilities {
         return sb.toString();
     }
 
+    /**
+     * Strip bytes of the beginning of an array
+     *
+     * @param array
+     * @param offset
+     * @return
+     */
+    public static byte[] strip(byte[] array, int offset) {
+        byte[] strippedArray = new byte[array.length-offset];
+        System.arraycopy(array, offset, strippedArray, 0, strippedArray.length);
+        return strippedArray;
+    }
 }
