@@ -39,6 +39,14 @@ public class Cloader {
     private int mErrorCode = -1;
     private int mProtocolVersion = 0xFF;
 
+    // Bootloader commands
+    private int GET_INFO = 0x10;
+    private int SET_ADDRESS = 0x11; // Only implemented on Crazyflie version 0x00
+    private int GET_MAPPING = 0x12; // Only implemented in version 0x10 target 0xFF
+    private int LOAD_BUFFER = 0x14;
+    private int WRITE_FLASH = 0x18;
+    private int READ_FLASH = 0x1C;
+
     /**
      * Init the communication class by starting to communicate with the link given.
      * clink is the link address used after resetting to the bootloader.
@@ -305,7 +313,7 @@ public class Cloader {
             byte[] pkData = new byte[newAddress.length + 3];
             pkData[0] = (byte) 0xFF;
             pkData[1] = (byte) 0xFF;
-            pkData[2] = (byte) 0x11;;
+            pkData[2] = (byte) SET_ADDRESS;
             System.arraycopy(newAddress, 0, pkData, 3, newAddress.length);
             crazyRadio.sendPacket(pkData);
 
@@ -346,12 +354,12 @@ public class Cloader {
         // Call getInfo ...
         // pk.data = (target_id, 0x10)
         mLogger.info("Send update info packet");
-        sendBootloaderPacket(new byte[]{(byte) targetId, (byte) 0x10});
+        sendBootloaderPacket(new byte[]{(byte) targetId, (byte) GET_INFO});
 
         // Wait for the answer
         //TODO: retryCount?
         CrtpPacket replyPk = this.mDriver.receivePacket(2000);
-        while(checkBootloaderReplyPacket(replyPk, targetId, 0x10)) {
+        while(checkBootloaderReplyPacket(replyPk, targetId, GET_INFO)) {
             replyPk = this.mDriver.receivePacket(2000);
         }
 
@@ -362,7 +370,7 @@ public class Cloader {
             this.mTargets.put(targetId, target);
 
             // Update mapping (CF 2.0 only)
-            if (target.getProtocolVersion() == (byte) 0x10 && targetId == TargetTypes.STM32) {
+            if (target.getProtocolVersion() == (byte) GET_INFO && targetId == TargetTypes.STM32) {
 //                updateMapping(targetId);
             }
             return true;
@@ -373,10 +381,10 @@ public class Cloader {
     }
 
     public Integer[] updateMapping(int targetId) {
-        sendBootloaderPacket(new byte[]{(byte) targetId, (byte) 0x12});
+        sendBootloaderPacket(new byte[]{(byte) targetId, (byte) GET_MAPPING});
 
         CrtpPacket replyPk = this.mDriver.receivePacket(2);
-        while (checkBootloaderReplyPacket(replyPk, targetId, 0x12)){
+        while (checkBootloaderReplyPacket(replyPk, targetId, GET_MAPPING)){
             replyPk = this.mDriver.receivePacket(2);
         }
 
@@ -417,7 +425,7 @@ public class Cloader {
         //pk.data = struct.pack("=BBHH", target_id, 0x14, page, address)
         ByteBuffer bb = ByteBuffer.allocate(6+buff.length).order(ByteOrder.LITTLE_ENDIAN);
         bb.put((byte) targetId);
-        bb.put((byte) 0x14);
+        bb.put((byte) LOAD_BUFFER);
         bb.putChar((char) page);
         bb.putChar((char) address);
 
@@ -434,7 +442,7 @@ public class Cloader {
                 //TODO: bb.clear() did not work as intended
                 bb = ByteBuffer.allocate(6+buff.length).order(ByteOrder.LITTLE_ENDIAN);
                 bb.put((byte) targetId);
-                bb.put((byte) 0x14);
+                bb.put((byte) LOAD_BUFFER);
                 bb.putChar((char) page);
                 bb.putChar((char) (i + address + 1));
             }
@@ -460,11 +468,9 @@ public class Cloader {
                 int retryCounter = 5;
 
                 while (retryCounter >= 0) {
-
-                    //TODO ByteOrder?
                     ByteBuffer bb = ByteBuffer.allocate(6).order(ByteOrder.LITTLE_ENDIAN);
                     bb.put((byte) addr);
-                    bb.put((byte) 0x1C);
+                    bb.put((byte) READ_FLASH);
                     bb.putChar((char) page);
                     bb.putChar((char) (i*25));
 
@@ -476,7 +482,7 @@ public class Cloader {
                     //does it have something to do with the queue size??
                     //yes, the queue is filled with empty packets
                     //how can this be avoided?
-                    while(checkBootloaderReplyPacket(replyPk, addr, 0x1C)) {
+                    while(checkBootloaderReplyPacket(replyPk, addr, READ_FLASH)) {
                         replyPk = this.mDriver.receivePacket(10);
                     }
                     if (replyPk != null) {
@@ -513,13 +519,13 @@ public class Cloader {
         //pk.data = struct.pack("<BBHHH", addr, 0x18, page_buffer, target_page, page_count)
         ByteBuffer bb = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
         bb.put((byte) addr);
-        bb.put((byte) 0x18);
+        bb.put((byte) WRITE_FLASH);
         bb.putChar((char) pageBuffer);
         bb.putChar((char) targetPage);
         bb.putChar((char) pageCount);
         sendBootloaderPacket(bb.array());
 
-        while(checkBootloaderReplyPacket(replyPk, addr, 0x18) && retryCounter >= 0) {
+        while(checkBootloaderReplyPacket(replyPk, addr, WRITE_FLASH) && retryCounter >= 0) {
             replyPk = this.mDriver.receivePacket(1);
             //TODO: why does it not work, when the retryCounter is activated?
 //            retryCounter--;
