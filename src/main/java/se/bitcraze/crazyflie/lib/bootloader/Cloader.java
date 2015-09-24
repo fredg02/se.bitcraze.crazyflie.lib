@@ -36,7 +36,7 @@ public class Cloader {
     private List<ConnectionData> mAvailableBootConnections = new ArrayList<ConnectionData>();
 
     private Map<Integer, Target> mTargets = new HashMap<Integer, Target>();
-    private int mErrorCode = -1;
+    private String mErrorMessage = "";
     private int mProtocolVersion = 0xFF;
 
     // Bootloader commands
@@ -46,6 +46,7 @@ public class Cloader {
     private int LOAD_BUFFER = 0x14;
     private int WRITE_FLASH = 0x18;
     private int READ_FLASH = 0x1C;
+
 
     /**
      * Init the communication class by starting to communicate with the link given.
@@ -536,17 +537,35 @@ public class Cloader {
             //self.error_code = -1
             return false;
         }
-        //self.error_code = ord(pk.data[3])
-        //mLogger.debug("Error code: " + getHexString(replyPk.getPayload()[3]));
 
-        //return ord(pk.data[2]) == 1
+        // handle error code
+        int errorCode = replyPk.getPayload()[3];
+        switch (errorCode) {
+        case 1:
+            mErrorMessage = "Addresses are outside of authorized boundaries";
+            break;
+        case 2:
+            mErrorMessage = "Flash erase failed";
+            break;
+        case 3:
+            mErrorMessage = "Flash programming failed";
+            break;
+        default:
+            mErrorMessage = "";
+            break;
+        }
+        if (errorCode != 0) {
+          //TODO: also call listener
+          mLogger.error(mErrorMessage + " (error code: " + errorCode + ")");
+        }
+
         return replyPk.getPayload()[2] == 1;
     }
 
     //decode_cpu_id has not been implemented, because it's not used anywhere
 
-    public int getErrorCode() {
-        return this.mErrorCode;
+    public String getErrorMessage() {
+        return this.mErrorMessage;
     }
 
     public int getProtocolVersion() {

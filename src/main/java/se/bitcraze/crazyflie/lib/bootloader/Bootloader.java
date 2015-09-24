@@ -210,7 +210,7 @@ public class Bootloader {
                 mLogger.info("Buffers full. Flashing page " + i + "...");
                 System.out.println("\nBuffers full. Flashing page " + i + "...");
                 if (!this.mCload.writeFlash(t_data.getId(), 0, startPage + i - (bufferCounter - 1), bufferCounter)) {
-                    mLogger.error("Error during flash operation (code " + this.mCload.getErrorCode() + ". Maybe wrong radio link?");
+                    mLogger.error("Error during flash operation (" + this.mCload.getErrorMessage() + "). Maybe wrong radio link?");
                     //raise Exception()
                     return;
 
@@ -221,8 +221,8 @@ public class Bootloader {
         if (bufferCounter > 0) {
             mLogger.info("BufferCounter: " + bufferCounter);
             if (!this.mCload.writeFlash(t_data.getId(), 0, (startPage + ((image.length - 1) / pageSize)) - (bufferCounter - 1), bufferCounter)) {
-                mLogger.error("Error during flash operation (code " + this.mCload.getErrorCode() + ". Maybe wrong radio link?");
-                System.err.println("Error during flash operation (code " + this.mCload.getErrorCode() + ". Maybe wrong radio link?");
+                mLogger.error("Error during flash operation (" + this.mCload.getErrorMessage() + "). Maybe wrong radio link?");
+                System.err.println("Error during flash operation (" + this.mCload.getErrorMessage() + "). Maybe wrong radio link?");
                 //raise Exception()
                 return;
             }
