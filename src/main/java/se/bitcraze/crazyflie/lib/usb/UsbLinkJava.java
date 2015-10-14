@@ -205,7 +205,7 @@ public class UsbLinkJava implements CrazyUsbInterface {
                 sendBulkTransfer(mEpOut, data);
                 returnCode = sendBulkTransfer(mEpIn, receiveData);
             } catch (UsbException e) {
-                e.printStackTrace();
+                mLogger.error("sendBulkTransfer failed: " + e.getMessage());
             }
         }
         return returnCode;
@@ -216,7 +216,7 @@ public class UsbLinkJava implements CrazyUsbInterface {
             try {
                 sendBulkTransfer(mEpOut, data);
             } catch (UsbException e) {
-                e.printStackTrace();
+                mLogger.error("bulkWrite failed: " + e.getMessage());
             }
         } else {
             mLogger.error("bulkWrite failed because mUsbDevice was null");
@@ -231,7 +231,7 @@ public class UsbLinkJava implements CrazyUsbInterface {
                 returnCode = sendBulkTransfer(mEpIn, data);
                 mLogger.debug("bulkRead: return code = " + returnCode);
             } catch (UsbException e) {
-                e.printStackTrace();
+                mLogger.error("bulkRead failed: " + e.getMessage());
             }
         }
         return data;
