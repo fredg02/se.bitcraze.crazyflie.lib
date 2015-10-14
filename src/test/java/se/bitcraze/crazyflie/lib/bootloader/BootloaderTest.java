@@ -11,6 +11,7 @@ import java.io.File;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import se.bitcraze.crazyflie.lib.bootloader.Bootloader.BootloaderListener;
 import se.bitcraze.crazyflie.lib.bootloader.Target.TargetTypes;
 import se.bitcraze.crazyflie.lib.bootloader.Utilities.BootVersion;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
@@ -22,6 +23,8 @@ public class BootloaderTest {
     public void testBootloader() throws InterruptedException {
         System.out.print("Restart the Crazyflie you want to bootload in the next 10 seconds ...");
         Bootloader bootloader = new Bootloader(new RadioDriver(new UsbLinkJava()));
+        bootloader.addBootloaderListener(new BootloaderAdapter());
+
         if (bootloader.startBootloader(false)) {
             System.out.println(" Done!");
 
@@ -46,6 +49,7 @@ public class BootloaderTest {
     public void testReadWriteCF1Config() throws InterruptedException {
         System.out.print("Restart the Crazyflie you want to bootload in the next 10 seconds ...");
         Bootloader bootloader = new Bootloader(new RadioDriver(new UsbLinkJava()));
+        bootloader.addBootloaderListener(new BootloaderAdapter());
         if (bootloader.startBootloader(false)) {
             System.out.println(" Done!");
 
@@ -115,6 +119,7 @@ public class BootloaderTest {
     public void testFlashSingleTarget() throws InterruptedException {
         System.out.print("Restart the Crazyflie you want to bootload in the next 10 seconds ...");
         Bootloader bootloader = new Bootloader(new RadioDriver(new UsbLinkJava()));
+        bootloader.addBootloaderListener(new BootloaderAdapter());
         if (bootloader.startBootloader(false)) {
             System.out.println(" Done!");
 
@@ -122,10 +127,12 @@ public class BootloaderTest {
             //Flash firmware
 
             long startTime = System.currentTimeMillis();
-            bootloader.flash(new File("cf1-2015.08.bin"), TargetTypes.STM32);
+//            bootloader.flash(new File("cf2-2015.08.1.bin"), TargetTypes.STM32);
+//            bootloader.flash(new File("cflie2.bin"), TargetTypes.STM32);
+            bootloader.flash(new File("cf1-2015.08.1.bin"), TargetTypes.STM32);
 //            bootloader.flash(new File("Crazyflie1-2015.1.bin"), TargetTypes.STM32);
 
-            System.out.println("Flashing took " + (System.currentTimeMillis() - startTime) + "ms");
+            System.out.println("Flashing took " + (System.currentTimeMillis() - startTime)/1000 + "s");
 
             bootloader.resetToFirmware();
             //Check if everything still works
@@ -139,6 +146,7 @@ public class BootloaderTest {
     public void testFlashMultipleTargets() throws InterruptedException {
         System.out.print("Restart the Crazyflie you want to bootload in the next 10 seconds ...");
         Bootloader bootloader = new Bootloader(new RadioDriver(new UsbLinkJava()));
+        bootloader.addBootloaderListener(new BootloaderAdapter());
         if (bootloader.startBootloader(false)) {
             System.out.println(" Done!");
 
@@ -152,6 +160,24 @@ public class BootloaderTest {
             fail("Bootloader not started.");
         }
         bootloader.close();
+    }
+
+    /* Utility class */
+
+    public class BootloaderAdapter implements BootloaderListener {
+
+        public void updateProgress(int progress) {
+            System.out.println("Update progress: " +  progress);
+        }
+
+        public void updateStatus(String status) {
+            System.out.println("Update status: " +  status);
+        }
+
+        public void updateError(String error) {
+            System.err.println("Update error: " + error);
+        }
+
     }
 
 }
