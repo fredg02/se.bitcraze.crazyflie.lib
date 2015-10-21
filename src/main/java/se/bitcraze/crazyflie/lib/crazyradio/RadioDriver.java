@@ -168,7 +168,7 @@ public class RadioDriver extends CrtpDriver{
      */
     @Override
     public void disconnect() {
-        mLogger.debug("disconnect");
+        mLogger.debug("RadioDriver disconnect()");
         // Stop the comm thread
         if (this.mRadioDriverThread != null) {
             this.mRadioDriverThread.interrupt();
@@ -267,7 +267,7 @@ public class RadioDriver extends CrtpDriver{
             double waitTime = 0;
             int emptyCtr = 0;
 
-            while(mCradio != null) {
+            while(mCradio != null && !Thread.currentThread().isInterrupted()) {
                 try {
 
                     /*
