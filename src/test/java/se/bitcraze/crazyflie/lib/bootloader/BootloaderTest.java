@@ -32,14 +32,21 @@ public class BootloaderTest {
 
             assertNotNull("Target STM32 should be found", bootloader.getTarget(TargetTypes.STM32));
 
-            assertTrue(bootloader.getProtocolVersion() == BootVersion.CF1_PROTO_VER_0 ||
-                       bootloader.getProtocolVersion() == BootVersion.CF1_PROTO_VER_1 ||
-                       bootloader.getProtocolVersion() == BootVersion.CF2_PROTO_VER);
-
-            if (bootloader.getProtocolVersion() == BootVersion.CF2_PROTO_VER) {
+            Target target = bootloader.getCloader().getTargets().get(TargetTypes.STM32);
+            System.out.println("target.getFlashPages(): " + target.getFlashPages());
+            System.out.println("bootloader.getProtocolVersion(): " + BootVersion.toVersionString(bootloader.getProtocolVersion()));
+            if (target.getFlashPages() == 128) { //128 = CF 1.0
+                assertTrue(bootloader.getProtocolVersion() == BootVersion.CF1_PROTO_VER_0 ||
+                           bootloader.getProtocolVersion() == BootVersion.CF1_PROTO_VER_1);
+            } else if (target.getFlashPages() == 1024) { //1024 = CF 2.0
+                assertTrue(bootloader.getProtocolVersion() == BootVersion.CF2_PROTO_VER);
                 assertNotNull("Target NRF51 should be found", bootloader.getTarget(TargetTypes.NRF51));
+            } else {
+                bootloader.close();
+                fail("Number of flash pages seems to be wrong (" + target.getFlashPages() + ")");
             }
         } else {
+            bootloader.close();
             fail("Bootloader not started.");
         }
         bootloader.close();
@@ -54,7 +61,8 @@ public class BootloaderTest {
             System.out.println(" Done!");
 
             Target target = bootloader.getCloader().getTargetsAsList().get(0);
-            if (target.getFlashPages() != 128) { //CF 2.0
+            if (target.getFlashPages() != 128) { //128 = CF 1.0, 1024 = CF 2.0
+                bootloader.close();
                 fail("testReadWriteCF1Config can only be tested on CF 1.0.");
             }
 
@@ -96,6 +104,7 @@ public class BootloaderTest {
             System.out.println("\nResetting CF1 config ...");
             bootloader.writeCF1Config(oldConfig.prepareConfig());
         } else {
+            bootloader.close();
             fail("Bootloader not started.");
         }
         bootloader.close();
@@ -127,16 +136,28 @@ public class BootloaderTest {
             //Flash firmware
 
             long startTime = System.currentTimeMillis();
-//            bootloader.flash(new File("cf2-2015.08.1.bin"), TargetTypes.STM32);
-//            bootloader.flash(new File("cflie2.bin"), TargetTypes.STM32);
-            bootloader.flash(new File("cf1-2015.08.1.bin"), TargetTypes.STM32);
+
+            Target target = bootloader.getCloader().getTargets().get(TargetTypes.STM32);
+            System.out.println("FlashPages: " + target.getFlashPages());
+            if (target.getFlashPages() == 128) { //128 = CF 1.0
+                System.out.println("CF 1.0");
+                bootloader.flash(new File("cf1-2015.08.1.bin"), TargetTypes.STM32);
 //            bootloader.flash(new File("Crazyflie1-2015.1.bin"), TargetTypes.STM32);
+            } else if (target.getFlashPages() == 1024) { //1024 = CF 2.0
+                System.out.println("CF 2.0");
+                bootloader.flash(new File("cf2-2015.08.1.bin"), TargetTypes.STM32);
+//            bootloader.flash(new File("cflie2.bin"), TargetTypes.STM32);
+            } else {
+                System.err.println("Problem with getFlashPages().");
+                return;
+            }
 
             System.out.println("Flashing took " + (System.currentTimeMillis() - startTime)/1000 + "s");
 
             bootloader.resetToFirmware();
             //Check if everything still works
         } else {
+            bootloader.close();
             fail("Bootloader not started.");
         }
         bootloader.close();
@@ -157,6 +178,7 @@ public class BootloaderTest {
             //Check if everything still works
 
         } else {
+            bootloader.close();
             fail("Bootloader not started.");
         }
         bootloader.close();

@@ -43,7 +43,7 @@ public class CloaderTest {
      */
 
     @Test
-    public void testCloaderInfo() {
+    public void testCloader_getInfo() {
         Cloader cloader = new Cloader(new RadioDriver(new UsbLinkJava()));
         System.out.println("Restart the Crazyflie you want to bootload in the next 10 seconds ...");
         ConnectionData bootloaderConnection = cloader.scanForBootloader();
@@ -73,6 +73,7 @@ public class CloaderTest {
                 assertEquals(16, target.getStartPage());
                 assertEquals(1008, target.getAvailableFlash());
             } else {
+                cloader.close();
                 fail("Number of flash pages seems to be wrong");
             }
         } else {
@@ -137,6 +138,7 @@ public class CloaderTest {
 
             Target target = cloader.getTargetsAsList().get(0);
             if (target.getFlashPages() == 128) { //CF 1.0
+                cloader.close();
                 fail("Update mapping can only be tested on CF 2.0.");
             }
             Integer[] decompressedMappingData = cloader.updateMapping(TargetTypes.STM32);

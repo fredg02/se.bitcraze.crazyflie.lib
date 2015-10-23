@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import se.bitcraze.crazyflie.lib.bootloader.Target.TargetTypes;
+import se.bitcraze.crazyflie.lib.bootloader.Utilities.BootVersion;
 import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
 import se.bitcraze.crazyflie.lib.crazyradio.Crazyradio;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioAck;
@@ -367,11 +368,14 @@ public class Cloader {
         if(replyPk != null) {
             Target target = new Target(targetId);
             target.parseData(replyPk.getPayload());
-            this.mProtocolVersion = target.getProtocolVersion();
+            // set protocol version only for STM32
+            if (targetId == TargetTypes.STM32) {
+                this.mProtocolVersion = target.getProtocolVersion();
+            }
             this.mTargets.put(targetId, target);
 
             // Update mapping (CF 2.0 only)
-            if (target.getProtocolVersion() == (byte) GET_INFO && targetId == TargetTypes.STM32) {
+            if (target.getProtocolVersion() == (byte) BootVersion.CF2_PROTO_VER && targetId == TargetTypes.STM32) {
 //                updateMapping(targetId);
             }
             return true;
