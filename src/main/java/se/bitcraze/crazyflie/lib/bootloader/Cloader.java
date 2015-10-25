@@ -112,8 +112,9 @@ public class Cloader {
 
         if (replyPk != null) {
 
-            //TODO: new_address = (0xb1, ) + struct.unpack("<BBBB", pk.data[2:6][::-1])
-            byte[] newAddress = null;
+            //new_address = (0xb1, ) + struct.unpack("<BBBB", pk.data[2:6][::-1])
+            byte[] payload = replyPk.getPayload();
+            byte[] newAddress = new byte[]{(byte) 0xb1,payload[5], payload[4], payload[3], payload[2]};
 
             sendBootloaderPacket(new byte[]{(byte) targetId, (byte) 0xF0, (byte) 0x00});
 
@@ -125,7 +126,6 @@ public class Cloader {
             //TODO: self.link = cflib.crtp.get_link_driver("radio://0/0/2M/{}".format(addr))
             return true;
         }
-        //TODO: fix dead code warning
         return false;
     }
 
@@ -137,7 +137,8 @@ public class Cloader {
      * Return true if the reset has been done and the contact with the
      * bootloader is established.
      */
-    //TODO: cpu_id = target id??
+    //TODO: cpu_id = target id?? NO!
+    //TODO: currently not used in python cflib
     public boolean resetToBootloader1(int cpuId) {
         /*
          * Send an echo request and wait for the answer
@@ -190,11 +191,11 @@ public class Cloader {
         //TODO: self.link = cflib.crtp.get_link_driver(self.clink_address)
         //time.sleep(0.1)
 
-        return updateInfo(cpuId); //cpuId = targetId?
+        return updateInfo(TargetTypes.STM32); //TODO: which targetId??
     }
 
     /**
-     * The parameter cpuid shall correspond to the device to reset.
+     * Reset to firmware.
      *
      * @param targetId
      * @return true if the reset has been done
@@ -267,20 +268,26 @@ public class Cloader {
                 if self._info_cb:
                     self._info_cb.call(self.targets[target_id])
                 */
-//                if (this.mProtocolVersion != 1) {
-//                    return true;
-//                }
+                if (this.mProtocolVersion != 1) {
+                    return true;
+                }
+
                 // Set radio link to a random address
                 /*
                 addr = [0xbc] + map(lambda x: random.randint(0, 255), range(4))
                 return self._set_address(addr)
-                */
-                return true;
+                 */
+                byte[] newAddress = new byte[5];
+                newAddress[0] = (byte) 0xbc;
+                for (int n = 1; n < 5; n++) {
+                    newAddress[n] = (byte) (Math.random() % 255);  //TODO: test
+                }
+                return setAddress(newAddress);
             }
 
             //TODO: is this necessary?
             try {
-                Thread.sleep(2000);
+                Thread.sleep(200);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -300,12 +307,11 @@ public class Cloader {
 
         mLogger.debug("Setting bootloader radio address to " + Utilities.getHexString(newAddress));
 
-        // TODO: self.link.pause()
+        // self.link.pause()
+        this.mDriver.stopSendReceiveThread();
 
         for (int i = 0; i < 10; i++) {
             mLogger.debug("Trying to set new radio address");
-
-            //TODO: deal with other driver implementations
             Crazyradio crazyRadio = ((RadioDriver) this.mDriver).getRadio();
             //self.link.cradio.set_address((0xE7,) * 5)
             crazyRadio.setAddress(new byte[]{(byte) 0xE7, (byte) 0xE7, (byte) 0xE7, (byte) 0xE7, (byte) 0xE7});
@@ -322,19 +328,16 @@ public class Cloader {
             //self.link.cradio.set_address(tuple(new_address))
             crazyRadio.setAddress(newAddress);
 
-
             //if self.link.cradio.send_packet((0xff,)).ack:
             RadioAck ack = crazyRadio.sendPacket(new byte[] {(byte) 0xFF});
             if (ack != null) {
-                //logging.info("Bootloader set to radio address" " {}".format(new_address))
-
                 mLogger.info("Bootloader set to radio address " + Utilities.getHexString(newAddress));;
-                //TODO: this.mDriver.restart()
+                this.mDriver.startSendReceiveThread();
                 return true;
             }
-
         }
-        //TODO: this.mDriver.restart();
+        //this.mDriver.restart();
+        this.mDriver.startSendReceiveThread();
         return false;
     }
 
