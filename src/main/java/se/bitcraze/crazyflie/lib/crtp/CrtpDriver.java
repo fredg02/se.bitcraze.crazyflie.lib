@@ -110,4 +110,8 @@ public abstract class CrtpDriver {
             pl.linkError(msg);
         }
     }
+
+    public abstract void startSendReceiveThread();
+
+    public abstract void stopSendReceiveThread();
 }

@@ -101,12 +101,7 @@ public class RadioDriver extends CrtpDriver{
          */
 
         // Launch the comm thread
-        if (mRadioDriverThread == null) {
-            //self._thread = _RadioDriverThread(self.cradio, self.in_queue, self.out_queue, link_quality_callback, link_error_callback)
-            RadioDriverThread rDT = new RadioDriverThread();
-            mRadioDriverThread = new Thread(rDT);
-            mRadioDriverThread.start();
-        }
+        startSendReceiveThread();
     }
 
     /*
@@ -170,10 +165,7 @@ public class RadioDriver extends CrtpDriver{
     public void disconnect() {
         mLogger.debug("RadioDriver disconnect()");
         // Stop the comm thread
-        if (this.mRadioDriverThread != null) {
-            this.mRadioDriverThread.interrupt();
-            this.mRadioDriverThread = null;
-        }
+        stopSendReceiveThread();
         if(this.mCradio != null) {
             this.mCradio.close();
             this.mCradio = null;
@@ -236,6 +228,23 @@ public class RadioDriver extends CrtpDriver{
 
     public Crazyradio getRadio() {
         return this.mCradio;
+    }
+
+
+    public void startSendReceiveThread() {
+        if (mRadioDriverThread == null) {
+            //self._thread = _RadioDriverThread(self.cradio, self.in_queue, self.out_queue, link_quality_callback, link_error_callback)
+            RadioDriverThread rDT = new RadioDriverThread();
+            mRadioDriverThread = new Thread(rDT);
+            mRadioDriverThread.start();
+        }
+    }
+
+    public void stopSendReceiveThread() {
+        if (this.mRadioDriverThread != null) {
+            this.mRadioDriverThread.interrupt();
+            this.mRadioDriverThread = null;
+        }
     }
 
     /**
