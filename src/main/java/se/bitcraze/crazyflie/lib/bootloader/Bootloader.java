@@ -113,7 +113,8 @@ public class Bootloader {
         int configPage = target.getFlashPages() - 1;
 
         //to_flash = {"target": target, "data": data, "type": "CF1 config", "start_page": config_page}
-        internalFlash(target, data, "CF1 config", configPage);
+        FlashTarget toFlash = new FlashTarget(target, data, "CF1 config", configPage);
+        internalFlash(toFlash);
     }
 
     public void flash(File file, int targetId) {
@@ -125,7 +126,8 @@ public class Bootloader {
         Target target = this.mCload.getTargets().get(targetId);
         byte[] fileData = readFile(file);
         if (fileData.length > 0) {
-            internalFlash(target, fileData, "Firmware", target.getStartPage());
+            FlashTarget ft = new FlashTarget(target, fileData, "Firmware", target.getStartPage());
+            internalFlash(ft);
         } else {
             mLogger.error("File size is 0.");
         }
@@ -180,13 +182,18 @@ public class Bootloader {
         }
     }
 
-    // def _internal_flash(self, target, current_file_number=1, total_files=1):
-    public void internalFlash(Target target, byte[] data, String type, int startPage) {
-        byte[] image = data;
-        Target t_data = target;
-        int pageSize = t_data.getPageSize();
+    public void internalFlash(FlashTarget target) {
+        internalFlash(target, 1, 1);
+    }
 
-        String flashingTo = "Flashing to " + TargetTypes.toString(t_data.getId()) + " (" + type + ")";
+    // def _internal_flash(self, target, current_file_number=1, total_files=1):
+    public void internalFlash(FlashTarget flashTarget, int currentFileNo, int totalFiles) {
+        Target t_data = flashTarget.getTarget();
+        byte[] image = flashTarget.getData();
+        int pageSize = t_data.getPageSize();
+        int startPage = flashTarget.getStartPage();
+
+        String flashingTo = "Flashing to " + TargetTypes.toString(t_data.getId()) + " (" + flashTarget.getType() + ")";
         mLogger.info(flashingTo);
         notifyUpdateStatus(flashingTo);
 
@@ -283,6 +290,38 @@ public class Bootloader {
         public void updateStatus(String status);
 
         public void updateError(String error);
+
+    }
+
+    public class FlashTarget {
+
+        private Target mTarget;
+        private byte[] mData = new byte[0];
+        private String mType = "";
+        private int mStartPage;
+
+        public FlashTarget(Target target, byte[] data, String type, int startPage) {
+            this.mTarget = target;
+            this.mData = data;
+            this.mType = type;
+            this.mStartPage = startPage;
+        }
+
+        public byte[] getData() {
+            return mData;
+        }
+
+        public Target getTarget() {
+            return mTarget;
+        }
+
+        public int getStartPage() {
+            return mStartPage;
+        }
+
+        public String getType() {
+            return mType;
+        }
 
     }
 }
