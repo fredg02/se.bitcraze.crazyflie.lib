@@ -1,6 +1,9 @@
 package se.bitcraze.crazyflie.lib.bootloader;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -9,14 +12,13 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +39,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
  *
  */
 //TODO: fix targetId and addr confusion
-//TODO: add flash method (for multiple targets)
 //TODO: fix warmboot
 public class Bootloader {
 
@@ -134,22 +135,6 @@ public class Bootloader {
         internalFlash(toFlash);
     }
 
-    public void flash(File file, int targetId) {
-        if (!file.exists()) {
-            mLogger.error("File " + file + " does not exist.");
-            return;
-        }
-
-        Target target = this.mCload.getTargets().get(targetId);
-        byte[] fileData = readFile(file);
-        if (fileData.length > 0) {
-            FlashTarget ft = new FlashTarget(target, fileData, "Firmware", target.getStartPage());
-            internalFlash(ft);
-        } else {
-            mLogger.error("File size is 0.");
-        }
-    }
-
     //TODO: improve
     private byte[] readFile(File file) {
         byte[] fileData = new byte[(int) file.length()];
@@ -174,199 +159,151 @@ public class Bootloader {
         return fileData;
     }
 
-    // TODO: def flash(self, filename, targets):
     public boolean flash(File file, String... targetNames) {
-        /*
-        for target in targets:
-            if TargetTypes.from_string(target) not in self._cload.targets:
-                print "Target {} not found by bootloader".format(target)
-                return False
-        */
-        for (String targetName : targetNames) {
-            if (!this.mCload.getTargetsAsList().contains(TargetTypes.fromString(targetName))) {
-                mLogger.error("Target + " + targetName + " not found by bootloader.");
-                System.err.println("Target + " + targetName + " not found by bootloader.");
-                return false;
-            }
+        List<FlashTarget> filesToFlash = getFlashTargets(file, targetNames);
+        if (!file.exists()) {
+            mLogger.error("File " + file + " does not exist.");
+            return false;
         }
-        //files_to_flash = ()
-        List<FlashTarget> filesToFlash = new ArrayList<FlashTarget>();
-        if (isZipFile(file)) {
-            // Read the manifest (don't forget to check that there is one!)
-            try {
-                /*
-                zf = zipfile.ZipFile(filename)
-                j = json.loads(zf.read("manifest.json"))
-                files = j["files"]
-                */
-                ZipFile zf = new ZipFile(file);
-                ZipEntry entry = zf.getEntry("manifest.json");
-                Manifest mf = readManifest("manifest.json");
-
-                Set<String> files = mf.getFiles().keySet();
-
-                if (targetNames.length == 0) {
-                    // No targets specified, just flash everything
-                    /*
-                    for file in files:
-                        if files[file]["target"] in targets:
-                            targets[files[file]["target"]] += (files[file]["type"], )
-                        else:
-                            targets[files[file]["target"]] = (files[file]["type"], )
-                    */
-                    for (String fileName : files) {
-                        FlashTarget ft = null;
-                        //TODO: !?!??!
-                        if (Arrays.asList(targetNames).contains(mf.getFiles().get(fileName).getTarget())) {
-                            ft = new FlashTarget(null, null, mf.getFiles().get(fileName).getType(), -1);
-                        } else {
-                            ft = new FlashTarget(null, null, mf.getFiles().get(fileName).getType(), -1);
-                        }
-                        filesToFlash.add(ft);
-                    }
-
-                }
-
-
-
-
-                /*
-                zip_targets = {}
-                for file in files:
-                    file_name = file
-                    file_info = files[file]
-                    if file_info["target"] in zip_targets:
-                        zip_targets[file_info["target"]][file_info["type"]] = {"filename": file_name}
-                    else:
-                        zip_targets[file_info["target"]] = {}
-                        zip_targets[file_info["target"]][file_info["type"]] = {"filename": file_name}
-                */
-                Map<String, String> zipTargets = new HashMap<String, String>();
-//                for (String fileName : files) {
-//                    FirmwareDetails fd = mf.getFiles().get(fileName);
-//                    //TODO: !?!?!?
-//                    if (zipTargets.contains(fd.getTarget())) {
-//                        zipTargets.put(fd.getTarget(), );
-//                    } else {
-//                        zipTargets.put(fd.getTarget(), "");
-//                        zipTargets.put(fd.getTarget(), );
-//                    }
-//                }
-                /*
-            except KeyError as e:
-                print e
-                print "No manifest.json in {}".format(filename)
-                return
-            */
-            /*
-            try:
-                # Match and create targets
-                for target in targets:
-                    t = targets[target]
-                    for type in t:
-                        file_to_flash = {}
-                        current_target = "{}-{}".format(target, type)
-                        file_to_flash["type"] = type
-                        # Read the data, if this fails we bail
-                        file_to_flash["target"] = self._cload.targets[TargetTypes.from_string(target)]
-                        file_to_flash["data"] = zf.read(zip_targets[target][type]["filename"])
-                        file_to_flash["start_page"] = file_to_flash["target"].start_page
-                        files_to_flash += (file_to_flash, )
-            except KeyError as e:
-                print "Could not find a file for {} in {}".format(current_target, filename)
-                return False
-                */
-                // Match and create targets
-                for (String targetName : targetNames) {
-
-//                    for (type in t) {
-//                        // Read the data, if this fails we bail
-//
-//                        Target newTarget = this.mCload.getTargets().get(TargetTypes.fromString(targetName));
-//
-//                        FlashTarget ft = new FlashTarget(newTarget, type, newTarget.getStartPage(), readFile(zipTargets.get(key)))
-//                        //String currentTarget = target + "-" + type;
-//                        filesToFlash.add(ft);
-//                    }
-                }
-            } catch (ZipException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            if (targetNames.length != 1) {
-                mLogger.error("Not an archive, must supply one target to flash.");
-                System.err.println("Not an archive, must supply one target to flash.");
-            } else {
-                FlashTarget ft = null;
-                //TODO: file_to_flash["type"] = "binary" !?!
-                for (String targetName : targetNames) {
-                    // file_to_flash["target"] = self._cload.targets[TargetTypes.from_string(t)]
-                    Target target = this.mCload.getTargets().get(TargetTypes.fromString(targetName));
-                    // file_to_flash["type"] = targets[t][0]
-                    String type = "";
-                    // file_to_flash["start_page"] = file_to_flash["target"].start_page
-                    int startPage = target.getStartPage();
-
-                    ft = new FlashTarget(target, readFile(file), type, startPage);
-                }
-                filesToFlash.add(ft);
-                /*
-                for t in targets:
-                    file_to_flash["target"] = self._cload.targets[TargetTypes.from_string(t)]
-                    file_to_flash["type"] = targets[t][0]
-                    file_to_flash["start_page"] = file_to_flash["target"].start_page
-                file_to_flash["data"] = f.read()
-                f.close()
-                files_to_flash += (file_to_flash, )
-                 */
-            }
+        if (filesToFlash.isEmpty()) {
+            mLogger.error("Found no files to flash.");
+            return false;
         }
-        /*
-        if not self.progress_cb:
-            print ""
-
-        file_counter = 0
-        for target in files_to_flash:
-            file_counter += 1
-            self._internal_flash(target, file_counter, len(files_to_flash))
-         */
-        for(FlashTarget ft : filesToFlash) {
-            //TODO: report progress
-            internalFlash(ft);
+        int fileCounter = 0;
+        for (FlashTarget ft : filesToFlash) {
+            fileCounter++;
+            internalFlash(ft, fileCounter, filesToFlash.size());
         }
         return true;
     }
 
-    public File decompressFileFromZipFile (ZipFile zipFile, ZipEntry zipEntry) {
-        try {
-            InputStream is = zipFile.getInputStream(zipEntry);
-            File file = new File(zipEntry.getName());
-            FileOutputStream fos = new FileOutputStream(file);
-            byte[] bytes = new byte[1024];
-            int length;
-            while ((length = is.read(bytes)) >= 0) {
-                fos.write(bytes, 0, length);
+    public List<FlashTarget> getFlashTargets(File file, String... targetNames) {
+        List<FlashTarget> filesToFlash = new ArrayList<FlashTarget>();
+
+        // check if supplied targetNames are known TargetTypes, if so, continue, else return
+
+        if (isZipFile(file)) {
+            // unzip
+            unzip(file);
+
+            // read manifest.json
+            String manifestFilename = "manifest.json";
+            File basePath = new File(file.getAbsoluteFile().getParent() + "/");
+            File manifestFile = new File(basePath.getAbsolutePath() + "/" + manifestFilename);
+            if (basePath.exists() && manifestFile.exists()) {
+                Manifest mf = readManifest("manifest.json");
+                Set<String> files = mf.getFiles().keySet();
+
+                // iterate over file names in manifest.json
+                for (String fileName : files) {
+                    FirmwareDetails firmwareDetails = mf.getFiles().get(fileName);
+                    Target t = this.mCload.getTargets().get(TargetTypes.fromString(firmwareDetails.getTarget()));
+                    // use path to extracted file
+                    //File flashFile = new File(file.getParent() + "/" + file.getName() + "/" + fileName);
+                    File flashFile = new File(basePath.getAbsolutePath() + "/" + fileName);
+                    FlashTarget ft = new FlashTarget(t, readFile(flashFile), firmwareDetails.getType(), t.getStartPage()); //TODO: does startPage HAVE to be an extra argument!? (it's already included in Target)
+                    // add flash target
+
+                    // if no target names are specified, flash everything
+                    if (targetNames.length == 0 || targetNames[0].isEmpty()) {
+                        filesToFlash.add(ft);
+                    } else {
+                        // else flash only files whose targets are contained in targetNames
+                        if (Arrays.asList(targetNames).contains(firmwareDetails.getTarget())) {
+                            filesToFlash.add(ft);
+                        }
+                    }
+                }
+            } else {
+                mLogger.error("Zip file " + file.getName() + " does not include a " + manifestFilename);
             }
-//            return new File()
-            is.close();
-            fos.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } else { // File is not a Zip file
+            // add single flash target
+            if (targetNames.length != 1) {
+                mLogger.error("Not an archive, must supply ONE target to flash.");
+            } else {
+
+//                // assume stm32 if no target name is specified and file extension is ".bin"
+//                if (targetNames[0].isEmpty() && file.getName().endsWith(".bin")) {
+//                    targetNames = new String[] {"stm32"};
+//                }
+
+                for (String tn : targetNames) {
+                    if (tn.isEmpty()) {
+                        continue;
+                    }
+                    Target target = this.mCload.getTargets().get(TargetTypes.fromString(tn));
+                    FlashTarget ft = new FlashTarget(target, readFile(file), "binary", target.getStartPage());
+                    filesToFlash.add(ft);
+                }
+            }
         }
-        return null;
+        return filesToFlash;
+    }
+
+    public void unzip(File zipFile) {
+        mLogger.debug("Trying to unzip file " + zipFile + "...");
+        InputStream fis = null;
+        ZipInputStream zis = null;
+        FileOutputStream fos = null;
+        String parent = zipFile.getAbsoluteFile().getParent();
+
+        try {
+            fis = new FileInputStream(zipFile);
+            zis = new ZipInputStream(new BufferedInputStream(fis));
+            ZipEntry ze;
+            while ((ze = zis.getNextEntry()) != null) {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                byte[] buffer = new byte[1024];
+                int count;
+                while ((count = zis.read(buffer)) != -1) {
+                    baos.write(buffer, 0, count);
+                }
+                String filename = ze.getName();
+                byte[] bytes = baos.toByteArray();
+                // write files
+                File filePath = new File(parent + "/" + filename);
+                fos = new FileOutputStream(filePath);
+                fos.write(bytes);
+                //check
+                if(filePath.exists() && filePath.length() > 0) {
+                    mLogger.debug("File " + filename + " successfully unzipped.");
+                } else {
+                    mLogger.debug("Problems writing file " + filename + ".");
+                }
+            }
+        } catch (FileNotFoundException ffe) {
+            mLogger.error(ffe.getMessage());
+        } catch (IOException ioe) {
+            mLogger.error(ioe.getMessage());
+        } finally {
+            if (zis != null) {
+                try {
+                    zis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
     }
 
     /**
      * Basic check if a file is a Zip file
      *
      * @param file
-     * @return
+     * @return true if file is a Zip file, false otherwise
      */
     //TODO: how can this be improved?
     public boolean isZipFile(File file) {
-        if (file != null && file.exists()) {
+        if (file != null && file.exists() && file.getName().endsWith(".zip")) {
             try {
                 ZipFile zf = new ZipFile(file);
                 return zf.size() > 0;
@@ -512,7 +449,7 @@ public class Bootloader {
 
     }
 
-    private class FlashTarget {
+    public class FlashTarget {
 
         private Target mTarget;
         private byte[] mData = new byte[0];
@@ -540,6 +477,11 @@ public class Bootloader {
 
         public String getType() {
             return mType;
+        }
+
+        @Override
+        public String toString() {
+            return "FlashTarget [target ID=" + TargetTypes.toString(mTarget.getId()) + ", data.length=" + mData.length + ", type=" + mType + ", startPage=" + mStartPage + "]";
         }
 
     }

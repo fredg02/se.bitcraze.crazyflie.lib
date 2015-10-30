@@ -8,12 +8,14 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Ignore;
 import org.junit.Test;
 
 import se.bitcraze.crazyflie.lib.bootloader.Bootloader.BootloaderListener;
+import se.bitcraze.crazyflie.lib.bootloader.Bootloader.FlashTarget;
 import se.bitcraze.crazyflie.lib.bootloader.Target.TargetTypes;
 import se.bitcraze.crazyflie.lib.bootloader.Utilities.BootVersion;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
@@ -143,12 +145,12 @@ public class BootloaderTest {
             System.out.println("FlashPages: " + target.getFlashPages());
             if (target.getFlashPages() == 128) { //128 = CF 1.0
                 System.out.println("CF 1.0");
-                bootloader.flash(new File("cf1-2015.08.1.bin"), TargetTypes.STM32);
-//            bootloader.flash(new File("Crazyflie1-2015.1.bin"), TargetTypes.STM32);
+                bootloader.flash(new File("cf1-2015.08.1.bin"), "stm32");
+//            bootloader.flash(new File("Crazyflie1-2015.1.bin"), "stm32");
             } else if (target.getFlashPages() == 1024) { //1024 = CF 2.0
                 System.out.println("CF 2.0");
-                bootloader.flash(new File("cf2-2015.08.1.bin"), TargetTypes.STM32);
-//            bootloader.flash(new File("cflie2.bin"), TargetTypes.STM32);
+                bootloader.flash(new File("cf2-2015.08.1.bin"), "stm32");
+//            bootloader.flash(new File("cflie2.bin"), "stm32");
             } else {
                 System.err.println("Problem with getFlashPages().");
                 return;
@@ -178,6 +180,53 @@ public class BootloaderTest {
             //Flash firmware
 
             //Check if everything still works
+
+        } else {
+            bootloader.close();
+            fail("Bootloader not started.");
+        }
+        bootloader.close();
+    }
+
+    @Test
+    public void testGetFlashTargets() throws Exception {
+        System.out.print("Restart the Crazyflie you want to bootload in the next 10 seconds ...");
+        RadioDriver driver = new RadioDriver(new UsbLinkJava());
+        Bootloader bootloader = new Bootloader(driver);
+        bootloader.addBootloaderListener(new BootloaderAdapter());
+        if (bootloader.startBootloader(false)) {
+            System.out.println(" Done!");
+
+            driver.stopSendReceiveThread();
+
+            // #1 Zip file
+            List<FlashTarget> targets1 = bootloader.getFlashTargets(new File("cf2.2014.12.1.zip"), "");
+            System.out.println("#1 Zipfile:");
+            for (FlashTarget ft : targets1) {
+                System.out.println("\t" + ft);
+            }
+            assertEquals("Should return a list with size 2.", 2, targets1.size());
+            System.out.println();
+
+
+            //#2 Bin file with no target name given
+            assertEquals("Should return an empty list.", 0, bootloader.getFlashTargets(new File("cf1-2015.08.1.bin"), "").size());
+
+            //#3 Bin file with target name given
+            List<FlashTarget> targets2 = bootloader.getFlashTargets(new File("cf1-2015.08.1.bin"), "stm32");
+            assertEquals("Should return a list with size 1.", 1, targets2.size());
+
+            System.out.println("#3 bin file:");
+            for (FlashTarget ft : targets2) {
+                System.out.println("\t" + ft);
+            }
+            System.out.println();
+
+            //#4 Bin file with more than one target name given -> should return an empty list and an error
+            List<FlashTarget> targets3 = bootloader.getFlashTargets(new File("cf1-2015.08.1.bin"), new String[] {"stm32", "nrf51"});
+            assertEquals("Should return a list with size 0.", 0, targets3.size());
+
+            //TODO: clean up, delete unzipped files
 
         } else {
             bootloader.close();
