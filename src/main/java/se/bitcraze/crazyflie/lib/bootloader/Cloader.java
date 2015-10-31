@@ -280,9 +280,10 @@ public class Cloader {
                 byte[] newAddress = new byte[5];
                 newAddress[0] = (byte) 0xbc;
                 for (int n = 1; n < 5; n++) {
-                    newAddress[n] = (byte) (Math.random() % 255);  //TODO: test
+                    newAddress[n] = (byte) ((Math.random() * 1000) % 255);  //TODO: test
                 }
-                return setAddress(newAddress);
+                //return setAddress(newAddress);
+                return true;
             }
 
             //TODO: is this necessary?
@@ -441,7 +442,6 @@ public class Cloader {
             bb.put(buff[i]);
 
             count++;
-
             if (count > 24) {
                 sendBootloaderPacket(bb.array());
                 count = 0;
