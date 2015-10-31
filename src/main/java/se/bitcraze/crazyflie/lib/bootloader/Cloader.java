@@ -41,12 +41,12 @@ public class Cloader {
     private int mProtocolVersion = 0xFF;
 
     // Bootloader commands
-    private int GET_INFO = 0x10;
-    private int SET_ADDRESS = 0x11; // Only implemented on Crazyflie version 0x00
-    private int GET_MAPPING = 0x12; // Only implemented in version 0x10 target 0xFF
-    private int LOAD_BUFFER = 0x14;
-    private int WRITE_FLASH = 0x18;
-    private int READ_FLASH = 0x1C;
+    public static int GET_INFO = 0x10;
+    private static int SET_ADDRESS = 0x11; // Only implemented on Crazyflie version 0x00
+    private static int GET_MAPPING = 0x12; // Only implemented in version 0x10 target 0xFF
+    private static int LOAD_BUFFER = 0x14;
+    private static int WRITE_FLASH = 0x18;
+    private static int READ_FLASH = 0x1C;
 
 
     /**

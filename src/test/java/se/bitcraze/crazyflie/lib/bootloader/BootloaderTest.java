@@ -26,6 +26,7 @@ public class BootloaderTest {
     @Test
     public void testBootloader() throws InterruptedException {
         System.out.print("Restart the Crazyflie you want to bootload in the next 10 seconds ...");
+//        Bootloader bootloader = new Bootloader(new MockDriver(MockDriver.CF2));
         Bootloader bootloader = new Bootloader(new RadioDriver(new UsbLinkJava()));
         bootloader.addBootloaderListener(new BootloaderAdapter());
 
@@ -191,6 +192,7 @@ public class BootloaderTest {
     @Test
     public void testGetFlashTargets() throws Exception {
         System.out.print("Restart the Crazyflie you want to bootload in the next 10 seconds ...");
+//        MockDriver driver = new MockDriver(MockDriver.CF2);
         RadioDriver driver = new RadioDriver(new UsbLinkJava());
         Bootloader bootloader = new Bootloader(driver);
         bootloader.addBootloaderListener(new BootloaderAdapter());
@@ -199,13 +201,21 @@ public class BootloaderTest {
 
             driver.stopSendReceiveThread();
 
+            Target target = bootloader.getCloader().getTargets().get(TargetTypes.STM32);
+
             // #1 Zip file
             List<FlashTarget> targets1 = bootloader.getFlashTargets(new File("cf2.2014.12.1.zip"), "");
             System.out.println("#1 Zipfile:");
             for (FlashTarget ft : targets1) {
                 System.out.println("\t" + ft);
             }
-            assertEquals("Should return a list with size 2.", 2, targets1.size());
+
+            if (target.getFlashPages() == 128) { //128 = CF 1.0
+                assertEquals("Should return a list with size 1.", 1, targets1.size());
+            } else if (target.getFlashPages() == 1024) { //1024 = CF 2.0
+                assertEquals("Should return a list with size 2.", 2, targets1.size());
+            }
+
             System.out.println();
 
 
