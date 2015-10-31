@@ -177,6 +177,7 @@ public class Bootloader {
         return true;
     }
 
+    //TODO: deal with different platforms (CF1, CF2)!?
     public List<FlashTarget> getFlashTargets(File file, String... targetNames) {
         List<FlashTarget> filesToFlash = new ArrayList<FlashTarget>();
 
@@ -198,20 +199,23 @@ public class Bootloader {
                 for (String fileName : files) {
                     FirmwareDetails firmwareDetails = mf.getFiles().get(fileName);
                     Target t = this.mCload.getTargets().get(TargetTypes.fromString(firmwareDetails.getTarget()));
-                    // use path to extracted file
-                    //File flashFile = new File(file.getParent() + "/" + file.getName() + "/" + fileName);
-                    File flashFile = new File(basePath.getAbsolutePath() + "/" + fileName);
-                    FlashTarget ft = new FlashTarget(t, readFile(flashFile), firmwareDetails.getType(), t.getStartPage()); //TODO: does startPage HAVE to be an extra argument!? (it's already included in Target)
-                    // add flash target
-
-                    // if no target names are specified, flash everything
-                    if (targetNames.length == 0 || targetNames[0].isEmpty()) {
-                        filesToFlash.add(ft);
-                    } else {
-                        // else flash only files whose targets are contained in targetNames
-                        if (Arrays.asList(targetNames).contains(firmwareDetails.getTarget())) {
+                    if (t != null) {
+                        // use path to extracted file
+                        //File flashFile = new File(file.getParent() + "/" + file.getName() + "/" + fileName);
+                        File flashFile = new File(basePath.getAbsolutePath() + "/" + fileName);
+                        FlashTarget ft = new FlashTarget(t, readFile(flashFile), firmwareDetails.getType(), t.getStartPage()); //TODO: does startPage HAVE to be an extra argument!? (it's already included in Target)
+                        // add flash target
+                        // if no target names are specified, flash everything
+                        if (targetNames.length == 0 || targetNames[0].isEmpty()) {
                             filesToFlash.add(ft);
+                        } else {
+                            // else flash only files whose targets are contained in targetNames
+                            if (Arrays.asList(targetNames).contains(firmwareDetails.getTarget())) {
+                                filesToFlash.add(ft);
+                            }
                         }
+                    } else {
+                        mLogger.error("No target found for " + firmwareDetails.getTarget());
                     }
                 }
             } else {
