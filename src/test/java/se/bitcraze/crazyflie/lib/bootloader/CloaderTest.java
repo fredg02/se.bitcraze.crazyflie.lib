@@ -207,7 +207,17 @@ public class CloaderTest {
             cloader.uploadBuffer(TargetTypes.STM32, 3, 0, buff);
 
             try {
-                Thread.sleep(3000);
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            byte[] buff2 = new byte[]{1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,1,2,3,4,5};
+            System.out.println("Uploading buffer2...");
+            cloader.uploadBuffer(TargetTypes.STM32, 3, 0, buff2);
+
+            try {
+                Thread.sleep(50);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

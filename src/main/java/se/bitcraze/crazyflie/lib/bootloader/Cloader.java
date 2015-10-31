@@ -432,7 +432,7 @@ public class Cloader {
     public void uploadBuffer(int targetId, int page, int address, byte[] buff) {
         int count = 0;
         //pk.data = struct.pack("=BBHH", target_id, 0x14, page, address)
-        ByteBuffer bb = ByteBuffer.allocate(6+buff.length).order(ByteOrder.LITTLE_ENDIAN);
+        ByteBuffer bb = ByteBuffer.allocate(31).order(ByteOrder.LITTLE_ENDIAN);
         bb.put((byte) targetId);
         bb.put((byte) LOAD_BUFFER);
         bb.putChar((char) page);
@@ -448,7 +448,7 @@ public class Cloader {
 
                 //pk.data = struct.pack("=BBHH", target_id, 0x14, page, i + address + 1)
                 //TODO: bb.clear() did not work as intended
-                bb = ByteBuffer.allocate(6+buff.length).order(ByteOrder.LITTLE_ENDIAN);
+                bb = ByteBuffer.allocate(31).order(ByteOrder.LITTLE_ENDIAN);
                 bb.put((byte) targetId);
                 bb.put((byte) LOAD_BUFFER);
                 bb.putChar((char) page);

@@ -171,8 +171,8 @@ public class Bootloader {
         }
         int fileCounter = 0;
         for (FlashTarget ft : filesToFlash) {
-            fileCounter++;
             internalFlash(ft, fileCounter, filesToFlash.size());
+            fileCounter++;
         }
         return true;
     }
