@@ -16,6 +16,7 @@ import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
 import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
 
 
+//TODO: only send ACKs when appropriate
 public class MockDriver extends RadioDriver  {
 
     final static Logger mLogger = LoggerFactory.getLogger("MockDriver");
@@ -52,20 +53,18 @@ public class MockDriver extends RadioDriver  {
         byte[] data = new byte[] {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,}; // default data
 
         // Bootloader
-        if (headerByte == (byte) -1) {
-            mLogger.debug("Bootloader");
+        if (headerByte == (byte) 0xFF) {
             if (payload[1] == (byte) Cloader.GET_INFO) {
-                mLogger.debug("Bootloader - GET_INFO");
                 if (payload[0] == (byte) TargetTypes.STM32) {
                     if (mCFmodel == CF2) {
-                        mLogger.debug("Bootloader - GET_INFO - STM32 - CF2");
+                        mLogger.debug("Bootloader - Command: GET_INFO - STM32 - CF2");
                         /*
                         OUT:    -1,-1,16,
                         IN:     1,-1,-1,16,0,4,10,0,0,4,16,0,-89,4,48,106,79,-33,34,94,-1,-27,20,-112,16,0,0,0,0,0,0,0,0,
                          */
                         data = new byte[] {-1,-1,16,0,4,10,0,0,4,16,0,-89,4,48,106,79,-33,34,94,-1,-27,20,-112,16,0,0,0,0,0,0,0,0};
                     } else if (mCFmodel == CF1) {
-                        mLogger.debug("Bootloader - GET_INFO - STM32 - CF1");
+                        mLogger.debug("Bootloader - Command: GET_INFO - STM32 - CF1");
                     /*
                          OUT:   -1,-1,16,
                          IN:    17,-1,-1,16,0,4,10,0,-128,0,10,0,80,-1,118,6,73,-123,86,84,81,38,20,-121,1,0,0,0,0,0,0,0,0,
@@ -73,13 +72,40 @@ public class MockDriver extends RadioDriver  {
                         data = new byte[] {-1,-1,16,0,4,10,0,-128,0,10,0,80,-1,118,6,73,-123,86,84,81,38,20,-121,1,0,0,0,0,0,0,0,0};
                     }
                 } else if (payload[0] == (byte) TargetTypes.NRF51) {
-                    mLogger.debug("Bootloader - GET_INFO - NRF51");
+                    mLogger.debug("Bootloader - Command: GET_INFO - NRF51");
                     /*
                         OUT:    -1,-2,16,
                         IN:     1,-1,-2,16,0,4,1,0,-24,0,88,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
                      */
                     data = new byte[] {-1,-2,16,0,4,1,0,-24,0,88,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,};
                 }
+            } else if (payload[1] == Cloader.WRITE_FLASH) {
+                mLogger.debug("Bootloader - Command: WRITE_FLASH");
+                // Reply from CF is always the same
+                /*
+                     OUT:   -1,-1,24,0,0,10,0,10,0,
+                     IN:    113,-1,-1,24,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                 */
+                data = new byte[] {-1,-1,24,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,};
+            } else if (payload[0] == (byte) TargetTypes.NRF51 && payload[1] == (byte) 0xF0) {
+                mLogger.debug("Bootloader - Command: Reset to firmware - CF2");
+            } else if (payload[0] == (byte) TargetTypes.STM32 && payload[1] == (byte) 0xF0) {
+                mLogger.debug("Bootloader - Command: Reset to firmware - CF1");
+            /*
+                     Restart to firmware (CF1)
+                     OUT: -1,-1,-1,1,2,4,5,6,7,8,9,10,11,12,
+                     OUT: -1,-1,-16,1,2,4,5,6,7,8,9,10,11,12,
+
+                     Restart to firmware (CF2)
+                     OUT: -2,-1,1,2,4,5,6,7,8,9,10,11,12,
+                     OUT: -2,-16,1,
+             */
+            } else if (payload[1] == Cloader.READ_FLASH) {
+                mLogger.debug("Bootloader - Command: READ_FLASH - CF1");
+                // Read CF1 config
+                /*
+                     OUT: -1,28,127,0,0,0,
+                 */
             }
         }
         // add CRTP packet with mock data to incoming queue

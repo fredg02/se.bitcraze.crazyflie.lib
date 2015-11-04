@@ -44,7 +44,7 @@ public class Bootloader {
 
     final Logger mLogger = LoggerFactory.getLogger("Bootloader");
 
-    private ObjectMapper mMapper = new ObjectMapper(); // can reuse, share globally
+    private static ObjectMapper mMapper = new ObjectMapper(); // can reuse, share globally
 
     private Cloader mCload;
 
@@ -490,7 +490,7 @@ public class Bootloader {
 
     }
 
-    public Manifest readManifest (String fileName) {
+    public static Manifest readManifest (String fileName) {
         String errorMessage = "";
         try {
             Manifest readValue = mMapper.readValue(new File(fileName), Manifest.class);
@@ -502,11 +502,11 @@ public class Bootloader {
         } catch (IOException ioe) {
             errorMessage = ioe.getMessage();
         }
-        mLogger.error("Error while parsing manifest file " + fileName + ": " + errorMessage);
+//        mLogger.error("Error while parsing manifest file " + fileName + ": " + errorMessage);
         return null;
     }
 
-    public void writeManifest (String fileName, Manifest manifest) {
+    public static void writeManifest (String fileName, Manifest manifest) {
         String errorMessage = "";
         mMapper.enable(SerializationFeature.INDENT_OUTPUT);
         try {
@@ -518,6 +518,6 @@ public class Bootloader {
         } catch (IOException ioe) {
             errorMessage = ioe.getMessage();
         }
-        mLogger.error("Could not save manifest to file " + fileName + ".\n" + errorMessage);
+//        mLogger.error("Could not save manifest to file " + fileName + ".\n" + errorMessage);
     }
 }
