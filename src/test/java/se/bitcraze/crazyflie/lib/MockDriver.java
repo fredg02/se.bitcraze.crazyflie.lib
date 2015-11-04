@@ -90,8 +90,9 @@ public class MockDriver extends RadioDriver  {
                 /*
                      OUT:   -2,24,0,0,88,0,1,0, //NRF51
                  */
-
-                data = new byte[] {-1,-1,24,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,};
+                //TODO: add error messages
+                //TODO: adapt better support for NRF51
+                data = new byte[] {-1, payload[0],24,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,};
             } else if (payload[0] == (byte) TargetTypes.NRF51 && payload[1] == (byte) 0xF0) {
                 mLogger.debug("Bootloader - Command: Reset to firmware - CF2");
             } else if (payload[0] == (byte) TargetTypes.STM32 && payload[1] == (byte) 0xF0) {
