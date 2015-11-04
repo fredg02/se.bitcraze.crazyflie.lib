@@ -40,6 +40,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
  */
 //TODO: fix targetId and addr confusion
 //TODO: fix warmboot
+//TODO: throw FileNotFoundException all the way to the top?
 public class Bootloader {
 
     final Logger mLogger = LoggerFactory.getLogger("Bootloader");
@@ -161,10 +162,6 @@ public class Bootloader {
 
     public boolean flash(File file, String... targetNames) {
         List<FlashTarget> filesToFlash = getFlashTargets(file, targetNames);
-        if (!file.exists()) {
-            mLogger.error("File " + file + " does not exist.");
-            return false;
-        }
         if (filesToFlash.isEmpty()) {
             mLogger.error("Found no files to flash.");
             return false;
@@ -181,6 +178,11 @@ public class Bootloader {
     public List<FlashTarget> getFlashTargets(File file, String... targetNames) {
         List<FlashTarget> filesToFlash = new ArrayList<FlashTarget>();
 
+        if (!file.exists()) {
+            mLogger.error(file + " not found.");
+            return filesToFlash;
+        }
+
         // check if supplied targetNames are known TargetTypes, if so, continue, else return
 
         if (isZipFile(file)) {
@@ -189,7 +191,7 @@ public class Bootloader {
 
             // read manifest.json
             String manifestFilename = "manifest.json";
-            File basePath = new File(file.getAbsoluteFile().getParent() + "/");
+            File basePath = new File(file.getAbsoluteFile().getParent() + "/" + getFileNameWithoutExtension(file));
             File manifestFile = new File(basePath.getAbsolutePath() + "/" + manifestFilename);
             if (basePath.exists() && manifestFile.exists()) {
                 Manifest mf = readManifest("manifest.json");
@@ -246,7 +248,7 @@ public class Bootloader {
     }
 
     public void unzip(File zipFile) {
-        mLogger.debug("Trying to unzip file " + zipFile + "...");
+        mLogger.debug("Trying to unzip " + zipFile + "...");
         InputStream fis = null;
         ZipInputStream zis = null;
         FileOutputStream fos = null;
@@ -266,14 +268,16 @@ public class Bootloader {
                 String filename = ze.getName();
                 byte[] bytes = baos.toByteArray();
                 // write files
-                File filePath = new File(parent + "/" + filename);
+                File filePath = new File(parent + "/" + getFileNameWithoutExtension(zipFile) + "/" + filename);
+                // create subdir
+                filePath.getParentFile().mkdirs();
                 fos = new FileOutputStream(filePath);
                 fos.write(bytes);
                 //check
                 if(filePath.exists() && filePath.length() > 0) {
-                    mLogger.debug("File " + filename + " successfully unzipped.");
+                    mLogger.debug(filename + " successfully extracted to " + filePath.getAbsolutePath());
                 } else {
-                    mLogger.debug("Problems writing file " + filename + ".");
+                    mLogger.error(filename + " was not extracted.");
                 }
             }
         } catch (FileNotFoundException ffe) {
@@ -297,6 +301,10 @@ public class Bootloader {
             }
 
         }
+    }
+
+    public static String getFileNameWithoutExtension (File file) {
+        return file.getName().substring(0, file.getName().length()-4);
     }
 
     /**

@@ -19,7 +19,6 @@ import javax.usb.UsbServices;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import se.bitcraze.crazyflie.lib.MockDriver;
@@ -32,6 +31,7 @@ import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
 import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
 
+//TODO: Fix testCf1ConfigPrepareConfig
 public class BootloaderTest {
 
     private Bootloader mBootloader = null;
@@ -181,11 +181,11 @@ public class BootloaderTest {
             System.out.println("FlashPages: " + target.getFlashPages());
             if (target.getFlashPages() == 128) { //128 = CF 1.0
                 System.out.println("CF 1.0");
-                mBootloader.flash(new File("cf1-2015.08.1.bin"), "stm32");
+                mBootloader.flash(new File("src/test/fw/cf1-2015.08.1.bin"), "stm32");
 //            mBootloader.flash(new File("Crazyflie1-2015.1.bin"), "stm32");
             } else if (target.getFlashPages() == 1024) { //1024 = CF 2.0
                 System.out.println("CF 2.0");
-                mBootloader.flash(new File("cf2-2015.08.1.bin"), "stm32");
+                mBootloader.flash(new File("src/test/fw/cf2-2015.08.1.bin"), "stm32");
 //            mBootloader.flash(new File("cflie2.bin"), "stm32");
             } else {
                 System.err.println("Problem with getFlashPages().");
@@ -200,19 +200,24 @@ public class BootloaderTest {
         }
     }
 
-    @Test @Ignore
+    @Test
     public void testFlashMultipleTargets() throws InterruptedException {
         System.out.print("Restart the Crazyflie you want to bootload in the next 10 seconds ...");
         mBootloader.addBootloaderListener(new BootloaderAdapter());
         if (mBootloader.startBootloader(false)) {
             System.out.println(" Done!");
 
-            //Load firmware from zip file
+            Target target = mBootloader.getCloader().getTargets().get(TargetTypes.STM32);
+            if (target.getFlashPages() == 128) { //128 = CF 1.0
+                //TODO: should this be tested with CF1 as well?
+                fail("Test only works with CF2.0.");
+            } else if (target.getFlashPages() == 1024) { //1024 = CF 2.0
+                mBootloader.flash(new File ("src/test/fw/cf2.2014.12.1.zip"), "");
+//            mBootloader.flash(new File ("cf2.2014.12.1.zip"), "stm32");
+            }
 
-            //Flash firmware
-
+            mBootloader.resetToFirmware();
             //Check if everything still works
-
         } else {
             fail("Bootloader not started.");
         }
@@ -230,27 +235,30 @@ public class BootloaderTest {
             Target target = mBootloader.getCloader().getTargets().get(TargetTypes.STM32);
 
             // #1 Zip file
-            List<FlashTarget> targets1 = mBootloader.getFlashTargets(new File("cf2.2014.12.1.zip"), "");
+            List<FlashTarget> targets1 = mBootloader.getFlashTargets(new File("src/test/fw/cf2.2014.12.1.zip"), "");
+            if (targets1.isEmpty()) {
+                fail("No targets found.");
+            }
             System.out.println("#1 Zipfile:");
             for (FlashTarget ft : targets1) {
                 System.out.println("\t" + ft);
             }
 
             if (target.getFlashPages() == 128) { //128 = CF 1.0
-                assertEquals("Should return a list with size 1.", 1, targets1.size());
+                assertEquals("#1 Should return a list with size 1.", 1, targets1.size());
             } else if (target.getFlashPages() == 1024) { //1024 = CF 2.0
-                assertEquals("Should return a list with size 2.", 2, targets1.size());
+                assertEquals("#1 Should return a list with size 2.", 2, targets1.size());
             }
 
             System.out.println();
 
 
             //#2 Bin file with no target name given
-            assertEquals("Should return an empty list.", 0, mBootloader.getFlashTargets(new File("cf1-2015.08.1.bin"), "").size());
+            assertEquals("#2 Should return an empty list.", 0, mBootloader.getFlashTargets(new File("src/test/fw/cf1-2015.08.1.bin"), "").size());
 
             //#3 Bin file with target name given
-            List<FlashTarget> targets2 = mBootloader.getFlashTargets(new File("cf1-2015.08.1.bin"), "stm32");
-            assertEquals("Should return a list with size 1.", 1, targets2.size());
+            List<FlashTarget> targets2 = mBootloader.getFlashTargets(new File("src/test/fw/cf1-2015.08.1.bin"), "stm32");
+            assertEquals("#3 Should return a list with size 1.", 1, targets2.size());
 
             System.out.println("#3 bin file:");
             for (FlashTarget ft : targets2) {
@@ -258,6 +266,7 @@ public class BootloaderTest {
             }
             System.out.println();
 
+            //TODO: works, even though file is not found!!!
             //#4 Bin file with more than one target name given -> should return an empty list and an error
             List<FlashTarget> targets3 = mBootloader.getFlashTargets(new File("cf1-2015.08.1.bin"), new String[] {"stm32", "nrf51"});
             assertEquals("Should return a list with size 0.", 0, targets3.size());

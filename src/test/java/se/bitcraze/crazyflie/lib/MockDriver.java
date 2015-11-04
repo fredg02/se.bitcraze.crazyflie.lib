@@ -86,6 +86,11 @@ public class MockDriver extends RadioDriver  {
                      OUT:   -1,-1,24,0,0,10,0,10,0,
                      IN:    113,-1,-1,24,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
                  */
+
+                /*
+                     OUT:   -2,24,0,0,88,0,1,0, //NRF51
+                 */
+
                 data = new byte[] {-1,-1,24,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,};
             } else if (payload[0] == (byte) TargetTypes.NRF51 && payload[1] == (byte) 0xF0) {
                 mLogger.debug("Bootloader - Command: Reset to firmware - CF2");
@@ -104,8 +109,11 @@ public class MockDriver extends RadioDriver  {
                 mLogger.debug("Bootloader - Command: READ_FLASH - CF1");
                 // Read CF1 config
                 /*
-                     OUT: -1,28,127,0,0,0,
+                     OUT:   -1,28,127,0,0,0,
+                     IN:    1,-1,-1,28,127,0,0,0,48,120,66,67,0,10,0,0,0,0,0,0,0,0,0,-55,0,0,0,0,0,0,0,0,0,
                  */
+                data = new byte[] {-1,-1,28,127,0,0,0,48,120,66,67,0,10,0,0,0,0,0,0,0,0,0,-55,0,0,0,0,0,0,0,0,0};
+                //TODO: improve!?
             }
         }
         // add CRTP packet with mock data to incoming queue
