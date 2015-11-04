@@ -42,11 +42,11 @@ public class Cloader {
 
     // Bootloader commands
     public static int GET_INFO = 0x10;
-    private static int SET_ADDRESS = 0x11; // Only implemented on Crazyflie version 0x00
-    private static int GET_MAPPING = 0x12; // Only implemented in version 0x10 target 0xFF
-    private static int LOAD_BUFFER = 0x14;
-    private static int WRITE_FLASH = 0x18;
-    private static int READ_FLASH = 0x1C;
+    public static int SET_ADDRESS = 0x11; // Only implemented on Crazyflie version 0x00
+    public static int GET_MAPPING = 0x12; // Only implemented in version 0x10 target 0xFF
+    public static int LOAD_BUFFER = 0x14;
+    public static int WRITE_FLASH = 0x18;
+    public static int READ_FLASH = 0x1C;
 
 
     /**
@@ -268,7 +268,7 @@ public class Cloader {
                 if self._info_cb:
                     self._info_cb.call(self.targets[target_id])
                 */
-                if (this.mProtocolVersion != 1) {
+                if (this.mProtocolVersion != BootVersion.CF1_PROTO_VER_1) {
                     return true;
                 }
 
@@ -311,18 +311,19 @@ public class Cloader {
         // self.link.pause()
         this.mDriver.stopSendReceiveThread();
 
+        Crazyradio crazyRadio = ((RadioDriver) this.mDriver).getRadio();
+        //TODO: is there a more elegant way to do this?
+        //pkdata = (0xFF, 0xFF, 0x11) + tuple(new_address)
+        byte[] pkData = new byte[newAddress.length + 3];
+        pkData[0] = (byte) 0xFF;
+        pkData[1] = (byte) 0xFF;
+        pkData[2] = (byte) SET_ADDRESS;
+
         for (int i = 0; i < 10; i++) {
             mLogger.debug("Trying to set new radio address");
-            Crazyradio crazyRadio = ((RadioDriver) this.mDriver).getRadio();
             //self.link.cradio.set_address((0xE7,) * 5)
             crazyRadio.setAddress(new byte[]{(byte) 0xE7, (byte) 0xE7, (byte) 0xE7, (byte) 0xE7, (byte) 0xE7});
 
-            //TODO: is there a more elegant way to do this?
-            //pkdata = (0xFF, 0xFF, 0x11) + tuple(new_address)
-            byte[] pkData = new byte[newAddress.length + 3];
-            pkData[0] = (byte) 0xFF;
-            pkData[1] = (byte) 0xFF;
-            pkData[2] = (byte) SET_ADDRESS;
             System.arraycopy(newAddress, 0, pkData, 3, newAddress.length);
             crazyRadio.sendPacket(pkData);
 
