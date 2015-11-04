@@ -510,7 +510,7 @@ public class Bootloader {
         } catch (IOException ioe) {
             errorMessage = ioe.getMessage();
         }
-//        mLogger.error("Error while parsing manifest file " + fileName + ": " + errorMessage);
+        LoggerFactory.getLogger("Bootloader").error("Error while parsing manifest file " + fileName + ": " + errorMessage);
         return null;
     }
 
@@ -526,6 +526,6 @@ public class Bootloader {
         } catch (IOException ioe) {
             errorMessage = ioe.getMessage();
         }
-//        mLogger.error("Could not save manifest to file " + fileName + ".\n" + errorMessage);
+        LoggerFactory.getLogger("Bootloader").error("Could not save manifest to file " + fileName + ".\n" + errorMessage);
     }
 }
