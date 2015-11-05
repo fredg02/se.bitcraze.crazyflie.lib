@@ -194,7 +194,11 @@ public class Bootloader {
             File basePath = new File(file.getAbsoluteFile().getParent() + "/" + getFileNameWithoutExtension(file));
             File manifestFile = new File(basePath.getAbsolutePath() + "/" + manifestFilename);
             if (basePath.exists() && manifestFile.exists()) {
-                Manifest mf = readManifest("manifest.json");
+                Manifest mf = readManifest(manifestFile);
+                //TODO: improve error handling
+                if (mf == null) {
+                    return filesToFlash;
+                }
                 Set<String> files = mf.getFiles().keySet();
 
                 // iterate over file names in manifest.json
@@ -498,10 +502,10 @@ public class Bootloader {
 
     }
 
-    public static Manifest readManifest (String fileName) {
+    public static Manifest readManifest (File file) {
         String errorMessage = "";
         try {
-            Manifest readValue = mMapper.readValue(new File(fileName), Manifest.class);
+            Manifest readValue = mMapper.readValue(file, Manifest.class);
             return readValue;
         } catch (JsonParseException jpe) {
             errorMessage = jpe.getMessage();
@@ -510,7 +514,7 @@ public class Bootloader {
         } catch (IOException ioe) {
             errorMessage = ioe.getMessage();
         }
-        LoggerFactory.getLogger("Bootloader").error("Error while parsing manifest file " + fileName + ": " + errorMessage);
+        LoggerFactory.getLogger("Bootloader").error("Error while parsing manifest " + file.getName() + ": " + errorMessage);
         return null;
     }
 

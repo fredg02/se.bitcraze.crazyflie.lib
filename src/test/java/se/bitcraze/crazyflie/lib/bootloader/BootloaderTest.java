@@ -11,11 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.usb.UsbDevice;
 import javax.usb.UsbException;
-import javax.usb.UsbHostManager;
-import javax.usb.UsbHub;
-import javax.usb.UsbServices;
 
 import org.junit.After;
 import org.junit.Before;
@@ -26,7 +22,6 @@ import se.bitcraze.crazyflie.lib.bootloader.Bootloader.BootloaderListener;
 import se.bitcraze.crazyflie.lib.bootloader.Bootloader.FlashTarget;
 import se.bitcraze.crazyflie.lib.bootloader.Target.TargetTypes;
 import se.bitcraze.crazyflie.lib.bootloader.Utilities.BootVersion;
-import se.bitcraze.crazyflie.lib.crazyradio.Crazyradio;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
 import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
@@ -39,26 +34,12 @@ public class BootloaderTest {
 
     @Before
     public void setUp() throws SecurityException, UsbException {
-        if (isCrazyradioAvailable()) {
+        if (Utilities.isCrazyradioAvailable()) {
             mDriver = new RadioDriver(new UsbLinkJava());
         } else {
             mDriver = new MockDriver(MockDriver.CF1);
         }
         mBootloader = new Bootloader(mDriver);
-    }
-
-    public boolean isCrazyradioAvailable() {
-        try {
-            UsbServices services = UsbHostManager.getUsbServices();
-            UsbHub rootHub = services.getRootUsbHub();
-            List<UsbDevice> usbDeviceList = UsbLinkJava.findUsbDevices(rootHub, (short) Crazyradio.CRADIO_VID, (short) Crazyradio.CRADIO_PID);
-            return !usbDeviceList.isEmpty();
-        } catch (SecurityException e) {
-            e.printStackTrace();
-        } catch (UsbException e) {
-            e.printStackTrace();
-        }
-        return false;
     }
 
     @After
@@ -282,7 +263,7 @@ public class BootloaderTest {
 
     @Test
     public void testReadManifest() {
-        Manifest readManifest = Bootloader.readManifest("src/test/manifest.json");
+        Manifest readManifest = Bootloader.readManifest(new File("src/test/manifest.json"));
 
         System.out.println("Version: " + readManifest.getVersion());
         for (String name : readManifest.getFiles().keySet()) {
