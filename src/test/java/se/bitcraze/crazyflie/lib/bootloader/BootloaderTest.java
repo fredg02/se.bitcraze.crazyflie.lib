@@ -308,8 +308,8 @@ public class BootloaderTest {
 
     public class BootloaderAdapter implements BootloaderListener {
 
-        public void updateProgress(int progress) {
-            System.out.println("Update progress: " +  progress);
+        public void updateProgress(int progress, int max) {
+            System.out.println("Update progress: " +  progress + " max: " + max);
         }
 
         public void updateStatus(String status) {

@@ -137,9 +137,9 @@ public class Bootloader {
     }
 
     //TODO: improve
-    private byte[] readFile(File file) {
+    public static byte[] readFile(File file) {
         byte[] fileData = new byte[(int) file.length()];
-        mLogger.debug("File size: " +  file.length());
+        LoggerFactory.getLogger("Bootloader").debug("readFile: " + file.getName() +  ", size: " +  file.length());
         RandomAccessFile raf = null;
         try {
             raf = new RandomAccessFile(file.getAbsoluteFile(), "r");
@@ -229,7 +229,7 @@ public class Bootloader {
             }
         } else { // File is not a Zip file
             // add single flash target
-            if (targetNames.length != 1) {
+            if (targetNames == null || targetNames.length != 1) {
                 mLogger.error("Not an archive, must supply ONE target to flash.");
             } else {
 
@@ -320,13 +320,22 @@ public class Bootloader {
     //TODO: how can this be improved?
     public boolean isZipFile(File file) {
         if (file != null && file.exists() && file.getName().endsWith(".zip")) {
+            ZipFile zf = null;
             try {
-                ZipFile zf = new ZipFile(file);
+                zf = new ZipFile(file);
                 return zf.size() > 0;
             } catch (ZipException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                if (zf != null) {
+                    try {
+                        zf.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
         return false;
@@ -376,11 +385,13 @@ public class Bootloader {
             return;
         }
 
-        mLogger.info(image.length - 1 + " bytes (" + ((image.length / pageSize) + 1) + " pages) ");
+        int noOfPages = (image.length / pageSize) + 1;
+        mLogger.info(image.length - 1 + " bytes (" + noOfPages + " pages) ");
 
         // For each page
         int bufferCounter = 0; // Buffer counter
-        for (int i = 0; i < ((image.length - 1) / pageSize) + 1; i++) {
+        int i = 0;
+        for (i = 0; i < ((image.length - 1) / pageSize) + 1; i++) {
             // Load the buffer
             int end = 0;
             if (((i + 1) * pageSize) > image.length) {
@@ -400,7 +411,7 @@ public class Bootloader {
                 String buffersFull = "Buffers full. Flashing page " + (i+1) + "...";
                 mLogger.info(buffersFull);
                 notifyUpdateStatus(buffersFull);
-                notifyUpdateProgress(i+1);
+                notifyUpdateProgress(i+1, noOfPages);
                 if (!this.mCload.writeFlash(t_data.getId(), 0, startPage + i - (bufferCounter - 1), bufferCounter)) {
                     handleFlashError();
                     //raise Exception()
@@ -412,6 +423,7 @@ public class Bootloader {
         }
         if (bufferCounter > 0) {
             mLogger.info("BufferCounter: " + bufferCounter);
+            notifyUpdateProgress(i, noOfPages);
             if (!this.mCload.writeFlash(t_data.getId(), 0, (startPage + ((image.length - 1) / pageSize)) - (bufferCounter - 1), bufferCounter)) {
                 handleFlashError();
                 //raise Exception()
@@ -437,9 +449,9 @@ public class Bootloader {
         this.mBootloaderListeners.remove(bl);
     }
 
-    public void notifyUpdateProgress(int progress) {
+    public void notifyUpdateProgress(int progress, int max) {
         for (BootloaderListener bootloaderListener : mBootloaderListeners) {
-            bootloaderListener.updateProgress(progress);
+            bootloaderListener.updateProgress(progress, max);
         }
     }
 
@@ -457,7 +469,7 @@ public class Bootloader {
 
     public interface BootloaderListener {
 
-        public void updateProgress(int progress);
+        public void updateProgress(int progress, int max);
 
         public void updateStatus(String status);
 

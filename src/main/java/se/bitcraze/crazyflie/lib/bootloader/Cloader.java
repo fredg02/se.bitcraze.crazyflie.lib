@@ -235,7 +235,7 @@ public class Cloader {
         }
         //time.sleep(0.1)
         try {
-            Thread.sleep(100);
+            Thread.sleep(500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -456,7 +456,7 @@ public class Cloader {
                 bb.putChar((char) (i + address + 1));
             }
         }
-        //mLogger.debug("Sending buffer packet: " + Cloader.getHexString(bb.array()));
+        //mLogger.debug("Sending buffer packet: " + Utilities.getHexString(bb.array()));
         sendBootloaderPacket(bb.array());
     }
 
