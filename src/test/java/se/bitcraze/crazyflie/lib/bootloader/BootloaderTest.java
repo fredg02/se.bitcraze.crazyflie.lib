@@ -20,6 +20,7 @@ import org.junit.Test;
 import se.bitcraze.crazyflie.lib.MockDriver;
 import se.bitcraze.crazyflie.lib.bootloader.Bootloader.BootloaderListener;
 import se.bitcraze.crazyflie.lib.bootloader.Bootloader.FlashTarget;
+import se.bitcraze.crazyflie.lib.bootloader.Manifest.FirmwareDetails;
 import se.bitcraze.crazyflie.lib.bootloader.Target.TargetTypes;
 import se.bitcraze.crazyflie.lib.bootloader.Utilities.BootVersion;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
@@ -167,7 +168,8 @@ public class BootloaderTest {
             } else if (target.getFlashPages() == 1024) { //1024 = CF 2.0
                 System.out.println("CF 2.0");
                 mBootloader.flash(new File("src/test/fw/cf2-2015.08.1.bin"), "stm32");
-//            mBootloader.flash(new File("cflie2.bin"), "stm32");
+//                mBootloader.flash(new File("src/test/fw/Crazyflie2_2014.12.0.zip"), "");
+//                mBootloader.flash(new File("cflie2.bin"), "stm32");
             } else {
                 System.err.println("Problem with getFlashPages().");
                 return;
@@ -290,7 +292,7 @@ public class BootloaderTest {
         Manifest manifest = new Manifest();
         manifest.setVersion(1);
         Map<String, FirmwareDetails> map = new HashMap<String, FirmwareDetails>();
-        FirmwareDetails firmwareDetails = new FirmwareDetails("cf2", "stm32", "fw");
+        FirmwareDetails firmwareDetails = new Manifest().new FirmwareDetails("cf2", "stm32", "fw");
         map.put("cflie2.bin", firmwareDetails);
         manifest.setFiles(map);
 
