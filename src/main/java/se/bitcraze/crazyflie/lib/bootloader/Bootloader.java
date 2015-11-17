@@ -23,7 +23,6 @@ import java.util.zip.ZipInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import se.bitcraze.crazyflie.lib.bootloader.Manifest.FirmwareDetails;
 import se.bitcraze.crazyflie.lib.bootloader.Target.TargetTypes;
 import se.bitcraze.crazyflie.lib.bootloader.Utilities.BootVersion;
 import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
@@ -204,7 +203,12 @@ public class Bootloader {
             File basePath = new File(file.getAbsoluteFile().getParent() + "/" + getFileNameWithoutExtension(file));
             File manifestFile = new File(basePath.getAbsolutePath() + "/" + manifestFilename);
             if (basePath.exists() && manifestFile.exists()) {
-                Manifest mf = readManifest(manifestFile);
+                Manifest mf = null;
+                try {
+                    mf = readManifest(manifestFile);
+                } catch (IOException ioe) {
+                    mLogger.error("Error while trying to read manifest file:\n" + ioe.getMessage());
+                }
                 //TODO: improve error handling
                 if (mf == null) {
                     return filesToFlash;
@@ -517,7 +521,7 @@ public class Bootloader {
 
     }
 
-    public static Manifest readManifest (File file) {
+    public static Manifest readManifest (File file) throws IOException {
         String errorMessage = "";
         try {
             Manifest readValue = mMapper.readValue(file, Manifest.class);
@@ -526,24 +530,21 @@ public class Bootloader {
             errorMessage = jpe.getMessage();
         } catch (JsonMappingException jme) {
             errorMessage = jme.getMessage();
-        } catch (IOException ioe) {
-            errorMessage = ioe.getMessage();
         }
         LoggerFactory.getLogger("Bootloader").error("Error while parsing manifest " + file.getName() + ": " + errorMessage);
         return null;
     }
 
-    public static void writeManifest (String fileName, Manifest manifest) {
+    public static void writeManifest (String fileName, Manifest manifest) throws IOException {
         String errorMessage = "";
         mMapper.enable(SerializationFeature.INDENT_OUTPUT);
         try {
             mMapper.writeValue(new File(fileName), manifest);
+            return;
         } catch (JsonGenerationException jge) {
             errorMessage = jge.getMessage();
         } catch (JsonMappingException jme) {
             errorMessage = jme.getMessage();
-        } catch (IOException ioe) {
-            errorMessage = ioe.getMessage();
         }
         LoggerFactory.getLogger("Bootloader").error("Could not save manifest to file " + fileName + ".\n" + errorMessage);
     }

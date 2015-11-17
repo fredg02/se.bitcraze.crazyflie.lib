@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +21,6 @@ import org.junit.Test;
 import se.bitcraze.crazyflie.lib.MockDriver;
 import se.bitcraze.crazyflie.lib.bootloader.Bootloader.BootloaderListener;
 import se.bitcraze.crazyflie.lib.bootloader.Bootloader.FlashTarget;
-import se.bitcraze.crazyflie.lib.bootloader.Manifest.FirmwareDetails;
 import se.bitcraze.crazyflie.lib.bootloader.Target.TargetTypes;
 import se.bitcraze.crazyflie.lib.bootloader.Utilities.BootVersion;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
@@ -264,9 +264,10 @@ public class BootloaderTest {
     }
 
     @Test
-    public void testReadManifest() {
+    public void testReadManifest() throws IOException {
         Manifest readManifest = Bootloader.readManifest(new File("src/test/manifest.json"));
 
+        assertNotNull(readManifest);
         System.out.println("Version: " + readManifest.getVersion());
         for (String name : readManifest.getFiles().keySet()) {
             System.out.println("Name: " + name);
@@ -288,15 +289,20 @@ public class BootloaderTest {
     }
 
     @Test
-    public void writeManifest() {
+    public void writeManifest() throws IOException {
         Manifest manifest = new Manifest();
         manifest.setVersion(1);
         Map<String, FirmwareDetails> map = new HashMap<String, FirmwareDetails>();
-        FirmwareDetails firmwareDetails = new Manifest().new FirmwareDetails("cf2", "stm32", "fw");
+        FirmwareDetails firmwareDetails = new FirmwareDetails("cf2", "stm32", "fw");
         map.put("cflie2.bin", firmwareDetails);
         manifest.setFiles(map);
 
-        Bootloader.writeManifest("manifestTest.json", manifest);
+        String testFileName = "manifestTest.json";
+        Bootloader.writeManifest(testFileName, manifest);
+
+        File testFile = new File(testFileName);
+        assertTrue("Test file should exist.", testFile.exists());
+        assertTrue("Test file should have a length > 0.", testFile.length() > 0);
 
 //        System.out.println("Version: " + readManifest.getVersion());
 //        for (String name : readManifest.getFiles().keySet()) {
