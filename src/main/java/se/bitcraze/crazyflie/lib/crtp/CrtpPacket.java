@@ -46,7 +46,7 @@ public class CrtpPacket {
     /**
      * NULL packet. Header is 0xFF without any data.
      */
-    public static final CrtpPacket NULL_PACKET = new CrtpPacket((byte) 0xff) {
+    public static final CrtpPacket NULL_PACKET = new CrtpPacket((byte) 0xff, new byte[0]) {
         @Override
         protected void serializeData(ByteBuffer buffer) {
         }
@@ -153,17 +153,6 @@ public class CrtpPacket {
     public CrtpPacket(int channel, CrtpPort port) {
         this.mPacketHeader = new Header(channel, port);
         this.mPacketPayload = new byte[0];
-        this.mSerializedPacket = null;
-    }
-
-    //TODO: can this be eliminated?
-    /**
-     * Create a new packet.
-     *
-     * @param packetHeader header of the packet.
-     */
-    public CrtpPacket(byte packetHeader) {
-        this(packetHeader, new byte[0]);
         this.mSerializedPacket = null;
     }
 

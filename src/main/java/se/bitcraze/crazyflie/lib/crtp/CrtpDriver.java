@@ -60,6 +60,12 @@ public abstract class CrtpDriver {
      */
     public abstract void disconnect();
 
+    /**
+     * Check whether the link is connected.
+     *
+     * @return <code>true</code> if the link is connected.
+     */
+    public abstract boolean isConnected();
 
     /**
      * Send a CRTP packet

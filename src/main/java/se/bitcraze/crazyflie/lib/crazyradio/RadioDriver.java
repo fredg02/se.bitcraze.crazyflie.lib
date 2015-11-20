@@ -271,7 +271,7 @@ public class RadioDriver extends CrtpDriver{
          * @see java.lang.Runnable#run()
          */
         public void run() {
-            byte[] dataOut = new byte[] {(byte) 0xFF}; //Null packet
+            byte[] dataOut = Crazyradio.NULL_PACKET;
 
             double waitTime = 0;
             int emptyCtr = 0;
@@ -339,9 +339,9 @@ public class RadioDriver extends CrtpDriver{
                     if (outPacket != null) {
                         dataOut = outPacket.toByteArray();
                     } else {
-                        dataOut = new byte[]{(byte) 0xFF};
+                        dataOut = Crazyradio.NULL_PACKET;
                     }
-                    Thread.sleep(20);
+                    Thread.sleep(10);
                 } catch (InterruptedException e) {
                     mLogger.debug("RadioDriverThread was interrupted.");
                     break;
@@ -351,4 +351,8 @@ public class RadioDriver extends CrtpDriver{
         }
     }
 
+    @Override
+    public boolean isConnected() {
+        return this.mRadioDriverThread != null;
+    }
 }

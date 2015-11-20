@@ -74,4 +74,10 @@ public class DummyDriver extends CrtpDriver {
         // TODO Auto-generated method stub
     }
 
+    @Override
+    public boolean isConnected() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
 }
