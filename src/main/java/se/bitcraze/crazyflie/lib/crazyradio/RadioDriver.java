@@ -166,14 +166,21 @@ public class RadioDriver extends CrtpDriver{
         mLogger.debug("RadioDriver disconnect()");
         // Stop the comm thread
         stopSendReceiveThread();
+        // Avoid NPE because packets are still processed
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         if(this.mCradio != null) {
-            this.mCradio.close();
+            this.mCradio.disconnect();
             this.mCradio = null;
         }
-        if(this.mUsbInterface != null) {
-            this.mUsbInterface.releaseInterface();
-//            this.mUsbInterface = null;
-        }
+        //redundant
+//        if(this.mUsbInterface != null) {
+//            this.mUsbInterface.releaseInterface();
+////            this.mUsbInterface = null;
+//        }
     }
 
     public List<ConnectionData> scanInterface() {
@@ -325,14 +332,14 @@ public class RadioDriver extends CrtpDriver{
                         emptyCtr += 1;
                         if (emptyCtr > 10) {
                             emptyCtr = 10;
-                            // Relaxation time if the last 10 packet where empty
-                            waitTime = 0.01;
+                            // Relaxation time if the last 10 packets where empty
+                            waitTime = 10;
                         } else {
                             waitTime = 0;
                         }
                     }
 
-                    // get the next packet to send of relaxation (wait 10ms)
+                    // get the next packet to send after relaxation (wait 10ms)
                     CrtpPacket outPacket = null;
                     outPacket = mOutQueue.pollFirst((long) waitTime, TimeUnit.MILLISECONDS);
 

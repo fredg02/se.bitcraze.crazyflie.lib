@@ -52,21 +52,21 @@ public class Crazyradio {
     final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
 
     // USB parameters
-    public final static int CRADIO_VID = 0x1915;
-    public final static int CRADIO_PID = 0x7777;
+    public final static int CRADIO_VID = 0x1915; //Vendor ID
+    public final static int CRADIO_PID = 0x7777; //Product ID
 
     // Dongle configuration requests
     // See http://wiki.bitcraze.se/projects:crazyradio:protocol for documentation
-    public final static int SET_RADIO_CHANNEL = 0x01;
-    public final static int SET_RADIO_ADDRESS = 0x02;
-    public final static int SET_DATA_RATE = 0x03;
-    public final static int SET_RADIO_POWER = 0x04;
-    public final static int SET_RADIO_ARD = 0x05;
-    public final static int SET_RADIO_ARC = 0x06;
-    public final static int ACK_ENABLE = 0x10;
-    public final static int SET_CONT_CARRIER = 0x20;
-    public final static int SCAN_CHANNELS = 0x21;
-    public final static int LAUNCH_BOOTLOADER = 0xFF;
+    private final static int SET_RADIO_CHANNEL = 0x01;
+    private final static int SET_RADIO_ADDRESS = 0x02;
+    private final static int SET_DATA_RATE = 0x03;
+    private final static int SET_RADIO_POWER = 0x04;
+    private final static int SET_RADIO_ARD = 0x05;
+    private final static int SET_RADIO_ARC = 0x06;
+    private final static int ACK_ENABLE = 0x10;
+    private final static int SET_CONT_CARRIER = 0x20;
+    private final static int SCAN_CHANNELS = 0x21;
+    private final static int LAUNCH_BOOTLOADER = 0xFF;
 
     // configuration constants
     public final static int DR_250KPS = 0;
@@ -142,7 +142,7 @@ public class Crazyradio {
 
     }
 
-    public void close() {
+    public void disconnect() {
         if(mUsbInterface != null) {
             mUsbInterface.releaseInterface();
         }
@@ -273,19 +273,6 @@ public class Crazyradio {
         return false;
     }
 
-    /*
-    def scan_selected(self, selected, packet):
-        result = ()
-        for s in selected:
-            self.set_channel(s["channel"])
-            self.set_data_rate(s["datarate"])
-            status = self.send_packet(packet)
-            if status and status.ack:
-                result = result + (s,)
-
-        return result
-    */
-
     /**
      * Scan all channels between 0 and 125
      *
@@ -294,7 +281,6 @@ public class Crazyradio {
     public List<Integer> scanChannels() {
         return scanChannels(0, 125);
     }
-
 
     public List<Integer> scanChannels(int start, int stop) {
         List<Integer> result = new ArrayList<Integer>();
@@ -323,6 +309,19 @@ public class Crazyradio {
         }
         return result;
     }
+
+    /*
+    def scan_selected(self, selected, packet):
+        result = ()
+        for s in selected:
+            self.set_channel(s["channel"])
+            self.set_data_rate(s["datarate"])
+            status = self.send_packet(packet)
+            if status and status.ack:
+                result = result + (s,)
+
+        return result
+    */
 
     public boolean scanSelected(int channel, int datarate, byte[] packet) {
         setDatarate(datarate);
