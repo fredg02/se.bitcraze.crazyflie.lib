@@ -6,6 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import se.bitcraze.crazyflie.lib.MockDriver;
+import se.bitcraze.crazyflie.lib.TestUtilities;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
 import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
@@ -17,7 +18,7 @@ public class CfloaderTest {
 
     @Before
     public void setUp() throws SecurityException, UsbException {
-        if (Utilities.isCrazyradioAvailable()) {
+        if (TestUtilities.isCrazyradioAvailable()) {
             mDriver = new RadioDriver(new UsbLinkJava());
         } else {
             mDriver = new MockDriver(MockDriver.CF1);

@@ -19,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import se.bitcraze.crazyflie.lib.MockDriver;
+import se.bitcraze.crazyflie.lib.TestUtilities;
 import se.bitcraze.crazyflie.lib.bootloader.Bootloader.BootloaderListener;
 import se.bitcraze.crazyflie.lib.bootloader.Bootloader.FlashTarget;
 import se.bitcraze.crazyflie.lib.bootloader.Target.TargetTypes;
@@ -35,7 +36,7 @@ public class BootloaderTest {
 
     @Before
     public void setUp() throws SecurityException, UsbException {
-        if (Utilities.isCrazyradioAvailable()) {
+        if (TestUtilities.isCrazyradioAvailable()) {
             mDriver = new RadioDriver(new UsbLinkJava());
         } else {
             mDriver = new MockDriver(MockDriver.CF1);
