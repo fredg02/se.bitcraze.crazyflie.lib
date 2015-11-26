@@ -34,8 +34,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.usb.UsbException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,8 +97,7 @@ public class Crazyradio {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (UsbException e) {
-            e.printStackTrace();
+            //TODO: get rid of UsbException
         }
 
         /*
@@ -143,6 +140,7 @@ public class Crazyradio {
     }
 
     public void disconnect() {
+        mLogger.debug("Crazyradio disconnect()");
         if(mUsbInterface != null) {
             mUsbInterface.releaseInterface();
         }

@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.util.List;
 
 import javax.usb.UsbDevice;
-import javax.usb.UsbException;
 
 /**
  * Abstract USB interface to be independent of different implementations (eg. Java/Android)
@@ -45,7 +44,7 @@ public interface CrazyUsbInterface {
      * @param usbVid
      * @param usbPid
      */
-    public void initDevice(int usbVid, int usbPid) throws IOException, SecurityException, UsbException;
+    public void initDevice(int usbVid, int usbPid) throws IOException, SecurityException;
 
     /**
      * Release UsbInterface
