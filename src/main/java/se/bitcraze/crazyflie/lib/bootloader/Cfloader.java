@@ -1,6 +1,7 @@
 package se.bitcraze.crazyflie.lib.bootloader;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -134,7 +135,11 @@ public class Cfloader {
         } else if ("reset".equals(mAction)) {
             resetToFirmware(mBootloader);
         } else if ("flash".equals(mAction)) {
-            mBootloader.flash(new File(mFileName), (String[]) mTargetStrings.toArray(new String[mTargetStrings.size()]));
+            try {
+                mBootloader.flash(new File(mFileName), (String[]) mTargetStrings.toArray(new String[mTargetStrings.size()]));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             resetToFirmware(mBootloader);
         } else {
             System.err.println("Action " + mAction + " unknown.");

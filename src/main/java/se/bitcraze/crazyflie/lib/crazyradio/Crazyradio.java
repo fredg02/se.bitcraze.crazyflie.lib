@@ -27,8 +27,6 @@
 
 package se.bitcraze.crazyflie.lib.crazyradio;
 
-
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import se.bitcraze.crazyflie.lib.usb.CrazyUsbInterface;
-
 
 
 /**
@@ -94,10 +91,11 @@ public class Crazyradio {
         try {
             this.mUsbInterface.initDevice(CRADIO_VID, CRADIO_PID);
         } catch (SecurityException e) {
-            e.printStackTrace();
+            mLogger.error(e.getMessage());
+            return;
         } catch (IOException e) {
-            e.printStackTrace();
-            //TODO: get rid of UsbException
+            mLogger.error(e.getMessage());
+            return;
         }
 
         /*
@@ -298,7 +296,7 @@ public class Crazyradio {
                     try {
                         Thread.sleep(20);
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        mLogger.error("InterruptedException: " + e.getMessage());
                     }
                 }
             }
@@ -326,7 +324,7 @@ public class Crazyradio {
         return scanSelected(channel, packet);
     }
 
-    public boolean scanSelected(int channel, byte[] packet) {
+    private boolean scanSelected(int channel, byte[] packet) {
         setChannel(channel);
         RadioAck status = sendPacket(packet);
         return (status != null && status.isAck());

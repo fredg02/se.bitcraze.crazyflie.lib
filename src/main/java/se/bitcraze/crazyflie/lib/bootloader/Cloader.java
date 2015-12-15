@@ -1,5 +1,6 @@
 package se.bitcraze.crazyflie.lib.bootloader;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -29,6 +30,8 @@ import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
  */
 //TODO: fix resetToBootloader methods
 //TODO: fix callbacks
+//TODO: use retryCounter
+//TODO: new Address
 public class Cloader {
 
     final Logger mLogger = LoggerFactory.getLogger("Cloader");
@@ -39,6 +42,8 @@ public class Cloader {
     private Map<Integer, Target> mTargets = new HashMap<Integer, Target>();
     private String mErrorMessage = "";
     private int mProtocolVersion = 0xFF;
+
+    private boolean mCancelled = false;
 
     // Bootloader commands
     public static int GET_INFO = 0x10;
@@ -105,7 +110,7 @@ public class Cloader {
         CrtpPacket replyPk = this.mDriver.receivePacket(1);
         //while ((not pk or pk.header != 0xFF or struct.unpack("<BB", pk.data[0:2]) != (target_id, 0xFF)) and retry_counter >= 0 ):
 
-        while(checkBootloaderReplyPacket(replyPk, targetId, 0xFF) && retryCounter >= 0) {
+        while(!isBootloaderReplyPacket(replyPk, targetId, 0xFF) && retryCounter >= 0) {
             replyPk = this.mDriver.receivePacket(1);
             retryCounter -= 1;
         }
@@ -145,10 +150,7 @@ public class Cloader {
          * Mainly aim to bypass a bug of the crazyflie firmware that prevents
          * reset before normal CRTP communication
          */
-        //pk = CRTPPacket()
-        //pk.port = CRTPPort.LINKCTRL
         Header header = new Header(0, CrtpPort.LINKCTRL);
-        //pk.data = (1, 2, 3) + cpu_id
         CrtpPacket pk = new CrtpPacket(header.getByte(), new byte[]{1, 2, 3, (byte) cpuId});
         this.mDriver.sendPacket(pk);
 
@@ -219,11 +221,10 @@ public class Cloader {
         while(true) {
             replyPk = this.mDriver.receivePacket(2);
 
-            if (checkBootloaderReplyPacket(replyPk, targetId, 0xFF)) {
+            if (!isBootloaderReplyPacket(replyPk, targetId, 0xFF)) {
                 // Difference in CF1 and CF2 (CPU ID)
                 byte[] data = null;
                 if (targetId == TargetTypes.NRF51) { // CF2
-                    // pk.data = (target_id, 0xF0, 0x01)
                     data = new byte[] {(byte) targetId, (byte) 0xF0, (byte) 0x01};
                 } else { // CF1
                     // pk.data = (target_id, 0xF0) + fake_cpu_id
@@ -235,14 +236,14 @@ public class Cloader {
         }
         //time.sleep(0.1)
         try {
-            Thread.sleep(1000);
+            Thread.sleep(1500);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            mLogger.error("InterruptedException: " + e.getMessage());
         }
         return true;
     }
 
-    public void openBootloaderConnection(ConnectionData connectionData) {
+    public void openBootloaderConnection(ConnectionData connectionData) throws IOException {
         if (this.mDriver != null) {
             this.mDriver.disconnect();
         }
@@ -290,7 +291,7 @@ public class Cloader {
             try {
                 Thread.sleep(200);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                mLogger.error("InterruptedException: " + e.getMessage());
             }
         }
         return false;
@@ -366,7 +367,7 @@ public class Cloader {
         // Wait for the answer
         //TODO: retryCount?
         CrtpPacket replyPk = this.mDriver.receivePacket(2000);
-        while(checkBootloaderReplyPacket(replyPk, targetId, GET_INFO)) {
+        while(!isBootloaderReplyPacket(replyPk, targetId, GET_INFO)) {
             replyPk = this.mDriver.receivePacket(2000);
         }
 
@@ -394,7 +395,7 @@ public class Cloader {
         sendBootloaderPacket(new byte[]{(byte) targetId, (byte) GET_MAPPING});
 
         CrtpPacket replyPk = this.mDriver.receivePacket(2);
-        while (checkBootloaderReplyPacket(replyPk, targetId, GET_MAPPING)){
+        while (!isBootloaderReplyPacket(replyPk, targetId, GET_MAPPING)){
             replyPk = this.mDriver.receivePacket(2);
         }
 
@@ -443,6 +444,11 @@ public class Cloader {
             bb.put(buff[i]);
 
             count++;
+
+            if (isCancelled()) {
+                break;
+            }
+
             if (count > 24) {
                 sendBootloaderPacket(bb.array());
                 count = 0;
@@ -491,7 +497,7 @@ public class Cloader {
                     //does it have something to do with the queue size??
                     //yes, the queue is filled with empty packets
                     //how can this be avoided?
-                    while(checkBootloaderReplyPacket(replyPk, addr, READ_FLASH)) {
+                    while(!isBootloaderReplyPacket(replyPk, addr, READ_FLASH)) {
                         replyPk = this.mDriver.receivePacket(10);
                     }
                     if (replyPk != null) {
@@ -534,7 +540,7 @@ public class Cloader {
         bb.putChar((char) pageCount);
         sendBootloaderPacket(bb.array());
 
-        while(checkBootloaderReplyPacket(replyPk, addr, WRITE_FLASH) && retryCounter >= 0) {
+        while(!isBootloaderReplyPacket(replyPk, addr, WRITE_FLASH) && retryCounter >= 0 && !isCancelled()) {
             replyPk = this.mDriver.receivePacket(1);
             //TODO: why does it not work, when the retryCounter is activated?
 //            retryCounter--;
@@ -572,6 +578,14 @@ public class Cloader {
 
     //decode_cpu_id has not been implemented, because it's not used anywhere
 
+    private boolean isCancelled() {
+        return this.mCancelled;
+    }
+
+    public void cancel() {
+        this.mCancelled = true;
+    }
+
     public String getErrorMessage() {
         return this.mErrorMessage;
     }
@@ -586,11 +600,11 @@ public class Cloader {
         this.mDriver.sendPacket(pk);
     }
 
-    public boolean checkBootloaderReplyPacket(CrtpPacket paket, int firstByte, int secondByte) {
+    public boolean isBootloaderReplyPacket(CrtpPacket paket, int firstByte, int secondByte) {
         if (paket == null) {
-            return true;
+            return false;
         }
-        return paket.getHeaderByte() != (byte) 0xFF || paket.getPayload()[0] != (byte) firstByte || paket.getPayload()[1] != (byte) secondByte;
+        return paket.getHeaderByte() == (byte) 0xFF && paket.getPayload()[0] == (byte) firstByte && paket.getPayload()[1] == (byte) secondByte;
     }
 
     public List<Target> getTargetsAsList() {

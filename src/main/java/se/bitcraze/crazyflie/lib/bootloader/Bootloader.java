@@ -30,6 +30,7 @@ import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -40,15 +41,14 @@ import com.fasterxml.jackson.databind.SerializationFeature;
  */
 //TODO: fix targetId and addr confusion
 //TODO: fix warmboot
-//TODO: throw FileNotFoundException all the way to the top?
 public class Bootloader {
 
     final Logger mLogger = LoggerFactory.getLogger("Bootloader");
 
     private static ObjectMapper mMapper = new ObjectMapper(); // can reuse, share globally
-
+    private static final String MANIFEST_FILENAME = "manifest.json";
     private Cloader mCload;
-
+    private boolean mCancelled = false;
     private List<BootloaderListener> mBootloaderListeners;
 
     /**
@@ -61,6 +61,7 @@ public class Bootloader {
     public Bootloader(CrtpDriver driver) {
         this.mCload = new Cloader(driver);
         this.mBootloaderListeners = Collections.synchronizedList(new LinkedList<BootloaderListener>());
+        mMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     public Cloader getCloader() {
@@ -74,6 +75,12 @@ public class Bootloader {
             mLogger.info("startBootloader: warmboot");
 
             //TODO
+            //self._cload.open_bootloader_uri(self.clink)
+            //this.mCload.openBootloaderConnection(connectionData);
+            started = this.mCload.resetToBootloader(TargetTypes.NRF51); //is NRF51 correct here?
+            if (started) {
+                started = this.mCload.checkLinkAndGetInfo(TargetTypes.STM32);
+            }
         } else {
             mLogger.info("startBootloader: coldboot");
             ConnectionData bootloaderConnection = this.mCload.scanForBootloader();
@@ -83,8 +90,13 @@ public class Bootloader {
 
             if (bootloaderConnection != null) {
                 mLogger.info("startBootloader: bootloader connection found");
-                this.mCload.openBootloaderConnection(bootloaderConnection);
-                started = this.mCload.checkLinkAndGetInfo(TargetTypes.STM32); //TODO: what is the real parameter for this?
+                try {
+              	  this.mCload.openBootloaderConnection(bootloaderConnection);
+              	  started = this.mCload.checkLinkAndGetInfo(TargetTypes.STM32); //TODO: what is the real parameter for this?
+                } catch (IOException e) {
+                    mLogger.warn(e.getMessage());
+                    started = false;
+                }
             } else {
                 mLogger.info("startBootloader: bootloader connection NOT found");
                 started = false;
@@ -130,37 +142,32 @@ public class Bootloader {
     public void writeCF1Config(byte[] data) {
         Target target = this.mCload.getTargets().get(TargetTypes.STM32); //CF1
         int configPage = target.getFlashPages() - 1;
-
-        //to_flash = {"target": target, "data": data, "type": "CF1 config", "start_page": config_page}
         FlashTarget toFlash = new FlashTarget(target, data, "CF1 config", configPage);
         internalFlash(toFlash);
     }
 
     //TODO: improve
-    public static byte[] readFile(File file) {
+    public static byte[] readFile(File file) throws IOException {
         byte[] fileData = new byte[(int) file.length()];
-        LoggerFactory.getLogger("Bootloader").debug("readFile: " + file.getName() +  ", size: " +  file.length());
+        Logger logger = LoggerFactory.getLogger("Bootloader");
+        logger.debug("readFile: " + file.getName() +  ", size: " +  file.length());
         RandomAccessFile raf = null;
         try {
             raf = new RandomAccessFile(file.getAbsoluteFile(), "r");
             raf.readFully(fileData);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         } finally {
             if (raf != null) {
                 try {
                     raf.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                } catch (IOException ioe) {
+                    logger.error(ioe.getMessage());
                 }
             }
         }
         return fileData;
     }
 
-    public boolean flash(File file) {
+    public boolean flash(File file) throws IOException {
         // assume stm32 if no target name is specified and file extension is ".bin"
         if (file.getName().endsWith(".bin")) {
             mLogger.info("Assuming STM32 for file " + file.getName() + ".");
@@ -169,7 +176,7 @@ public class Bootloader {
         return flash(file, "");
     }
 
-    public boolean flash(File file, String... targetNames) {
+    public boolean flash(File file, String... targetNames) throws IOException {
         List<FlashTarget> filesToFlash = getFlashTargets(file, targetNames);
         if (filesToFlash.isEmpty()) {
             mLogger.error("Found no files to flash.");
@@ -184,7 +191,8 @@ public class Bootloader {
     }
 
     //TODO: deal with different platforms (CF1, CF2)!?
-    public List<FlashTarget> getFlashTargets(File file, String... targetNames) {
+    //package private for tests
+    List<FlashTarget> getFlashTargets(File file, String... targetNames) throws IOException {
         List<FlashTarget> filesToFlash = new ArrayList<FlashTarget>();
 
         if (!file.exists()) {
@@ -199,9 +207,8 @@ public class Bootloader {
             unzip(file);
 
             // read manifest.json
-            String manifestFilename = "manifest.json";
             File basePath = new File(file.getAbsoluteFile().getParent() + "/" + getFileNameWithoutExtension(file));
-            File manifestFile = new File(basePath.getAbsolutePath() + "/" + manifestFilename);
+            File manifestFile = new File(basePath.getAbsolutePath(), MANIFEST_FILENAME);
             if (basePath.exists() && manifestFile.exists()) {
                 Manifest mf = null;
                 try {
@@ -222,7 +229,7 @@ public class Bootloader {
                     if (t != null) {
                         // use path to extracted file
                         //File flashFile = new File(file.getParent() + "/" + file.getName() + "/" + fileName);
-                        File flashFile = new File(basePath.getAbsolutePath() + "/" + fileName);
+                        File flashFile = new File(basePath.getAbsolutePath(), fileName);
                         FlashTarget ft = new FlashTarget(t, readFile(flashFile), firmwareDetails.getType(), t.getStartPage()); //TODO: does startPage HAVE to be an extra argument!? (it's already included in Target)
                         // add flash target
                         // if no target names are specified, flash everything
@@ -239,7 +246,7 @@ public class Bootloader {
                     }
                 }
             } else {
-                mLogger.error("Zip file " + file.getName() + " does not include a " + manifestFilename);
+                mLogger.error("Zip file " + file.getName() + " does not include a " + MANIFEST_FILENAME);
             }
         } else { // File is not a Zip file
             // add single flash target
@@ -300,14 +307,14 @@ public class Bootloader {
                 try {
                     zis.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    mLogger.error(e.getMessage());
                 }
             }
             if (fos != null) {
                 try {
                     fos.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    mLogger.error(e.getMessage());
                 }
             }
 
@@ -325,22 +332,22 @@ public class Bootloader {
      * @return true if file is a Zip file, false otherwise
      */
     //TODO: how can this be improved?
-    public boolean isZipFile(File file) {
+    private boolean isZipFile(File file) {
         if (file != null && file.exists() && file.getName().endsWith(".zip")) {
             ZipFile zf = null;
             try {
                 zf = new ZipFile(file);
                 return zf.size() > 0;
             } catch (ZipException e) {
-                e.printStackTrace();
+                mLogger.error(e.getMessage());
             } catch (IOException e) {
-                e.printStackTrace();
+                mLogger.error(e.getMessage());
             } finally {
                 if (zf != null) {
                     try {
                         zf.close();
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        mLogger.error(e.getMessage());
                     }
                 }
             }
@@ -409,6 +416,13 @@ public class Bootloader {
                 end = (i + 1) * pageSize;
             }
             byte[] buffer = Arrays.copyOfRange(image, i * pageSize, end);
+
+            notifyUpdateProgress(i+1, noOfPages);
+
+            if (isCancelled()) {
+                break;
+            }
+
             this.mCload.uploadBuffer(t_data.getId(), bufferCounter, 0, buffer);
 
             bufferCounter++;
@@ -428,6 +442,10 @@ public class Bootloader {
                 bufferCounter = 0;
             }
         }
+        if (isCancelled()) {
+            mLogger.info("Flashing cancelled!");
+            return;
+        }
         if (bufferCounter > 0) {
             mLogger.info("BufferCounter: " + bufferCounter);
             notifyUpdateProgress(i, noOfPages);
@@ -439,6 +457,17 @@ public class Bootloader {
         }
         mLogger.info("Flashing done!");
         notifyUpdateStatus("Flashing done!");
+    }
+
+    private boolean isCancelled() {
+        return mCancelled;
+    }
+
+    public void cancel() {
+        this.mCancelled = true;
+        if (mCload != null) {
+            mCload.cancel();
+        }
     }
 
     private void handleFlashError() {

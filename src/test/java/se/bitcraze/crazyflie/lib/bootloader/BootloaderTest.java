@@ -149,7 +149,7 @@ public class BootloaderTest {
     }
 
     @Test
-    public void testFlashSingleTarget() throws InterruptedException {
+    public void testFlashSingleTarget() throws InterruptedException, IOException {
         System.out.print("Restart the Crazyflie you want to bootload in the next 10 seconds ...");
         mBootloader.addBootloaderListener(new BootloaderAdapter());
         if (mBootloader.startBootloader(false)) {
@@ -185,7 +185,7 @@ public class BootloaderTest {
     }
 
     @Test
-    public void testFlashMultipleTargets() throws InterruptedException {
+    public void testFlashMultipleTargets() throws InterruptedException, IOException {
         System.out.print("Restart the Crazyflie you want to bootload in the next 10 seconds ...");
         mBootloader.addBootloaderListener(new BootloaderAdapter());
         if (mBootloader.startBootloader(false)) {
@@ -294,7 +294,7 @@ public class BootloaderTest {
         Manifest manifest = new Manifest();
         manifest.setVersion(1);
         Map<String, FirmwareDetails> map = new HashMap<String, FirmwareDetails>();
-        FirmwareDetails firmwareDetails = new FirmwareDetails("cf2", "stm32", "fw");
+        FirmwareDetails firmwareDetails = new FirmwareDetails("cf2", "stm32", "fw", "2015.01.11", "release-repo");
         map.put("cflie2.bin", firmwareDetails);
         manifest.setFiles(map);
 

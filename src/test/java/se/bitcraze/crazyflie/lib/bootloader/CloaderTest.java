@@ -43,7 +43,7 @@ public class CloaderTest {
      */
 
     @Test
-    public void testCloader_getInfo() {
+    public void testCloader_getInfo() throws IOException {
         Cloader cloader = new Cloader(new RadioDriver(new UsbLinkJava()));
         System.out.println("Restart the Crazyflie you want to bootload in the next 10 seconds ...");
         ConnectionData bootloaderConnection = cloader.scanForBootloader();
@@ -84,7 +84,7 @@ public class CloaderTest {
     }
 
     @Test
-    public void testCloader_resetToFirmware() {
+    public void testCloader_resetToFirmware() throws IOException {
         Cloader cloader = new Cloader(new RadioDriver(new UsbLinkJava()));
         System.out.println("Restart the Crazyflie you want to bootload in the next 10 seconds ...");
         ConnectionData bootloaderConnection = cloader.scanForBootloader();
@@ -120,7 +120,7 @@ public class CloaderTest {
     }
 
     @Test
-    public void testCloader_updateMapping() {
+    public void testCloader_updateMapping() throws IOException {
         Cloader cloader = new Cloader(new RadioDriver(new UsbLinkJava()));
         System.out.println("Restart the Crazyflie you want to bootload in the next 10 seconds ...");
         ConnectionData bootloaderConnection = cloader.scanForBootloader();
@@ -230,7 +230,7 @@ public class CloaderTest {
     }
 
     @Test @Ignore
-    public void testCloaderCF1_setAddress() {
+    public void testCloaderCF1_setAddress() throws IOException {
         Cloader cloader = new Cloader(new RadioDriver(new UsbLinkJava()));
         System.out.println("Restart the Crazyflie you want to bootload in the next 10 seconds ...");
         ConnectionData bootloaderConnection = cloader.scanForBootloader();
