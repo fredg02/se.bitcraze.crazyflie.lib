@@ -29,7 +29,7 @@ package se.bitcraze.crazyflie.lib.crazyradio;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
@@ -53,8 +53,8 @@ public class RadioDriver extends CrtpDriver{
 
     private CrazyUsbInterface mUsbInterface;
 
-    private final BlockingDeque<CrtpPacket> mInQueue;
-    private final BlockingDeque<CrtpPacket> mOutQueue;
+    private final BlockingQueue<CrtpPacket> mInQueue;
+    private final BlockingQueue<CrtpPacket> mOutQueue;
 
     /**
      * Create the link driver
@@ -118,7 +118,7 @@ public class RadioDriver extends CrtpDriver{
     @Override
     public CrtpPacket receivePacket(int time) {
         try {
-            return mInQueue.pollFirst((long) time, TimeUnit.MILLISECONDS);
+            return mInQueue.poll((long) time, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             mLogger.error("InterruptedException: " + e.getMessage());
             return null;
@@ -336,7 +336,7 @@ public class RadioDriver extends CrtpDriver{
                         if (emptyCtr > 10) {
                             emptyCtr = 10;
                             // Relaxation time if the last 10 packets where empty
-                            waitTime = 10;
+                            waitTime = 0.01;
                         } else {
                             waitTime = 0;
                         }
@@ -344,14 +344,14 @@ public class RadioDriver extends CrtpDriver{
 
                     // get the next packet to send after relaxation (wait 10ms)
                     CrtpPacket outPacket = null;
-                    outPacket = mOutQueue.pollFirst((long) waitTime, TimeUnit.MILLISECONDS);
+                    outPacket = mOutQueue.poll((long) waitTime, TimeUnit.SECONDS);
 
                     if (outPacket != null) {
                         dataOut = outPacket.toByteArray();
                     } else {
                         dataOut = Crazyradio.NULL_PACKET;
                     }
-                    Thread.sleep(10);
+//                    Thread.sleep(10);
                 } catch (InterruptedException e) {
                     mLogger.debug("RadioDriverThread was interrupted.");
                     break;

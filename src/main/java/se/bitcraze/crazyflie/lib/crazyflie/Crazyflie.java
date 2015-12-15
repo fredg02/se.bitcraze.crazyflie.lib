@@ -61,9 +61,6 @@ public class Crazyflie {
 
     private ConnectionData mConnectionData;
 
-    // TODO: can PacketListener be removed or combined with LinkListener?
-    private PacketListener mPacketListener;
-
     private Param mParam;
     private Logg mLogg;
     private TocCache mTocCache;
@@ -84,6 +81,17 @@ public class Crazyflie {
         this.mTocCache = new TocCache("ro_cache", "rw_cache");
     }
 
+    private PacketListener mPacketListener = new PacketListener() {
+
+        public void packetReceived(CrtpPacket packet) {
+            checkReceivedPackets(packet);
+        }
+
+        public void packetSent() {
+        }
+
+    };
+
     public void connect(int channel, int datarate) {
         connect(new ConnectionData(channel, datarate));
     }
@@ -94,16 +102,6 @@ public class Crazyflie {
         notifyConnectionRequested();
         mState = State.INITIALIZED;
 
-        mPacketListener = new PacketListener() {
-
-            public void packetReceived(CrtpPacket packet) {
-                checkReceivedPackets(packet);
-            }
-
-            public void packetSent() {
-            }
-
-        };
         addPacketListener(mPacketListener);
 
         // try to connect
@@ -164,6 +162,11 @@ public class Crazyflie {
             notifyDisconnected();
             mState = State.DISCONNECTED;
         }
+    }
+
+    //TODO: is this good enough?
+    public boolean isConnected() {
+        return mState == State.SETUP_FINISHED;
     }
 
     // TODO: should this be public?
@@ -458,17 +461,8 @@ public class Crazyflie {
         final Logger mLogger = LoggerFactory.getLogger("IncomingPacketHandler");
 
         public void run() {
-            while(true) {
-                try {
-                    //TODO: does that even make sense!?
-                    //problems during disconnect, loop continues indefinitely
-                    if (getDriver() == null) {
-                        // time.sleep(1)
-                        Thread.sleep(100);
-//                        continue;
-                        break;
-                    }
-
+            while(getDriver() != null && !Thread.currentThread().isInterrupted()) {
+                if (getDriver() != null) {
                     CrtpPacket packet = getDriver().receivePacket(1);
                     if(packet == null) {
                         continue;
@@ -479,11 +473,9 @@ public class Crazyflie {
                     notifyPacketReceived(packet);
 
                     notifyDataReceived(packet);
-                } catch(InterruptedException e) {
-                    mLogger.debug("IncomingPacketHandlerThread was interrupted.");
-                    break;
                 }
             }
+            mLogger.debug("IncomingPacketHandlerThread was interrupted.");
         }
 
     }
