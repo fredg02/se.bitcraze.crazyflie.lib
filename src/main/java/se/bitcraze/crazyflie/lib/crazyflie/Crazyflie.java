@@ -62,7 +62,6 @@ public class Crazyflie {
     private ConnectionData mConnectionData;
 
     // TODO: can PacketListener be removed or combined with LinkListener?
-    private LinkListener mLinkListener;
     private PacketListener mPacketListener;
 
     private Param mParam;
@@ -94,20 +93,6 @@ public class Crazyflie {
         mConnectionData = connectionData;
         notifyConnectionRequested();
         mState = State.INITIALIZED;
-
-        //TODO: can this be done more elegantly?
-        mLinkListener = new LinkListener(){
-
-            public void linkQualityUpdated(int percent) {
-                notifyLinkQualityUpdated(percent);
-            }
-
-            public void linkError(String msg) {
-                //TODO
-            };
-        };
-        mDriver.addLinkListener(mLinkListener);
-
 
         mPacketListener = new PacketListener() {
 
@@ -165,7 +150,6 @@ public class Crazyflie {
             mLogger.debug("Disconnect");
 
             if (mDriver != null) {
-                mDriver.removeLinkListener(mLinkListener);
                 //Send commander packet with all values set to 0 before closing the connection
                 sendPacket(new CommanderPacket(0, 0, 0, (char) 0));
                 mDriver.disconnect();

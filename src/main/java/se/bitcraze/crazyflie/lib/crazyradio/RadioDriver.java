@@ -71,7 +71,14 @@ public class RadioDriver extends CrtpDriver{
      * @see se.bitcraze.crazyflie.lib.crtp.CrtpDriver#connect(se.bitcraze.crazyflie.lib.crazyradio.ConnectionData)
      */
     public void connect(ConnectionData connectionData) {
+//        this.mConnectionData = connectionData;
         if(mCradio == null) {
+//            notifyConnectionRequested();
+//            try {
+//                mUsbInterface.initDevice(Crazyradio.CRADIO_VID, Crazyradio.CRADIO_PID);
+//            } catch (IOException e) {
+//                throw new IOException("Make sure that the Crazyradio (PA) is connected.");
+//            }
             this.mCradio = new Crazyradio(mUsbInterface);
         } else {
             mLogger.error("Crazyradio already open");
@@ -113,8 +120,7 @@ public class RadioDriver extends CrtpDriver{
         try {
             return mInQueue.pollFirst((long) time, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
-            //TODO: does this needs to be dealt with?
-            //e.printStackTrace();
+            mLogger.error("InterruptedException: " + e.getMessage());
             return null;
         }
     }
@@ -151,7 +157,7 @@ public class RadioDriver extends CrtpDriver{
         try {
             this.mOutQueue.put(packet);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            mLogger.error("InterruptedException: " + e.getMessage());
         }
     }
 
@@ -170,17 +176,14 @@ public class RadioDriver extends CrtpDriver{
         try {
             Thread.sleep(100);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            mLogger.error("Interrupted during disconnect: " + e.getMessage());
         }
         if(this.mCradio != null) {
             this.mCradio.disconnect();
             this.mCradio = null;
         }
-        //redundant
-//        if(this.mUsbInterface != null) {
-//            this.mUsbInterface.releaseInterface();
-////            this.mUsbInterface = null;
-//        }
+
+//        notifyDisconnected();
     }
 
     public List<ConnectionData> scanInterface() {
@@ -300,19 +303,19 @@ public class RadioDriver extends CrtpDriver{
 
                     // Analyze the data packet
                     if (ackStatus == null) {
-                        notifyLinkError("Dongle communication error (ackStatus == null)");
+//                        notifyConnectionLost("Dongle communication error (ackStatus == null)");
                         mLogger.warn("Dongle communication error (ackStatus == null)");
                         continue;
                     }
 
-                    notifyLinkQualityUpdated((10 - ackStatus.getRetry()) * 10);
+//                    notifyLinkQualityUpdated((10 - ackStatus.getRetry()) * 10);
 
                     // If no copter, retry
                     //TODO: how is this actually possible?
                     if (!ackStatus.isAck()) {
                         this.mRetryBeforeDisconnect--;
                         if (this.mRetryBeforeDisconnect == 0) {
-                            notifyLinkError("Too many packets lost");
+//                            notifyConnectionLost("Too many packets lost");
                             mLogger.warn("Too many packets lost");
                         }
                         continue;
