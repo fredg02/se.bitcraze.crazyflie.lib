@@ -101,7 +101,7 @@ public class Param {
         }
 
         // self.cf.disconnected.add_callback(self.param_updater.close)
-        mCrazyflie.addConnectionListener(new ConnectionAdapter() {
+        mCrazyflie.getDriver().addConnectionListener(new ConnectionAdapter() {
             @Override
             public void disconnected(String connectionInfo) {
                 mPut.close();

@@ -66,7 +66,7 @@ public class TocCacheTest {
 
         crazyflie.clearTocCache();
 
-        crazyflie.addConnectionListener(new TestConnectionAdapter() {});
+        crazyflie.getDriver().addConnectionListener(new TestConnectionAdapter() {});
 
         crazyflie.connect(CrazyflieTest.channel, CrazyflieTest.datarate);
 

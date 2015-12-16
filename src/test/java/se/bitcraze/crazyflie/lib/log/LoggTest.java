@@ -65,7 +65,7 @@ public class LoggTest {
         testConfig.addVariable("motor.m3");
         testConfig.addVariable("motor.m4");
 
-        crazyflie.addConnectionListener(new TestConnectionAdapter() {
+        crazyflie.getDriver().addConnectionListener(new TestConnectionAdapter() {
 
             public void setupFinished(String connectionInfo) {
                 System.out.println("SETUP FINISHED: " + connectionInfo);

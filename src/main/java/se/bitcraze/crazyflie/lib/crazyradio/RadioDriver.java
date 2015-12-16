@@ -71,9 +71,9 @@ public class RadioDriver extends CrtpDriver{
      * @see se.bitcraze.crazyflie.lib.crtp.CrtpDriver#connect(se.bitcraze.crazyflie.lib.crazyradio.ConnectionData)
      */
     public void connect(ConnectionData connectionData) {
-//        this.mConnectionData = connectionData;
+        this.mConnectionData = connectionData;
         if(mCradio == null) {
-//            notifyConnectionRequested();
+            notifyConnectionRequested();
 //            try {
 //                mUsbInterface.initDevice(Crazyradio.CRADIO_VID, Crazyradio.CRADIO_PID);
 //            } catch (IOException e) {
@@ -182,8 +182,7 @@ public class RadioDriver extends CrtpDriver{
             this.mCradio.disconnect();
             this.mCradio = null;
         }
-
-//        notifyDisconnected();
+        notifyDisconnected();
     }
 
     public List<ConnectionData> scanInterface() {
@@ -303,19 +302,19 @@ public class RadioDriver extends CrtpDriver{
 
                     // Analyze the data packet
                     if (ackStatus == null) {
-//                        notifyConnectionLost("Dongle communication error (ackStatus == null)");
+                        notifyConnectionLost("Dongle communication error (ackStatus == null)");
                         mLogger.warn("Dongle communication error (ackStatus == null)");
                         continue;
                     }
 
-//                    notifyLinkQualityUpdated((10 - ackStatus.getRetry()) * 10);
+                    notifyLinkQualityUpdated((10 - ackStatus.getRetry()) * 10);
 
                     // If no copter, retry
                     //TODO: how is this actually possible?
                     if (!ackStatus.isAck()) {
                         this.mRetryBeforeDisconnect--;
                         if (this.mRetryBeforeDisconnect == 0) {
-//                            notifyConnectionLost("Too many packets lost");
+                            notifyConnectionLost("Too many packets lost");
                             mLogger.warn("Too many packets lost");
                         }
                         continue;
