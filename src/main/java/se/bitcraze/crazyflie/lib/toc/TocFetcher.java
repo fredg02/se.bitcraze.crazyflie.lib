@@ -51,7 +51,7 @@ public class TocFetcher {
 
     final Logger mLogger = LoggerFactory.getLogger("TocFetcher");
 
-    private Crazyflie mCrazyFlie;
+    private Crazyflie mCrazyflie;
     private CrtpPort mPort;
     private int mCrc = 0;
     private TocState mState = null;
@@ -74,7 +74,7 @@ public class TocFetcher {
     }
 
     public TocFetcher(Crazyflie crazyFlie, CrtpPort port, Toc tocHolder, TocCache tocCache) {
-        this.mCrazyFlie = crazyFlie;
+        this.mCrazyflie = crazyFlie;
         this.mPort = port;
         this.mToc = tocHolder;
         this.mTocCache = tocCache;
@@ -93,7 +93,7 @@ public class TocFetcher {
                 newPacketReceived(packet);
             }
         };
-        this.mCrazyFlie.addDataListener(mDataListener);
+        this.mCrazyflie.addDataListener(mDataListener);
 
         requestTocInfo();
     }
@@ -103,7 +103,7 @@ public class TocFetcher {
      * Callback for when the TOC fetching is finished
      */
     public void tocFetchFinished() {
-        this.mCrazyFlie.removeDataListener(mDataListener);
+        this.mCrazyflie.removeDataListener(mDataListener);
         mLogger.debug("Fetching TOC (Port: " + this.mPort + ") done.");
         this.mState = TocState.TOC_FETCH_FINISHED;
         // finishedCallback();
@@ -204,7 +204,7 @@ public class TocFetcher {
         Header header = new Header(TOC_CHANNEL, mPort);
         CrtpPacket packet = new CrtpPacket(header.getByte(), new byte[]{CMD_TOC_INFO});
         packet.setExpectedReply(new byte[]{CMD_TOC_INFO});
-        this.mCrazyFlie.sendPacket(packet);
+        this.mCrazyflie.sendPacket(packet);
     }
 
     private void requestTocElement(int index) {
@@ -212,7 +212,7 @@ public class TocFetcher {
         Header header = new Header(TOC_CHANNEL, this.mPort);
         CrtpPacket packet = new CrtpPacket(header.getByte(), new byte[]{CMD_TOC_ELEMENT, (byte) index});
         packet.setExpectedReply(new byte[]{CMD_TOC_ELEMENT, (byte) index});
-        this.mCrazyFlie.sendPacket(packet);
+        this.mCrazyflie.sendPacket(packet);
     }
 
 
