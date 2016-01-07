@@ -2,6 +2,8 @@ package se.bitcraze.crazyflie.lib.bootloader;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
+
 import org.junit.Test;
 
 import se.bitcraze.crazyflie.lib.bootloader.Target.TargetTypes;
@@ -41,4 +43,17 @@ public class UtilitiesTest {
         System.out.println(t2.toString());
     }
 
+    @Test
+    public void testSetAddress() throws Exception {
+        //TODO: is this working as expected?
+        byte[] newAddress = new byte[5];
+        newAddress[0] = (byte) 0xbc;
+        for (int n = 1; n < 5; n++) {
+            int zahl = (int) ((Math.random()*1000) % 255);
+            System.out.print(zahl + ", ");
+            newAddress[n] = (byte) zahl;
+        }
+        System.out.println();
+        System.out.println(Arrays.toString(newAddress));
+    }
 }

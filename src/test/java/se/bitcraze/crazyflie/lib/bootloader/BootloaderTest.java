@@ -200,8 +200,8 @@ public class BootloaderTest {
 //            mBootloader.flash(new File ("cf2.2014.12.1.zip"), "stm32");
             }
 
-            mBootloader.resetToFirmware();
-            //Check if everything still works
+            //mBootloader.resetToFirmware();
+            //TODO: Check if everything still works
         } else {
             fail("Bootloader not started.");
         }
