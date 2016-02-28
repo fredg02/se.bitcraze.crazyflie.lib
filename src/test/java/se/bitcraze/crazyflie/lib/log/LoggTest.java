@@ -30,12 +30,15 @@ package se.bitcraze.crazyflie.lib.log;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Map.Entry;
 
 import org.junit.Test;
 
 import se.bitcraze.crazyflie.lib.TestConnectionAdapter;
+import se.bitcraze.crazyflie.lib.TestLogAdapter;
 import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie;
 import se.bitcraze.crazyflie.lib.crazyflie.CrazyflieTest;
 import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
@@ -72,6 +75,18 @@ public class LoggTest {
                 mLogg = crazyflie.getLogg();
                 System.out.println("Number of TOC elements: " + mLogg.getToc().getElements().size());
 
+                mLogg.addLogListener(new TestLogAdapter() {
+
+                    public void logDataReceived(LogConfig logConfig, Map<String, Number> data) {
+                        System.out.println("LogConfig '" + logConfig.getName()  + "', data : ");
+                        // TODO sort?
+                        for (Entry<String, Number> entry : data.entrySet()) {
+                            System.out.println("Name: " + entry.getKey() + ", data: " + entry.getValue());
+                        }
+                    }
+
+                });
+                
                 // Add config
                 mLogg.addConfig(testConfig);
 
