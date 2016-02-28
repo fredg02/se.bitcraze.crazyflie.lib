@@ -47,6 +47,7 @@ import se.bitcraze.crazyflie.lib.toc.TocCache;
 import se.bitcraze.crazyflie.lib.toc.TocElement;
 import se.bitcraze.crazyflie.lib.toc.TocFetcher;
 import se.bitcraze.crazyflie.lib.toc.TocFetcher.TocFetchFinishedListener;
+import se.bitcraze.crazyflie.lib.toc.VariableType;
 
 //TODO: find better name
 //TODO: add remaining callbacks/listeners
@@ -432,21 +433,31 @@ public class Logg {
         bb.put((byte) logConfigId);
 
         for (LogVariable variable : logConfig.getLogVariables()) {
-            int ordinal = variable.getVariableType().ordinal();
+            VariableType variableType = variable.getVariableType();
+            int ordinal = variableType.ordinal();
+            
             if(!variable.isTocVariable()) { // Memory location
                 // logger.debug("Logging to raw memory %d, 0x%04X", var.get_storage_and_fetch_byte(), var.address)
                 mLogger.debug("Logging to raw memory, address: " + variable.getAddress());
                 // pk.data += struct.pack('<B', var.get_storage_and_fetch_byte())
                 // pk.data += struct.pack('<I', var.address)
+                //TODO: FIX THIS -> ordinal is wrong!!
                 bb.put(new byte[] {(byte) ordinal, (byte) variable.getAddress()});
             } else { // Item in TOC
                 String name = variable.getName();
-                int variableId = mToc.getElementId(name);
+                int tocElementId = mToc.getElementId(name);
+                
+                TocElement logTocElement = mToc.getElementByCompleteName(name);
+                int variableTypeId = logTocElement.getVariableTypeId();
+                if (variableTypeId == -1) {
+                    mLogger.error("VariableType " + variableType.name() + " not found in LogTocElement.VARIABLE_TYPE_MAP.");
+                    //TODO: return?
+                } 
                 // logger.debug("Adding %s with id=%d and type=0x%02X", var.name, self.cf.log.toc.get_element_id(var.name), var.get_storage_and_fetch_byte())
-                mLogger.debug("Adding " + name + " with id " + variableId + " and type " + variable.getVariableType().name());
+                mLogger.debug("Adding " + name + " with id " + tocElementId + ", type " + variableType.name() + " and variableTypeId " + variableTypeId);
                 // pk.data += struct.pack('<B', var.get_storage_and_fetch_byte())
                 // pk.data += struct.pack('<B', self.cf.log.toc.get_element_id(var.name))
-                bb.put(new byte[] {(byte) ordinal, (byte) variableId});
+                bb.put(new byte[] {(byte) variableTypeId, (byte) tocElementId});
             }
         }
         mLogger.debug("Adding log config ID " + logConfigId);

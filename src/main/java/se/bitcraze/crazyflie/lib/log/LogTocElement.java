@@ -27,9 +27,6 @@
 
 package se.bitcraze.crazyflie.lib.log;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import se.bitcraze.crazyflie.lib.toc.TocElement;
 import se.bitcraze.crazyflie.lib.toc.VariableType;
 
@@ -50,34 +47,22 @@ public class LogTocElement extends TocElement {
              0x07: ("float",    '<f', 4)}
     */
 
-    public static final Map<Integer, VariableType> VARIABLE_TYPE_MAP;
-
-    static {
-        VARIABLE_TYPE_MAP = new HashMap<Integer, VariableType>(10);
-        VARIABLE_TYPE_MAP.put(0x01, VariableType.UINT8_T);
-        VARIABLE_TYPE_MAP.put(0x02, VariableType.UINT16_T);
-        VARIABLE_TYPE_MAP.put(0x03, VariableType.UINT32_T);
-        VARIABLE_TYPE_MAP.put(0x04, VariableType.INT8_T);
-        VARIABLE_TYPE_MAP.put(0x05, VariableType.INT16_T);
-        VARIABLE_TYPE_MAP.put(0x06, VariableType.INT32_T);
-        /*TODO: 0x08 FP16*/
-        VARIABLE_TYPE_MAP.put(0x07, VariableType.FLOAT);
-    }
-
     // empty constructor is needed for (de)serialization
     public LogTocElement() {
+        super();
     }
 
     /**
      * TocElement creator. Data is the binary payload of the element.
      */
     public LogTocElement(byte[] data) {
+        this();
         if (data != null) {
             setGroupAndName(data);
 
             setIdent(data[0]);
 
-            setCtype(VARIABLE_TYPE_MAP.get(data[1] & 0x0F));
+            setCtype(mVariableTypeMap.get(data[1] & 0x0F));
 
             // setting pytype not needed in Java cf lib
 
@@ -90,4 +75,14 @@ public class LogTocElement extends TocElement {
         }
     }
 
+    protected void fillVariableTypeMap() {
+        mVariableTypeMap.put(0x01, VariableType.UINT8_T);
+        mVariableTypeMap.put(0x02, VariableType.UINT16_T);
+        mVariableTypeMap.put(0x03, VariableType.UINT32_T);
+        mVariableTypeMap.put(0x04, VariableType.INT8_T);
+        mVariableTypeMap.put(0x05, VariableType.INT16_T);
+        mVariableTypeMap.put(0x06, VariableType.INT32_T);
+        mVariableTypeMap.put(0x07, VariableType.FLOAT);
+        /*TODO: 0x08 FP16*/
+    }
 }

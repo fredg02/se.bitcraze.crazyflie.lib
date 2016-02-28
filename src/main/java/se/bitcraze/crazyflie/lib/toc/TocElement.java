@@ -28,6 +28,8 @@
 package se.bitcraze.crazyflie.lib.toc;
 
 import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -36,6 +38,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  *
  */
 public class TocElement {
+
+    protected Map<Integer, VariableType> mVariableTypeMap;
 
     public static int RW_ACCESS = 1;
     public static int RO_ACCESS = 0;
@@ -47,8 +51,13 @@ public class TocElement {
     private int mAccess = RO_ACCESS;
 
     public TocElement() {
-
+        mVariableTypeMap = new HashMap<Integer, VariableType>(10);
+        fillVariableTypeMap();
     }
+
+    protected void fillVariableTypeMap() {
+        
+    };
 
     public int getIdent() {
         return mIdent;
@@ -81,6 +90,21 @@ public class TocElement {
 
     public VariableType getCtype() {
         return mCtype;
+    }
+
+    @JsonIgnore
+    public Map<Integer, VariableType> getMap() {
+        return mVariableTypeMap;
+    }
+
+    @JsonIgnore
+    public int getVariableTypeId() {
+        for (int key : mVariableTypeMap.keySet()) {
+            if (mVariableTypeMap.get(key) == this.mCtype) {
+                return key;
+            }
+        }
+        return -1;
     }
 
     public void setCtype(VariableType ctype) {

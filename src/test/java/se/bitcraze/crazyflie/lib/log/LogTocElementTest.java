@@ -29,8 +29,12 @@ package se.bitcraze.crazyflie.lib.log;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Map.Entry;
+
 import org.junit.Test;
 
+import se.bitcraze.crazyflie.lib.param.ParamTocElement;
+import se.bitcraze.crazyflie.lib.toc.TocElement;
 import se.bitcraze.crazyflie.lib.toc.VariableType;
 
 public class LogTocElementTest {
@@ -88,4 +92,39 @@ public class LogTocElementTest {
         assertEquals(13, lteId13.getIdent());                              //ID can change after firmware update
     }
 
+    @Test
+    public void testGetVariableTypeId() {
+        //pm.vbat
+        byte[] pmVbat = new byte[] {0,7,112,109,0,118,98,97,116,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+        LogTocElement lte_pmVbat = new LogTocElement(pmVbat);
+        
+        VariableType ctype = lte_pmVbat.getCtype();
+        int variableTypeId = lte_pmVbat.getVariableTypeId();
+        
+        System.out.println("Ctype: " + ctype.name());
+        System.out.println("VariableTypeId: " + variableTypeId);
+        
+        assertEquals(VariableType.FLOAT, ctype);
+        assertEquals(7, variableTypeId);
+    }
+
+    @Test
+    public void testTocElements() {
+        System.out.println("LogTocElement VariableTypeMap:");
+        LogTocElement logTocElement = new LogTocElement();
+        showMap(logTocElement);
+
+        System.out.println("ParamTocElement VariableTypeMap:");
+        ParamTocElement paramTocElement = new ParamTocElement();
+        showMap(paramTocElement);
+
+        
+    }
+    
+    private void showMap(TocElement tocElement) {
+        for (Entry<Integer, VariableType> entry : tocElement.getMap().entrySet()) {
+            System.out.println(entry.getKey() + " " + entry.getValue());
+        }
+        System.out.println();
+    }
 }
