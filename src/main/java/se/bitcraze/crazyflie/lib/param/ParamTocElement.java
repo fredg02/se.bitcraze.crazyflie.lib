@@ -57,25 +57,12 @@ public class ParamTocElement extends TocElement {
     }
 
     /**
-     * TocElement creator. Data is the binary payload of the element.
+     * ParamTocElement creator
+     *
+     * @param data the binary payload of the element
      */
     public ParamTocElement(byte[] data) {
-        this();
-        if (data != null) {
-            setGroupAndName(data);
-
-            setIdent(data[0]);
-
-            setCtype(mVariableTypeMap.get(data[1] & 0x0F));
-
-            // setting pytype not needed in Java cf lib
-
-            if ((data[1] & 0x40) != 0) {
-                setAccess(RO_ACCESS);
-            } else {
-                setAccess(RW_ACCESS);
-            }
-        }
+        super(data);
     }
 
     protected void fillVariableTypeMap() {

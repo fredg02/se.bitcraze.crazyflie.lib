@@ -53,26 +53,12 @@ public class LogTocElement extends TocElement {
     }
 
     /**
-     * TocElement creator. Data is the binary payload of the element.
+     * LogTocElement creator
+     *
+     * @param data the binary payload of the element
      */
     public LogTocElement(byte[] data) {
-        this();
-        if (data != null) {
-            setGroupAndName(data);
-
-            setIdent(data[0]);
-
-            setCtype(mVariableTypeMap.get(data[1] & 0x0F));
-
-            // setting pytype not needed in Java cf lib
-
-            //TODO: self.access = ord(data[1]) & 0x10 ?!
-            if ((data[1] & 0x40) != 0) {
-                setAccess(RO_ACCESS);
-            } else {
-                setAccess(RW_ACCESS);
-            }
-        }
+        super(data);
     }
 
     protected void fillVariableTypeMap() {
