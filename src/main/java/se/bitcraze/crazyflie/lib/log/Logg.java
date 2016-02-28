@@ -280,9 +280,13 @@ public class Logg {
                         if (errorStatus == 17) {
                             msg = "17!?";
                         } else {
-                            msg = ErrCodes.values()[errorStatus].getMsg();
+                            if (errorStatus > 4) {
+                                msg = "unknown errorStatus: " + errorStatus;
+                            } else {
+                                msg = ErrCodes.values()[errorStatus].getMsg();
+                            }
                         }
-                        mLogger.warn("Error " + errorStatus + " when adding ID=" + id + "(" + msg + ")");
+                        mLogger.warn("Error " + errorStatus + " when adding ID=" + id + " (" + msg + ")");
 
                         logConfig.setErrNo(errorStatus);
                         /*
@@ -357,29 +361,32 @@ public class Logg {
                 }
             }
         } else if (channel == CHAN_LOGDATA) {
-            // TODO: extract into separate method
             // TODO: fix payload offset
             int id = payload[0];
             LogConfig logConfig = findLogConfig(id);
-
+            
             if (logConfig != null) {
-                int timestamp = parseTimestamp(payload[1], payload[2], payload[3]);
-                // logdata = packet.data[4:]
-                int offset = 4;
-                byte[] logData = new byte[payload.length-offset];
-                System.arraycopy(payload, offset, logData, 0, logData.length);
-
-                Map<String, Number> logDataMap = logConfig.unpackLogData(logData);
-                //TODO: what to do with the unpacked data?
-                //TODO: timestamps and callback (either here or in LogConfig.unpackLogData())
+                Map<String, Number> logDataMap = parseLogData(payload, logConfig);
                 notifyLogDataReceived(logConfig, logDataMap);
-
-
-                mLogger.debug("Unpacked log data (ID: " + id + ") with time stamp " + timestamp);
             } else {
                 mLogger.warn("Error no LogEntry to handle id=" + id);
             }
         }
+    }
+
+    public static Map<String, Number> parseLogData(byte[] payload, LogConfig logConfig) {
+        //get timestamp
+        int timestamp = parseTimestamp(payload[1], payload[2], payload[3]);
+        // logdata = packet.data[4:]
+        int offset = 4;
+        byte[] logData = new byte[payload.length-offset];
+        System.arraycopy(payload, offset, logData, 0, logData.length);
+
+        Map<String, Number> logDataMap = logConfig.unpackLogData(logData);
+        LoggerFactory.getLogger("Logging").debug("Unpacked log data (ID: " + logConfig.getId() + ") with time stamp " + timestamp);
+        //TODO: what to do with the unpacked data?
+        //TODO: timestamps and callback (either here or in LogConfig.unpackLogData())
+        return logDataMap;
     }
 
     // timestamps = struct.unpack("<BBB", packet.data[1:4])
