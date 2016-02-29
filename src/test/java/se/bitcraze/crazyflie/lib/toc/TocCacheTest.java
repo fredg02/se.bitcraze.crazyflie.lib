@@ -38,19 +38,20 @@ import se.bitcraze.crazyflie.lib.TestConnectionAdapter;
 import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie;
 import se.bitcraze.crazyflie.lib.crazyflie.CrazyflieTest;
 import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
+import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
 
 public class TocCacheTest {
 
-    private final static String CURRENT_CRC = "BE353DB4";
+    private final static String CURRENT_CRC = "F09FB2CA";
 
     @Test
     public void testTocCache() {
         TocCache tocCache = new TocCache(null, "src/test");
-        Toc fetchedToc = tocCache.fetch((int) Long.parseLong(CURRENT_CRC, 16));
+        Toc fetchedToc = tocCache.fetch((int) Long.parseLong(CURRENT_CRC, 16), CrtpPort.LOGGING);
 
         if (fetchedToc != null) {
             int tocSize = fetchedToc.getTocSize();
-            assertEquals(53, tocSize);
+            assertEquals(59, tocSize);
             for(int i = 0; i < tocSize; i++) {
                 TocElement elementById = fetchedToc.getElementById(i);
                 System.out.println(elementById);
@@ -87,15 +88,20 @@ public class TocCacheTest {
         System.out.println("Number of Param TOC elements (fetched): " + fetchedElements.size());
 
         TocCache tocCache = new TocCache(null, "src/test");
-        Toc cachedToc = tocCache.fetch(fetchedCrc);
-        List<TocElement> cachedElements = cachedToc.getElements();
-        System.out.println("Number of Param TOC elements (cached): " + cachedElements.size());
+        Toc cachedToc = tocCache.fetch(fetchedCrc, CrtpPort.LOGGING);
+        if (cachedToc != null) {
+            List<TocElement> cachedElements = cachedToc.getElements();
+            System.out.println("Number of Param TOC elements (cached): " + cachedElements.size());
 
-        assertEquals(cachedElements.size(), fetchedElements.size());
+            assertEquals(cachedElements.size(), fetchedElements.size());
 
-        for(int i = 0; i < fetchedElements.size(); i++) {
-            assertEquals(fetchedElements.get(i), cachedElements.get(i));
+            for(int i = 0; i < fetchedElements.size(); i++) {
+                assertEquals(fetchedElements.get(i), cachedElements.get(i));
+            }
+        } else {
+            System.out.println("TocCache is NULL.");
         }
+        
     }
 
 }

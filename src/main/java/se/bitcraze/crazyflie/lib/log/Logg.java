@@ -342,9 +342,9 @@ public class Logg {
                 if (errorStatus == 0x00) {
                     mLogger.info("Successfully deleted log config ID=" + id);
                     if (logConfig != null) {
-                        logConfig.setStarted(false);
+//                        logConfig.setStarted(false);
                         logConfig.setAdded(false);
-                        notifyLogStarted(logConfig);
+//                        notifyLogStarted(logConfig);
                         notifyLogAdded(logConfig);
                     }
                 }

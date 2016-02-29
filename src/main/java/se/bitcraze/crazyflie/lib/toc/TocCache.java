@@ -44,6 +44,9 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
+import se.bitcraze.crazyflie.lib.log.LogTocElement;
+import se.bitcraze.crazyflie.lib.param.ParamTocElement;
 
 /**
  *  Access to TOC cache. To turn off the cache functionality don't supply any directories.
@@ -89,7 +92,7 @@ public class TocCache {
      *
      * @param crc
      */
-    public Toc fetch(int crc) {
+    public Toc fetch(int crc, CrtpPort port) {
         Toc fetchedToc = null;
         String pattern = String.format("%08X.json", crc);
         File hit = null;
@@ -105,7 +108,12 @@ public class TocCache {
             mLogger.debug("Found TOC cache file: " + pattern);
             try {
                 fetchedToc = new Toc();
-                Map<String, Map<String, TocElement>> readValue = mMapper.readValue(hit, new TypeReference<Map<String, Map<String, TocElement>>>() { });
+                Map<String, Map<String, TocElement>> readValue;
+                if (port == CrtpPort.PARAMETERS) {
+                    readValue = mMapper.readValue(hit, new TypeReference<Map<String, Map<String, ParamTocElement>>>() { });
+                } else {
+                    readValue = mMapper.readValue(hit, new TypeReference<Map<String, Map<String, LogTocElement>>>() { });
+                }
                 fetchedToc.setTocElementMap(readValue);
                 mLogger.debug("Number of cached elements: " + fetchedToc.getElements().size());
                 //TODO: file leak?
