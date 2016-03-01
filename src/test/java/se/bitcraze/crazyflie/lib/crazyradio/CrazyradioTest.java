@@ -57,7 +57,7 @@ public class CrazyradioTest {
 
     @After
     public void tearDown() throws Exception {
-        mCrazyradio.close();
+        mCrazyradio.disconnect();
     }
 
     @Test

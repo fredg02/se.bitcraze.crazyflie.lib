@@ -29,29 +29,49 @@ package se.bitcraze.crazyflie.lib.crazyflie;
 
 /**
  * An abstract adapter class for receiving connection events. The methods in
- * this class are empty. This class exists as convenience for creating listener
- * objects.
+ * this class are empty. This class exists as convenience for creating listener objects.
  */
 public abstract class ConnectionAdapter implements ConnectionListener {
 
+    /* (non-Javadoc)
+     * @see se.bitcraze.crazyflielib.ConnectionListener#connectionRequested(java.lang.String)
+     */
     public void connectionRequested(String connectionInfo) {
     }
 
+    /* (non-Javadoc)
+     * @see se.bitcraze.crazyflielib.ConnectionListener#connected(java.lang.String)
+     */
     public void connected(String connectionInfo) {
     }
 
+    /* (non-Javadoc)
+     * @see se.bitcraze.crazyflielib.ConnectionListener#setupFinished(java.lang.String)
+     */
     public void setupFinished(String connectionInfo) {
     }
 
+    /* (non-Javadoc)
+     * @see se.bitcraze.crazyflielib.ConnectionListener#connectionFailed(java.lang.String, java.lang.String)
+     */
     public void connectionFailed(String connectionInfo, String msg) {
     }
 
+    /* (non-Javadoc)
+     * @see se.bitcraze.crazyflielib.ConnectionListener#connectionLost(java.lang.String, java.lang.String)
+     */
     public void connectionLost(String connectionInfo, String msg) {
     }
 
+    /* (non-Javadoc)
+     * @see se.bitcraze.crazyflielib.ConnectionListener#disconnected(java.lang.String)
+     */
     public void disconnected(String connectionInfo) {
     }
 
+    /* (non-Javadoc)
+     * @see se.bitcraze.crazyflielib.ConnectionListener#linkQualityUpdated(int)
+     */
     public void linkQualityUpdated(int percent) {
     }
 

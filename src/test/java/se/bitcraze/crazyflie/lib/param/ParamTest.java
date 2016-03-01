@@ -66,7 +66,7 @@ public class ParamTest {
         //TODO: test that TocCache actually works
         crazyflie.clearTocCache();
 
-        crazyflie.addConnectionListener(new TestConnectionAdapter() {
+        crazyflie.getDriver().addConnectionListener(new TestConnectionAdapter() {
 
             public void setupFinished(String connectionInfo) {
                 System.out.println("SETUP FINISHED: " + connectionInfo);
@@ -187,7 +187,7 @@ public class ParamTest {
 
         crazyflie.clearTocCache();
 
-        crazyflie.addConnectionListener(new TestConnectionAdapter() {});
+        crazyflie.getDriver().addConnectionListener(new TestConnectionAdapter() {});
 
         crazyflie.connect(mConnectionData);
 

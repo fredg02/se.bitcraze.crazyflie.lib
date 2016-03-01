@@ -27,6 +27,7 @@
 
 package se.bitcraze.crazyflie.lib.crazyflie;
 
+import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -35,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
+import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
 import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
@@ -55,15 +57,10 @@ public class Crazyflie {
 
     private Set<DataListener> mDataListeners = new CopyOnWriteArraySet<DataListener>();
     private Set<PacketListener> mPacketListeners = new CopyOnWriteArraySet<PacketListener>();
-    private Set<ConnectionListener> mConnectionListeners = new CopyOnWriteArraySet<ConnectionListener>();
 
     private State mState = State.DISCONNECTED;
 
     private ConnectionData mConnectionData;
-
-    // TODO: can PacketListener be removed or combined with LinkListener?
-    private LinkListener mLinkListener;
-    private PacketListener mPacketListener;
 
     private Param mParam;
     private Logg mLogg;
@@ -85,6 +82,17 @@ public class Crazyflie {
         this.mTocCache = new TocCache("ro_cache", "rw_cache");
     }
 
+    private PacketListener mPacketListener = new PacketListener() {
+
+        public void packetReceived(CrtpPacket packet) {
+            checkReceivedPackets(packet);
+        }
+
+        public void packetSent() {
+        }
+
+    };
+
     public void connect(int channel, int datarate) {
         connect(new ConnectionData(channel, datarate));
     }
@@ -92,37 +100,22 @@ public class Crazyflie {
     public void connect(ConnectionData connectionData) {
         mLogger.debug("Connect");
         mConnectionData = connectionData;
-        notifyConnectionRequested();
         mState = State.INITIALIZED;
 
-        //TODO: can this be done more elegantly?
-        mLinkListener = new LinkListener(){
-
-            public void linkQualityUpdated(int percent) {
-                notifyLinkQualityUpdated(percent);
-            }
-
-            public void linkError(String msg) {
-                //TODO
-            };
-        };
-        mDriver.addLinkListener(mLinkListener);
-
-
-        mPacketListener = new PacketListener() {
-
-            public void packetReceived(CrtpPacket packet) {
-                checkReceivedPackets(packet);
-            }
-
-            public void packetSent() {
-            }
-
-        };
         addPacketListener(mPacketListener);
 
         // try to connect
-        mDriver.connect(mConnectionData);
+        try {
+            mDriver.connect(mConnectionData);
+        } catch (IOException ioe) {
+            mLogger.debug(ioe.getMessage());
+//            notifyConnectionFailed("Connection failed: " + ioe.getMessage());
+            disconnect();
+        } catch (IllegalArgumentException iae) {
+            mLogger.debug(iae.getMessage());
+//            notifyConnectionFailed("Connection failed: " + iae.getMessage());
+            disconnect();
+        }
 
         if (mIncomingPacketHandlerThread == null) {
             IncomingPacketHandler iph = new IncomingPacketHandler();
@@ -136,28 +129,6 @@ public class Crazyflie {
             mResendQueueHandlerThread.start();
         }
 
-        //TODO: better solution to wait for connected state?
-        //Timeout: 10x50ms = 500ms
-        int i = 0;
-        while(i < 10) {
-            if (mState == State.CONNECTED) {
-                break;
-            }
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            i++;
-        }
-
-        if (mState == State.CONNECTED) {
-            startConnectionSetup();
-        } else {
-            notifyConnectionFailed("Connection failed");
-            disconnect();
-        }
-
     }
 
     public void disconnect() {
@@ -165,7 +136,6 @@ public class Crazyflie {
             mLogger.debug("Disconnect");
 
             if (mDriver != null) {
-                mDriver.removeLinkListener(mLinkListener);
                 //Send commander packet with all values set to 0 before closing the connection
                 sendPacket(new CommanderPacket(0, 0, 0, (char) 0));
                 mDriver.disconnect();
@@ -177,9 +147,14 @@ public class Crazyflie {
             if(mResendQueueHandlerThread != null) {
                 mResendQueueHandlerThread.interrupt();
             }
-            notifyDisconnected();
+            removePacketListener(mPacketListener);
             mState = State.DISCONNECTED;
         }
+    }
+
+    //TODO: is this good enough?
+    public boolean isConnected() {
+        return mState == State.SETUP_FINISHED;
     }
 
     // TODO: should this be public?
@@ -268,7 +243,11 @@ public class Crazyflie {
         if (this.mState == State.INITIALIZED) {
             this.mState = State.CONNECTED;
             //self.link_established.call(self.link_uri)
-            notifyConnected();
+            //TODO: fix hacky-di-hack
+            if (this.mDriver instanceof RadioDriver) {
+                this.mDriver.notifyConnected();
+                startConnectionSetup();
+            }
         }
         //self.packet_received.remove_callback(self._check_for_initial_packet_cb)
         // => IncomingPacketHandler
@@ -294,7 +273,8 @@ public class Crazyflie {
                 //mParam.requestUpdateOfAllParams();
                 //TODO: should be set only after log, param, mems are all updated
                 mState = State.SETUP_FINISHED;
-                notifySetupFinished();
+                //TODO: fix hacky-di-hack
+                mDriver.notifySetupFinished();
             }
         };
 
@@ -387,85 +367,6 @@ public class Crazyflie {
         }
     }
 
-    /* CONNECTION LISTENER */
-
-    public void addConnectionListener(ConnectionListener listener) {
-        this.mConnectionListeners.add(listener);
-    }
-
-    public void removeConnectionListener(ConnectionListener listener) {
-        this.mConnectionListeners.remove(listener);
-    }
-
-    /**
-     * Notify all registered listeners about a requested connection
-     */
-    private void notifyConnectionRequested() {
-        for (ConnectionListener cl : this.mConnectionListeners) {
-            cl.connectionRequested(mConnectionData.toString());
-        }
-    }
-
-    /**
-     * Notify all registered listeners about a connect.
-     */
-    private void notifyConnected() {
-        for (ConnectionListener cl : this.mConnectionListeners) {
-            cl.connected(mConnectionData.toString());
-        }
-    }
-
-    /**
-     * Notify all registered listeners about a finished setup.
-     */
-    private void notifySetupFinished() {
-        for (ConnectionListener cl : this.mConnectionListeners) {
-            cl.setupFinished(mConnectionData.toString());
-        }
-    }
-
-    /**
-     * Notify all registered listeners about a failed connection attempt.
-     *
-     * @param msg
-     */
-    private void notifyConnectionFailed(String msg) {
-        for (ConnectionListener cl : this.mConnectionListeners) {
-            cl.connectionFailed(mConnectionData.toString(), msg);
-        }
-    }
-
-    /**
-     * Notify all registered listeners about a lost connection.
-     *
-     * @param msg
-     */
-    private void notifyConnectionLost(String msg) {
-        for (ConnectionListener cl : this.mConnectionListeners) {
-            cl.connectionLost(mConnectionData.toString(), msg);
-        }
-    }
-
-    /**
-     * Notify all registered listeners about a disconnect.
-     */
-    private void notifyDisconnected() {
-        for (ConnectionListener cl : this.mConnectionListeners) {
-            cl.disconnected(mConnectionData.toString());
-        }
-    }
-
-    /**
-     * Notify all registered listeners about a link quality update.
-     *
-     * @param percent quality of the link (0 = connection lost, 100 = good)
-     */
-    private void notifyLinkQualityUpdated(int percent) {
-        for (ConnectionListener cl : this.mConnectionListeners) {
-            cl.linkQualityUpdated(percent);
-        }
-    }
-
     /**
      * Handles incoming packets and sends the data to the correct listeners
      */
@@ -474,17 +375,8 @@ public class Crazyflie {
         final Logger mLogger = LoggerFactory.getLogger("IncomingPacketHandler");
 
         public void run() {
-            while(true) {
-                try {
-                    //TODO: does that even make sense!?
-                    //problems during disconnect, loop continues indefinitely
-                    if (getDriver() == null) {
-                        // time.sleep(1)
-                        Thread.sleep(100);
-//                        continue;
-                        break;
-                    }
-
+            while(getDriver() != null && !Thread.currentThread().isInterrupted()) {
+                if (getDriver() != null) {
                     CrtpPacket packet = getDriver().receivePacket(1);
                     if(packet == null) {
                         continue;
@@ -495,11 +387,9 @@ public class Crazyflie {
                     notifyPacketReceived(packet);
 
                     notifyDataReceived(packet);
-                } catch(InterruptedException e) {
-                    mLogger.debug("IncomingPacketHandlerThread was interrupted.");
-                    break;
                 }
             }
+            mLogger.debug("IncomingPacketHandlerThread was interrupted.");
         }
 
     }

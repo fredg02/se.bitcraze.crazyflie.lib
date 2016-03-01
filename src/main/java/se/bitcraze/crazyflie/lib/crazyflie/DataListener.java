@@ -31,6 +31,8 @@ import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
 
 /**
+ * Interface for receiving notifications about data received from the Crazyflie.
+ *
  * TODO:
  * -add channel?
  * -add port mask (or use CrtpPort.ALL?)

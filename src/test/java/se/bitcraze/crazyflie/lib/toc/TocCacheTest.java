@@ -67,7 +67,7 @@ public class TocCacheTest {
 
         crazyflie.clearTocCache();
 
-        crazyflie.addConnectionListener(new TestConnectionAdapter() {
+        crazyflie.getDriver().addConnectionListener(new TestConnectionAdapter() {
             
             @Override
             public void setupFinished(String connectionInfo) {

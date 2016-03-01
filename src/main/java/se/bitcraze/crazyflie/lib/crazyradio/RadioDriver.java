@@ -29,8 +29,8 @@ package se.bitcraze.crazyflie.lib.crazyradio;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -53,8 +53,8 @@ public class RadioDriver extends CrtpDriver{
 
     private CrazyUsbInterface mUsbInterface;
 
-    private final BlockingDeque<CrtpPacket> mInQueue;
-    private final BlockingDeque<CrtpPacket> mOutQueue;
+    private final BlockingQueue<CrtpPacket> mInQueue;
+    private final BlockingQueue<CrtpPacket> mOutQueue;
 
     /**
      * Create the link driver
@@ -62,8 +62,8 @@ public class RadioDriver extends CrtpDriver{
     public RadioDriver(CrazyUsbInterface usbInterface) {
         this.mUsbInterface = usbInterface;
         this.mCradio = null;
-        this.mInQueue = new LinkedBlockingDeque<CrtpPacket>();
-        this.mOutQueue = new LinkedBlockingDeque<CrtpPacket>(); //TODO: Limit size of out queue to avoid "ReadBack" effect?
+        this.mInQueue = new LinkedBlockingQueue<CrtpPacket>();
+        this.mOutQueue = new LinkedBlockingQueue<CrtpPacket>(); //TODO: Limit size of out queue to avoid "ReadBack" effect?
         this.mRadioDriverThread = null;
     }
 
@@ -71,7 +71,14 @@ public class RadioDriver extends CrtpDriver{
      * @see se.bitcraze.crazyflie.lib.crtp.CrtpDriver#connect(se.bitcraze.crazyflie.lib.crazyradio.ConnectionData)
      */
     public void connect(ConnectionData connectionData) {
+        this.mConnectionData = connectionData;
         if(mCradio == null) {
+            notifyConnectionRequested();
+//            try {
+//                mUsbInterface.initDevice(Crazyradio.CRADIO_VID, Crazyradio.CRADIO_PID);
+//            } catch (IOException e) {
+//                throw new IOException("Make sure that the Crazyradio (PA) is connected.");
+//            }
             this.mCradio = new Crazyradio(mUsbInterface);
         } else {
             mLogger.error("Crazyradio already open");
@@ -101,12 +108,7 @@ public class RadioDriver extends CrtpDriver{
          */
 
         // Launch the comm thread
-        if (mRadioDriverThread == null) {
-            //self._thread = _RadioDriverThread(self.cradio, self.in_queue, self.out_queue, link_quality_callback, link_error_callback)
-            RadioDriverThread rDT = new RadioDriverThread();
-            mRadioDriverThread = new Thread(rDT);
-            mRadioDriverThread.start();
-        }
+        startSendReceiveThread();
     }
 
     /*
@@ -116,12 +118,16 @@ public class RadioDriver extends CrtpDriver{
     @Override
     public CrtpPacket receivePacket(int time) {
         try {
-            return mInQueue.pollFirst((long) time, TimeUnit.MILLISECONDS);
+            return mInQueue.poll((long) time, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            //TODO: does this needs to be dealt with?
-            //e.printStackTrace();
+            mLogger.error("InterruptedException: " + e.getMessage());
             return null;
         }
+    }
+
+    //TODO: Remove
+    public int getInQueueSize() {
+        return mInQueue.size();
     }
 
     /*
@@ -151,7 +157,7 @@ public class RadioDriver extends CrtpDriver{
         try {
             this.mOutQueue.put(packet);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            mLogger.error("InterruptedException: " + e.getMessage());
         }
     }
 
@@ -163,20 +169,20 @@ public class RadioDriver extends CrtpDriver{
      */
     @Override
     public void disconnect() {
-        mLogger.debug("disconnect");
+        mLogger.debug("RadioDriver disconnect()");
         // Stop the comm thread
-        if (this.mRadioDriverThread != null) {
-            this.mRadioDriverThread.interrupt();
-            this.mRadioDriverThread = null;
+        stopSendReceiveThread();
+        // Avoid NPE because packets are still processed
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            mLogger.error("Interrupted during disconnect: " + e.getMessage());
         }
         if(this.mCradio != null) {
-            this.mCradio.close();
+            this.mCradio.disconnect();
             this.mCradio = null;
         }
-        if(this.mUsbInterface != null) {
-            this.mUsbInterface.releaseInterface();
-            this.mUsbInterface = null;
-        }
+        notifyDisconnected();
     }
 
     public List<ConnectionData> scanInterface() {
@@ -222,6 +228,34 @@ public class RadioDriver extends CrtpDriver{
         return connectionDataList;
     }
 
+    public boolean scanSelected(int channel, int datarate, byte[] packet) {
+        if (mCradio == null) {
+            mCradio = new Crazyradio(mUsbInterface);
+        }
+        return mCradio.scanSelected(channel, datarate, packet);
+    }
+
+    public Crazyradio getRadio() {
+        return this.mCradio;
+    }
+
+
+    public void startSendReceiveThread() {
+        if (mRadioDriverThread == null) {
+            //self._thread = _RadioDriverThread(self.cradio, self.in_queue, self.out_queue, link_quality_callback, link_error_callback)
+            RadioDriverThread rDT = new RadioDriverThread();
+            mRadioDriverThread = new Thread(rDT);
+            mRadioDriverThread.start();
+        }
+    }
+
+    public void stopSendReceiveThread() {
+        if (this.mRadioDriverThread != null) {
+            this.mRadioDriverThread.interrupt();
+            this.mRadioDriverThread = null;
+        }
+    }
+
     /**
      * Radio link receiver thread is used to read data from the Crazyradio USB driver.
      */
@@ -246,12 +280,12 @@ public class RadioDriver extends CrtpDriver{
          * @see java.lang.Runnable#run()
          */
         public void run() {
-            byte[] dataOut = new byte[] {(byte) 0xFF}; //Null packet
+            byte[] dataOut = Crazyradio.NULL_PACKET;
 
             double waitTime = 0;
             int emptyCtr = 0;
 
-            while(mCradio != null) {
+            while(mCradio != null && !Thread.currentThread().isInterrupted()) {
                 try {
 
                     /*
@@ -268,7 +302,7 @@ public class RadioDriver extends CrtpDriver{
 
                     // Analyze the data packet
                     if (ackStatus == null) {
-                        notifyLinkError("Dongle communication error (ackStatus == null)");
+                        notifyConnectionLost("Dongle communication error (ackStatus == null)");
                         mLogger.warn("Dongle communication error (ackStatus == null)");
                         continue;
                     }
@@ -280,7 +314,7 @@ public class RadioDriver extends CrtpDriver{
                     if (!ackStatus.isAck()) {
                         this.mRetryBeforeDisconnect--;
                         if (this.mRetryBeforeDisconnect == 0) {
-                            notifyLinkError("Too many packets lost");
+                            notifyConnectionLost("Too many packets lost");
                             mLogger.warn("Too many packets lost");
                         }
                         continue;
@@ -300,23 +334,23 @@ public class RadioDriver extends CrtpDriver{
                         emptyCtr += 1;
                         if (emptyCtr > 10) {
                             emptyCtr = 10;
-                            // Relaxation time if the last 10 packet where empty
+                            // Relaxation time if the last 10 packets where empty
                             waitTime = 0.01;
                         } else {
                             waitTime = 0;
                         }
                     }
 
-                    // get the next packet to send of relaxation (wait 10ms)
+                    // get the next packet to send after relaxation (wait 10ms)
                     CrtpPacket outPacket = null;
-                    outPacket = mOutQueue.pollFirst((long) waitTime, TimeUnit.MILLISECONDS);
+                    outPacket = mOutQueue.poll((long) waitTime, TimeUnit.SECONDS);
 
                     if (outPacket != null) {
                         dataOut = outPacket.toByteArray();
                     } else {
-                        dataOut = new byte[]{(byte) 0xFF};
+                        dataOut = Crazyradio.NULL_PACKET;
                     }
-                    Thread.sleep(20);
+//                    Thread.sleep(10);
                 } catch (InterruptedException e) {
                     mLogger.debug("RadioDriverThread was interrupted.");
                     break;
@@ -326,4 +360,8 @@ public class RadioDriver extends CrtpDriver{
         }
     }
 
+    @Override
+    public boolean isConnected() {
+        return this.mRadioDriverThread != null;
+    }
 }

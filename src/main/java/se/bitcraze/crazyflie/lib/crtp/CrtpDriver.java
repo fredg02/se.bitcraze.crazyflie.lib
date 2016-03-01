@@ -27,10 +27,12 @@
 
 package se.bitcraze.crazyflie.lib.crtp;
 
+import java.io.IOException;
+
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import se.bitcraze.crazyflie.lib.crazyflie.LinkListener;
+import se.bitcraze.crazyflie.lib.crazyflie.ConnectionListener;
 import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
 
 /**
@@ -40,7 +42,10 @@ import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
  */
 public abstract class CrtpDriver {
 
-    protected Set<LinkListener> mLinkListeners = new CopyOnWriteArraySet<LinkListener>();
+
+    protected Set<ConnectionListener> mConnectionListeners = new CopyOnWriteArraySet<ConnectionListener>();
+
+    protected ConnectionData mConnectionData;
 
     /**
      * Driver constructor. Throw an exception if the driver is unable to open the URI
@@ -52,14 +57,21 @@ public abstract class CrtpDriver {
      * Connect the driver
      *
      * @param connectionData
+     * @throws IOException
      */
-    public abstract void connect(ConnectionData connectionData);
+    public abstract void connect(ConnectionData connectionData) throws IOException;
 
     /**
      * Close the link
      */
     public abstract void disconnect();
 
+    /**
+     * Check whether the link is connected.
+     *
+     * @return <code>true</code> if the link is connected.
+     */
+    public abstract boolean isConnected();
 
     /**
      * Send a CRTP packet
@@ -77,35 +89,89 @@ public abstract class CrtpDriver {
     public abstract CrtpPacket receivePacket(int wait);
 
 
-    /* LINK LISTENER */
+    public abstract boolean scanSelected(int channel, int datarate, byte[] packet);
 
-    /**
-     * Add a link listener
-     *
-     * @param linkListener
-     */
-    public void addLinkListener(LinkListener listener) {
-        this.mLinkListeners.add(listener);
+
+    /* CONNECTION LISTENER */
+
+    public void addConnectionListener(ConnectionListener listener) {
+        this.mConnectionListeners.add(listener);
+    }
+
+    public void removeConnectionListener(ConnectionListener listener) {
+        this.mConnectionListeners.remove(listener);
     }
 
     /**
-     * Remove a link listener
-     *
-     * @param linkListener
+     * Notify all registered listeners about a requested connection
      */
-    public void removeLinkListener(LinkListener listener) {
-        this.mLinkListeners.remove(listener);
+    protected void notifyConnectionRequested() {
+        for (ConnectionListener cl : this.mConnectionListeners) {
+            cl.connectionRequested(mConnectionData.toString());
+        }
     }
 
+    /**
+     * Notify all registered listeners about a connect.
+     */
+    public void notifyConnected() {
+        for (ConnectionListener cl : this.mConnectionListeners) {
+            cl.connected(mConnectionData.toString());
+        }
+    }
+
+    /**
+     * Notify all registered listeners about a finished setup.
+     */
+    public void notifySetupFinished() {
+        for (ConnectionListener cl : this.mConnectionListeners) {
+            cl.setupFinished(mConnectionData.toString());
+        }
+    }
+
+    /**
+     * Notify all registered listeners about a failed connection attempt.
+     *
+     * @param msg
+     */
+    protected void notifyConnectionFailed(String msg) {
+        for (ConnectionListener cl : this.mConnectionListeners) {
+            cl.connectionFailed(mConnectionData.toString(), msg);
+        }
+    }
+
+    /**
+     * Notify all registered listeners about a lost connection.
+     *
+     * @param msg
+     */
+    protected void notifyConnectionLost(String msg) {
+        for (ConnectionListener cl : this.mConnectionListeners) {
+            cl.connectionLost(mConnectionData.toString(), msg);
+        }
+    }
+
+    /**
+     * Notify all registered listeners about a disconnect.
+     */
+    protected void notifyDisconnected() {
+        for (ConnectionListener cl : this.mConnectionListeners) {
+            cl.disconnected(mConnectionData.toString());
+        }
+    }
+
+    /**
+     * Notify all registered listeners about a link quality update.
+     *
+     * @param percent quality of the link (0 = connection lost, 100 = good)
+     */
     protected void notifyLinkQualityUpdated(int percent) {
-        for (LinkListener pl : this.mLinkListeners) {
-            pl.linkQualityUpdated(percent);
+        for (ConnectionListener cl : this.mConnectionListeners) {
+            cl.linkQualityUpdated(percent);
         }
     }
 
-    protected void notifyLinkError(String msg) {
-        for (LinkListener pl : this.mLinkListeners) {
-            pl.linkError(msg);
-        }
-    }
+    public abstract void startSendReceiveThread();
+
+    public abstract void stopSendReceiveThread();
 }

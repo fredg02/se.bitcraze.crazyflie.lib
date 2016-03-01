@@ -59,8 +59,6 @@ public class UsbLinkJavaTest {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (UsbException e) {
-            e.printStackTrace();
         }
     }
 

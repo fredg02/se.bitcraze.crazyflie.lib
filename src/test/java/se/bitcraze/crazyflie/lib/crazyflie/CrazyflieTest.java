@@ -93,7 +93,7 @@ public class CrazyflieTest {
     public void testConnectionListener() {
         Crazyflie crazyflie = new Crazyflie(getConnectionImpl());
 
-        crazyflie.addConnectionListener(new TestConnectionAdapter() {
+        crazyflie.getDriver().addConnectionListener(new TestConnectionAdapter() {
 
             public void linkQualityUpdated(int percent) {
                 System.out.println("LINK QUALITY: " + percent);

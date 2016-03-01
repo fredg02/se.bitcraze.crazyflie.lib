@@ -66,7 +66,7 @@ public class LogDataLiveTest {
         final LogConfig testConfig = new LogConfig("testConfig", 1000);
         testConfig.addVariable("pm.vbat", VariableType.FLOAT);
 
-        crazyflie.addConnectionListener(new TestConnectionAdapter() {
+        crazyflie.getDriver().addConnectionListener(new TestConnectionAdapter() {
 
             public void setupFinished(String connectionInfo) {
                 System.out.println("SETUP FINISHED: " + connectionInfo);

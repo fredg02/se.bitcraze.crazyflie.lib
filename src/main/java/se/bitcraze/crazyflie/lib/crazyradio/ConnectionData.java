@@ -27,6 +27,9 @@
 
 package se.bitcraze.crazyflie.lib.crazyradio;
 
+/**
+ * Holds information about a specific connection.
+ */
 public class ConnectionData {
     private int mChannel;
     private int mDataRate;

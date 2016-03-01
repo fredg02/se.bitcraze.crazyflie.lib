@@ -33,7 +33,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import se.bitcraze.crazyflie.lib.DummyDriver;
+import se.bitcraze.crazyflie.lib.MockDriver;
 import se.bitcraze.crazyflie.lib.TestConnectionAdapter;
 import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie;
 import se.bitcraze.crazyflie.lib.crazyflie.CrazyflieTest;
@@ -53,8 +53,7 @@ public class TocFetcherTest {
 
     @Test
     public void testTocFetcherOffline() {
-
-        Crazyflie crazyflieDummy = new Crazyflie(new DummyDriver());
+        Crazyflie crazyflieDummy = new Crazyflie(new MockDriver(MockDriver.CF1));
         Toc toc = new Toc();
         TocFetcher tocFetcher = new TocFetcher(crazyflieDummy, CrtpPort.PARAMETERS, toc, null);
 
@@ -83,7 +82,7 @@ public class TocFetcherTest {
 
         crazyflie.clearTocCache();
 
-        crazyflie.addConnectionListener(new TestConnectionAdapter() {
+        crazyflie.getDriver().addConnectionListener(new TestConnectionAdapter() {
 
             public void connectionRequested(String connectionInfo) {
                 System.out.println("CONNECTION REQUESTED: " + connectionInfo);

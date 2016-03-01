@@ -27,20 +27,15 @@
 
 package se.bitcraze.crazyflie.lib.crazyradio;
 
-
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.usb.UsbException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import se.bitcraze.crazyflie.lib.usb.CrazyUsbInterface;
-
 
 
 /**
@@ -52,21 +47,21 @@ public class Crazyradio {
     final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
 
     // USB parameters
-    public final static int CRADIO_VID = 0x1915;
-    public final static int CRADIO_PID = 0x7777;
+    public final static int CRADIO_VID = 0x1915; //Vendor ID
+    public final static int CRADIO_PID = 0x7777; //Product ID
 
     // Dongle configuration requests
     // See http://wiki.bitcraze.se/projects:crazyradio:protocol for documentation
-    public final static int SET_RADIO_CHANNEL = 0x01;
-    public final static int SET_RADIO_ADDRESS = 0x02;
-    public final static int SET_DATA_RATE = 0x03;
-    public final static int SET_RADIO_POWER = 0x04;
-    public final static int SET_RADIO_ARD = 0x05;
-    public final static int SET_RADIO_ARC = 0x06;
-    public final static int ACK_ENABLE = 0x10;
-    public final static int SET_CONT_CARRIER = 0x20;
-    public final static int SCAN_CHANNELS = 0x21;
-    public final static int LAUNCH_BOOTLOADER = 0xFF;
+    private final static int SET_RADIO_CHANNEL = 0x01;
+    private final static int SET_RADIO_ADDRESS = 0x02;
+    private final static int SET_DATA_RATE = 0x03;
+    private final static int SET_RADIO_POWER = 0x04;
+    private final static int SET_RADIO_ARD = 0x05;
+    private final static int SET_RADIO_ARC = 0x06;
+    private final static int ACK_ENABLE = 0x10;
+    private final static int SET_CONT_CARRIER = 0x20;
+    private final static int SCAN_CHANNELS = 0x21;
+    private final static int LAUNCH_BOOTLOADER = 0xFF;
 
     // configuration constants
     public final static int DR_250KPS = 0;
@@ -83,6 +78,8 @@ public class Crazyradio {
     private float mVersion; // Crazyradio firmware version
     private String mSerialNumber; // Crazyradio serial number
 
+    public final static byte[] NULL_PACKET = new byte[] { (byte) 0xff };
+
 
     /**
      * Create object and scan for USB dongle if no device is supplied
@@ -94,11 +91,11 @@ public class Crazyradio {
         try {
             this.mUsbInterface.initDevice(CRADIO_VID, CRADIO_PID);
         } catch (SecurityException e) {
-            e.printStackTrace();
+            mLogger.error(e.getMessage());
+            return;
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (UsbException e) {
-            e.printStackTrace();
+            mLogger.error(e.getMessage());
+            return;
         }
 
         /*
@@ -140,7 +137,8 @@ public class Crazyradio {
 
     }
 
-    public void close() {
+    public void disconnect() {
+        mLogger.debug("Crazyradio disconnect()");
         if(mUsbInterface != null) {
             mUsbInterface.releaseInterface();
         }
@@ -271,19 +269,6 @@ public class Crazyradio {
         return false;
     }
 
-    /*
-    def scan_selected(self, selected, packet):
-        result = ()
-        for s in selected:
-            self.set_channel(s["channel"])
-            self.set_data_rate(s["datarate"])
-            status = self.send_packet(packet)
-            if status and status.ack:
-                result = result + (s,)
-
-        return result
-    */
-
     /**
      * Scan all channels between 0 and 125
      *
@@ -301,21 +286,17 @@ public class Crazyradio {
                 result.addAll(firmwareScan(start, stop));
             } else {
                 // Slow PC-driven scan
-                final byte[] packet = new byte[] { (byte) 0xff }; // null packet
                 mLogger.debug("Slow scan...");
                 // for i in range(start, stop + 1):
-                for (int i = start; i <= stop; i++) {
-                    setChannel(i);
-                    RadioAck status = sendPacket(packet);
-                    // if status and status.ack:
-                    if (status != null && status.isAck()) {
-                        mLogger.debug("Found channel: " + i);
-                        result.add(i);
+                for (int channel = start; channel <= stop; channel++) {
+                    if(scanSelected(channel, NULL_PACKET)) {
+                        mLogger.debug("Found channel: " + channel);
+                        result.add(channel);
                     }
                     try {
                         Thread.sleep(20);
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        mLogger.error("InterruptedException: " + e.getMessage());
                     }
                 }
             }
@@ -325,14 +306,38 @@ public class Crazyradio {
         return result;
     }
 
+    /*
+    def scan_selected(self, selected, packet):
+        result = ()
+        for s in selected:
+            self.set_channel(s["channel"])
+            self.set_data_rate(s["datarate"])
+            status = self.send_packet(packet)
+            if status and status.ack:
+                result = result + (s,)
+
+        return result
+    */
+
+    public boolean scanSelected(int channel, int datarate, byte[] packet) {
+        setDatarate(datarate);
+        return scanSelected(channel, packet);
+    }
+
+    private boolean scanSelected(int channel, byte[] packet) {
+        setChannel(channel);
+        RadioAck status = sendPacket(packet);
+        return (status != null && status.isAck());
+    }
+
+
     /* ### Data transfers ### */
 
     private List<Integer> firmwareScan(int start, int stop) {
         mLogger.debug("Fast scan...");
         List<Integer> result = new ArrayList<Integer>();
-        final byte[] packet = new byte[] { (byte) 0xff }; // null packet
         final byte[] rdata = new byte[64];
-        mUsbInterface.sendControlTransfer(0x40, SCAN_CHANNELS, start, stop, packet);
+        mUsbInterface.sendControlTransfer(0x40, SCAN_CHANNELS, start, stop, NULL_PACKET);
         final int nfound = mUsbInterface.sendControlTransfer(0xc0, SCAN_CHANNELS, 0, 0, rdata);
         for (int i = 0; i < nfound; i++) {
             result.add((int) rdata[i]);
