@@ -11,6 +11,8 @@ import se.bitcraze.crazyflie.lib.bootloader.UtilitiesTest;
 import se.bitcraze.crazyflie.lib.crazyflie.CrazyflieTest;
 import se.bitcraze.crazyflie.lib.crazyradio.CrazyradioTest;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriverTest;
+import se.bitcraze.crazyflie.lib.log.LogDataLiveTest;
+import se.bitcraze.crazyflie.lib.log.LogDataStaticTest;
 import se.bitcraze.crazyflie.lib.log.LogTocElementTest;
 import se.bitcraze.crazyflie.lib.log.LoggTest;
 import se.bitcraze.crazyflie.lib.param.ParamTest;
@@ -23,22 +25,24 @@ import se.bitcraze.crazyflie.lib.usb.UsbLinkJavaTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-    BootloaderTest.class,
-    CloaderTest.class,
-    TargetTest.class,
-    UtilitiesTest.class,
-    CrazyflieTest.class,
-    CrazyradioTest.class,
+    UsbLinkJavaTest.class,
     RadioDriverTest.class,
-    LoggTest.class,
-    LogTocElementTest.class,
-    ParamTest.class,
-    ParamTocElementTest.class,
+    CrazyradioTest.class,
+    CrazyflieTest.class,
     TocCacheTest.class,
     TocFetcherTest.class,
     TocTest.class,
     VariableTypeTest.class,
-    UsbLinkJavaTest.class})
+    LogTocElementTest.class,
+    LoggTest.class,
+    LogDataStaticTest.class,
+    LogDataLiveTest.class,
+    ParamTocElementTest.class,
+    ParamTest.class,
+    TargetTest.class,
+    UtilitiesTest.class,
+    BootloaderTest.class,
+    CloaderTest.class})
 public class AllTests {
   //nothing
 }

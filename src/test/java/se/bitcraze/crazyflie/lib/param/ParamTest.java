@@ -151,7 +151,7 @@ public class ParamTest {
             int flash = valuesMap.get("cpu").get("flash").intValue();
             if(flash == 128) { // CF1
                 //uint8_t
-                //32 is the correct value for CF1 according to Python client
+                //13 is the correct value for CF1 according to Python client
                 assertEquals(13, valuesMap.get("imu_acc_lpf").get("factor"));
 
                 //uint32_t == Long
@@ -159,8 +159,8 @@ public class ParamTest {
                 assertEquals(2266244689L, valuesMap.get("cpu").get("id2"));
             } else if(flash == 1024) { // CF2
                 //uint8_t
-                //32 is the correct value for CF2 according to Python client
-                assertEquals(32, valuesMap.get("imu_acc_lpf").get("factor"));
+                //13 is the correct value for CF2 according to Python client
+                assertEquals(13, valuesMap.get("imu_acc_lpf").get("factor"));
 
                 //uint32_t == Long
                 //825374770 is the correct value for CF2 according to Python client
