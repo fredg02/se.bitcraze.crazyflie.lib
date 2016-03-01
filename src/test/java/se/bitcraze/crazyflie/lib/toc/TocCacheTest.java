@@ -67,7 +67,36 @@ public class TocCacheTest {
 
         crazyflie.clearTocCache();
 
-        crazyflie.addConnectionListener(new TestConnectionAdapter() {});
+        crazyflie.addConnectionListener(new TestConnectionAdapter() {
+            
+            @Override
+            public void setupFinished(String connectionInfo) {
+                Toc fetchedToc = crazyflie.getParam().getToc();
+                if (fetchedToc != null) {
+                    int fetchedCrc = fetchedToc.getCrc();
+                    System.out.println("Fetched CRC: " + String.format("%08X", fetchedCrc));
+                    List<TocElement> fetchedElements = fetchedToc.getElements();
+                    System.out.println("Number of Param TOC elements (fetched): " + fetchedElements.size());
+
+                    TocCache tocCache = new TocCache(null, "src/test");
+                    Toc cachedToc = tocCache.fetch(fetchedCrc, CrtpPort.PARAMETERS);
+                    if (cachedToc != null) {
+                        List<TocElement> cachedElements = cachedToc.getElements();
+                        System.out.println("Number of Param TOC elements (cached): " + cachedElements.size());
+
+                        assertEquals(cachedElements.size(), fetchedElements.size());
+
+                        for(int i = 0; i < fetchedElements.size(); i++) {
+                            assertEquals(fetchedElements.get(i), cachedElements.get(i));
+                        }
+                    } else {
+                        fail("TocCache is NULL.");
+                    }
+                } else {
+                    fail("FetchedToc is NULL!");
+                }
+            }
+        });
 
         crazyflie.connect(CrazyflieTest.channel, CrazyflieTest.datarate);
 
@@ -80,28 +109,6 @@ public class TocCacheTest {
             }
         }
         crazyflie.disconnect();
-
-        Toc fetchedToc = crazyflie.getParam().getToc();
-        int fetchedCrc = fetchedToc.getCrc();
-        System.out.println("Fetched CRC: " + String.format("%08X", fetchedCrc));
-        List<TocElement> fetchedElements = fetchedToc.getElements();
-        System.out.println("Number of Param TOC elements (fetched): " + fetchedElements.size());
-
-        TocCache tocCache = new TocCache(null, "src/test");
-        Toc cachedToc = tocCache.fetch(fetchedCrc, CrtpPort.LOGGING);
-        if (cachedToc != null) {
-            List<TocElement> cachedElements = cachedToc.getElements();
-            System.out.println("Number of Param TOC elements (cached): " + cachedElements.size());
-
-            assertEquals(cachedElements.size(), fetchedElements.size());
-
-            for(int i = 0; i < fetchedElements.size(); i++) {
-                assertEquals(fetchedElements.get(i), cachedElements.get(i));
-            }
-        } else {
-            System.out.println("TocCache is NULL.");
-        }
-        
     }
 
 }

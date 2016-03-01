@@ -81,6 +81,8 @@ public class LogDataLiveTest {
                         for (Entry<String, Number> entry : data.entrySet()) {
                             System.out.println("Name: " + entry.getKey() + ", data: " + entry.getValue());
                         }
+                        float pmVbatValue = data.get("pm.vbat").floatValue();
+                        assertTrue("Value of pm.vbat should be between 3.0f and 4.5f, but was: " + pmVbatValue, 3.0f < pmVbatValue && 4.5f > pmVbatValue);
                     }
                 });
                 
