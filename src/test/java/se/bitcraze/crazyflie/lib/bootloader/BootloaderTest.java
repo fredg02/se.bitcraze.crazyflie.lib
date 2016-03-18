@@ -264,6 +264,56 @@ public class BootloaderTest {
         mBootloader.close();
     }
 
+    /**
+     * Tests that only one STM32 flash target for CF1 is found
+     * 
+     * @throws IOException
+     */
+    @Test
+    public void testFW201602_cf1() throws IOException {
+        //TODO: simplify
+        byte[] data = new byte[] {-1,16,0,4,10,0,-128,0,10,0,80,-1,118,6,73,-123,86,84,81,38,20,-121,1,0,0,0,0,0,0,0,0};
+        
+        Target target = new Target(0xFF);
+        target.parseData(data);
+        
+        mBootloader.getCloader().getTargets().put(TargetTypes.STM32, target);
+        List<FlashTarget> targets = mBootloader.getFlashTargets(new File("src/test/fw/crazyflie-2016.02.zip"), "");
+        for (FlashTarget ft : targets) {
+            System.out.println(ft);
+        }
+        System.out.println();
+
+        // should only find one flash target (for CF1)
+        assertEquals(1, targets.size());
+        assertEquals(86152, targets.get(0).getData().length);
+    }
+
+    /**
+     * Tests that only one STM32 flash target for CF2 is found
+     * TODO: does not check NRF51 flash target
+     * 
+     * @throws IOException
+     */
+    @Test
+    public void testFW201602_cf2() throws IOException {
+        //TODO: simplify
+        byte[] data = new byte[] {-1,16,0,4,10,0,0,4,16,0,-89,4,48,106,79,-34,98,94,-1,-27,28,16,16,0,0,0,0,0,0,0,0};
+        Target target = new Target(0xFF);
+        target.parseData(data);
+        
+        mBootloader.getCloader().getTargets().put(TargetTypes.STM32, target);
+        List<FlashTarget> targets = mBootloader.getFlashTargets(new File("src/test/fw/crazyflie-2016.02.zip"), "");
+        for (FlashTarget ft : targets) {
+            System.out.println(ft);
+        }
+        System.out.println();
+        
+        // should only find one flash target (for CF2)
+        assertEquals(1, targets.size());
+        assertEquals(127792, targets.get(0).getData().length);
+    }
+
     @Test
     public void testReadManifest() throws IOException {
         Manifest readManifest = Bootloader.readManifest(new File("src/test/manifest.json"));

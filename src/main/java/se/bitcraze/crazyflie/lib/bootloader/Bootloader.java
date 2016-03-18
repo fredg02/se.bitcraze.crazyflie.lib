@@ -91,8 +91,8 @@ public class Bootloader {
             if (bootloaderConnection != null) {
                 mLogger.info("startBootloader: bootloader connection found");
                 try {
-              	  this.mCload.openBootloaderConnection(bootloaderConnection);
-              	  started = this.mCload.checkLinkAndGetInfo(TargetTypes.STM32); //TODO: what is the real parameter for this?
+                    this.mCload.openBootloaderConnection(bootloaderConnection);
+                    started = this.mCload.checkLinkAndGetInfo(TargetTypes.STM32); //TODO: what is the real parameter for this?
                 } catch (IOException e) {
                     mLogger.warn(e.getMessage());
                     started = false;
@@ -190,7 +190,6 @@ public class Bootloader {
         return true;
     }
 
-    //TODO: deal with different platforms (CF1, CF2)!?
     //package private for tests
     List<FlashTarget> getFlashTargets(File file, String... targetNames) throws IOException {
         List<FlashTarget> filesToFlash = new ArrayList<FlashTarget>();
@@ -234,7 +233,14 @@ public class Bootloader {
                         // add flash target
                         // if no target names are specified, flash everything
                         if (targetNames == null || targetNames.length == 0 || targetNames[0].isEmpty()) {
-                            filesToFlash.add(ft);
+                            // deal with different platforms (CF1, CF2)
+                            // TODO: simplify
+                            if (t.getFlashPages() == 128 && "cf1".equalsIgnoreCase(firmwareDetails.getPlatform())) { //128 = CF 1.0
+                                filesToFlash.add(ft);
+                                // deal with STM32 and NRF51 for CF2 (different no of flash pages)
+                            } else if ((t.getFlashPages() == 1024 || t.getFlashPages() == 232) && "cf2".equalsIgnoreCase(firmwareDetails.getPlatform())) { //1024 = CF 2.0
+                                filesToFlash.add(ft);
+                            }
                         } else {
                             // else flash only files whose targets are contained in targetNames
                             if (Arrays.asList(targetNames).contains(firmwareDetails.getTarget())) {
@@ -437,7 +443,6 @@ public class Bootloader {
                     handleFlashError();
                     //raise Exception()
                     return;
-
                 }
                 bufferCounter = 0;
             }
