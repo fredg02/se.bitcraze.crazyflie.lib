@@ -135,11 +135,12 @@ public class Crazyflie {
         if (mState != State.DISCONNECTED) {
             mLogger.debug("Disconnect");
 
-            if (mDriver != null) {
+            if (mDriver.isConnected()) {
                 //Send commander packet with all values set to 0 before closing the connection
                 sendPacket(new CommanderPacket(0, 0, 0, (char) 0));
                 mDriver.disconnect();
-                mDriver = null;
+            } else {
+                mDriver.disconnect();
             }
             if(mIncomingPacketHandlerThread != null) {
                 mIncomingPacketHandlerThread.interrupt();
@@ -169,7 +170,7 @@ public class Crazyflie {
      */
     // def send_packet(self, pk, expected_reply=(), resend=False):
     public void sendPacket(CrtpPacket packet){
-        if (mDriver != null) {
+        if (mDriver.isConnected()) {
             mDriver.sendPacket(packet);
 
             if (packet.getExpectedReply() != null && packet.getExpectedReply().length > 0) {
@@ -306,6 +307,12 @@ public class Crazyflie {
         mTocCache = new TocCache(null, null);
     }
 
+    public void setParamValue(String completeName, Number value) {
+        if (mParam != null) {
+            mParam.setValue(completeName, value);
+        }
+    }
+
     /** DATA LISTENER **/
 
     /**
@@ -375,19 +382,17 @@ public class Crazyflie {
         final Logger mLogger = LoggerFactory.getLogger("IncomingPacketHandler");
 
         public void run() {
-            while(getDriver() != null && !Thread.currentThread().isInterrupted()) {
-                if (getDriver() != null) {
-                    CrtpPacket packet = getDriver().receivePacket(1);
-                    if(packet == null) {
-                        continue;
-                    }
-
-                    //All-packet callbacks
-                    //self.cf.packet_received.call(pk)
-                    notifyPacketReceived(packet);
-
-                    notifyDataReceived(packet);
+            while(getDriver().isConnected() && !Thread.currentThread().isInterrupted()) {
+                CrtpPacket packet = getDriver().receivePacket(1);
+                if(packet == null) {
+                    continue;
                 }
+
+                //All-packet callbacks
+                //self.cf.packet_received.call(pk)
+                notifyPacketReceived(packet);
+
+                notifyDataReceived(packet);
             }
             mLogger.debug("IncomingPacketHandlerThread was interrupted.");
         }

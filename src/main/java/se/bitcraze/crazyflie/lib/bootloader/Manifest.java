@@ -52,4 +52,5 @@ public class Manifest {
     public void setFiles(Map<String, FirmwareDetails> files) {
         this.mFiles = files;
     }
+
 }

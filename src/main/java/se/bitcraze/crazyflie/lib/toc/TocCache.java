@@ -108,11 +108,11 @@ public class TocCache {
             mLogger.debug("Found TOC cache file: " + pattern);
             try {
                 fetchedToc = new Toc();
-                Map<String, Map<String, TocElement>> readValue;
+                Map<String, TocElement> readValue;
                 if (port == CrtpPort.PARAMETERS) {
-                    readValue = mMapper.readValue(hit, new TypeReference<Map<String, Map<String, ParamTocElement>>>() { });
+                    readValue = mMapper.readValue(hit, new TypeReference<Map<String, ParamTocElement>>() { });
                 } else {
-                    readValue = mMapper.readValue(hit, new TypeReference<Map<String, Map<String, LogTocElement>>>() { });
+                    readValue = mMapper.readValue(hit, new TypeReference<Map<String, LogTocElement>>() { });
                 }
                 fetchedToc.setTocElementMap(readValue);
                 mLogger.debug("Number of cached elements: " + fetchedToc.getElements().size());

@@ -27,7 +27,6 @@
 
 package se.bitcraze.crazyflie.lib.crazyflie;
 
-
 /**
  * Interface for receiving notifications about the connection status.
  */

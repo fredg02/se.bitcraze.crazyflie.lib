@@ -405,7 +405,7 @@ public class Param {
                     if (packet != null && packet.getPayload().length > 0) {
                         mReqParam = packet.getPayload()[0];
                         // self.cf.send_packet(pk, expected_reply=(pk.datat[0:2]))
-                        packet.setExpectedReply(new byte[] { packet.getPayload()[0] });
+                        packet.setExpectedReply(new byte[] {packet.getPayload()[0]});
                         if (packet.getHeader().getChannel() == READ_CHANNEL) {
                             mLogger.debug("Requesting updated for param with ID " + mReqParam);
                         } else {
@@ -421,8 +421,6 @@ public class Param {
                 }
             }
         }
-
     }
-
 
 }

@@ -28,7 +28,6 @@
 package se.bitcraze.crazyflie.lib.crtp;
 
 import java.io.IOException;
-
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -41,7 +40,6 @@ import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
  *
  */
 public abstract class CrtpDriver {
-
 
     protected Set<ConnectionListener> mConnectionListeners = new CopyOnWriteArraySet<ConnectionListener>();
 
@@ -90,7 +88,6 @@ public abstract class CrtpDriver {
 
 
     public abstract boolean scanSelected(int channel, int datarate, byte[] packet);
-
 
     /* CONNECTION LISTENER */
 

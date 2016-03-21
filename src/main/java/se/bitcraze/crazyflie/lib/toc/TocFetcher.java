@@ -215,7 +215,6 @@ public class TocFetcher {
         this.mCrazyflie.sendPacket(packet);
     }
 
-
     /* TOC FETCH FINISHED LISTENER */
 
     public void addTocFetchFinishedListener(TocFetchFinishedListener listener) {

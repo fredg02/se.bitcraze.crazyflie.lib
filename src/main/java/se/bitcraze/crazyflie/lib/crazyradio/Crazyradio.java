@@ -80,7 +80,6 @@ public class Crazyradio {
 
     public final static byte[] NULL_PACKET = new byte[] { (byte) 0xff };
 
-
     /**
      * Create object and scan for USB dongle if no device is supplied
      *

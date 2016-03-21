@@ -35,6 +35,7 @@ import java.util.List;
 import org.junit.Test;
 
 import se.bitcraze.crazyflie.lib.TestConnectionAdapter;
+import se.bitcraze.crazyflie.lib.TestUtilities;
 import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie;
 import se.bitcraze.crazyflie.lib.crazyflie.CrazyflieTest;
 import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
@@ -63,6 +64,11 @@ public class TocCacheTest {
 
     @Test
     public void testTocCacheAgainstFetchedToc() {
+        
+        if (!TestUtilities.isCrazyradioAvailable()) {
+            fail("Crazyradio not connected");
+        }
+        
         final Crazyflie crazyflie = new Crazyflie(CrazyflieTest.getConnectionImpl());
 
         crazyflie.clearTocCache();

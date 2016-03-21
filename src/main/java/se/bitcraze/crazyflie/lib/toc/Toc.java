@@ -44,7 +44,7 @@ public class Toc {
 
     private int mCrc;
 
-    private Map<String, Map<String, TocElement>> mTocElementMap = new HashMap<String, Map<String, TocElement>>();
+    private Map<String, TocElement> mTocElementMap = new HashMap<String, TocElement>();
 
     public Toc() {
     }
@@ -74,10 +74,7 @@ public class Toc {
             mLogger.warn("TocElement has no group!");
             return;
         }
-        if (!mTocElementMap.containsKey(tocElement.getGroup())) {
-            mTocElementMap.put(tocElement.getGroup(), new HashMap<String, TocElement>());
-        }
-        mTocElementMap.get(tocElement.getGroup()).put(tocElement.getName(), tocElement);
+        mTocElementMap.put(tocElement.getCompleteName(), tocElement);
     }
 
     /**
@@ -87,7 +84,7 @@ public class Toc {
      * @return
      */
     public TocElement getElementByCompleteName(String completeName) {
-        return getElementById(getElementId(completeName));
+        return mTocElementMap.get(completeName);
     }
 
     /**
@@ -97,12 +94,11 @@ public class Toc {
      * @return
      */
     public int getElementId(String completeName) {
-        String[] groupNameArray = completeName.split("\\.");
-        TocElement TocElement = getElement(groupNameArray[0], groupNameArray[1]);
-        if(TocElement != null) {
-            return TocElement.getIdent();
+        TocElement tocElement= mTocElementMap.get(completeName);
+        if(tocElement != null) {
+            return tocElement.getIdent();
         }
-        mLogger.warn("Unable to find variable " + completeName);
+        mLogger.warn("Unable to find TOC element for complete name '" + completeName + "'");
         return -1;
     }
 
@@ -114,10 +110,7 @@ public class Toc {
      * @return
      */
     public TocElement getElement(String group, String name) {
-        if (mTocElementMap.get(group) == null) {
-            return null;
-        }
-        return mTocElementMap.get(group).get(name);
+        return getElementByCompleteName(group + "." + name);
     }
 
     /**
@@ -127,11 +120,9 @@ public class Toc {
      * @return
      */
     public TocElement getElementById(int ident) {
-        for(String group : mTocElementMap.keySet()) {
-            for (String name : mTocElementMap.get(group).keySet()) {
-                if (mTocElementMap.get(group).get(name).getIdent() == ident) {
-                    return mTocElementMap.get(group).get(name);
-                }
+        for(TocElement tocElement : mTocElementMap.values()) {
+            if (tocElement.getIdent() == ident) {
+                return tocElement;
             }
         }
         mLogger.warn("Unable to find TOC element with ID " + ident);
@@ -152,19 +143,15 @@ public class Toc {
         return tocElementList;
     }
 
-    public Map<String, Map<String, TocElement>> getTocElementMap() {
+    public Map<String, TocElement> getTocElementMap() {
         return mTocElementMap;
     }
 
-    public void setTocElementMap(Map<String, Map<String, TocElement>> map) {
+    public void setTocElementMap(Map<String, TocElement> map) {
         this.mTocElementMap = map;
     }
 
     public int getTocSize() {
-        int tocSizeCount = 0;
-        for(String group : mTocElementMap.keySet()) {
-            tocSizeCount += mTocElementMap.get(group).keySet().size();
-        }
-        return tocSizeCount;
+        return mTocElementMap.size();
     }
 }

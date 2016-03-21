@@ -44,7 +44,7 @@ import se.bitcraze.crazyflie.lib.usb.CrazyUsbInterface;
  * Crazyradio link driver
  *
  */
-public class RadioDriver extends CrtpDriver{
+public class RadioDriver extends CrtpDriver {
 
     final static Logger mLogger = LoggerFactory.getLogger("RadioDriver");
 

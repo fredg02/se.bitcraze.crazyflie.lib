@@ -277,7 +277,7 @@ public class Cloader {
                 /*
                 addr = [0xbc] + map(lambda x: random.randint(0, 255), range(4))
                 return self._set_address(addr)
-                 */
+                */
                 byte[] newAddress = new byte[5];
                 newAddress[0] = (byte) 0xbc;
                 for (int n = 1; n < 5; n++) {

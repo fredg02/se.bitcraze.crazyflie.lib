@@ -66,4 +66,5 @@ public class FirmwareDetails {
     public String toString() {
         return "FirmwareDetails [Platform=" + mPlatform + ", Target=" + mTarget + ", Type=" + mType + ", Release=" + mRelease + ", Repository=" + mRepository + "]";
     }
+
 }

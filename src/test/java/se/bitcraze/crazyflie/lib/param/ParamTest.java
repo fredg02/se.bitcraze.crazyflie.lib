@@ -127,15 +127,10 @@ public class ParamTest {
         System.out.println("TocSize: " + mParam.getToc().getTocSize() + ", No of valueMap elements: " + noOfValueMapElements);
 
         if(mParam.getToc().getTocSize() != noOfValueMapElements) {
-            for(String group : mParam.getToc().getTocElementMap().keySet()) {
-                for(String name : mParam.getToc().getTocElementMap().get(group).keySet()) {
-                    if(valuesMap.get(group) == null) {
-                        System.out.println("Missing param in ValueMap: " + group);
-                        continue;
-                    }
-                    if(valuesMap.get(group).get(name) == null) {
-                        System.out.println("Missing param in ValueMap: " + group + "." + name + " ID: " + mParam.getToc().getElementId(group+"."+name));
-                    }
+            for(String name : mParam.getToc().getTocElementMap().keySet()) {
+                if(valuesMap.get(name) == null) {
+                    System.out.println("Missing param in ValueMap: " + name);
+                    continue;
                 }
             }
         }
