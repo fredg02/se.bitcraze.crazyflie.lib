@@ -27,6 +27,7 @@
 
 package se.bitcraze.crazyflie.lib.crazyflie;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -40,10 +41,12 @@ import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
 import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
+import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
 import se.bitcraze.crazyflie.lib.log.Logg;
 import se.bitcraze.crazyflie.lib.param.Param;
 import se.bitcraze.crazyflie.lib.toc.TocCache;
-import se.bitcraze.crazyflie.lib.toc.TocFetcher.TocFetchFinishedListener;
+import se.bitcraze.crazyflie.lib.toc.TocFetcher;
+import se.bitcraze.crazyflie.lib.toc.TocFetchFinishedListener;
 
 public class Crazyflie {
 
@@ -76,10 +79,24 @@ public class Crazyflie {
         SETUP_FINISHED;
     }
 
+    /**
+     * Crazyflie constructor
+     *
+     * @param driver driver to use (e.g. RadioDriver or BleLink)
+     */
     public Crazyflie(CrtpDriver driver) {
-        this.mDriver = driver;
+        this(driver, null);
+    }
 
-        this.mTocCache = new TocCache("ro_cache", "rw_cache");
+    /**
+     * Crazyflie constructor
+     *
+     * @param driver driver to use (e.g. RadioDriver or BleLink)
+     * @param tocCacheDir TOC cache files dir
+     */
+    public Crazyflie(CrtpDriver driver, File tocCacheDir) {
+        this.mDriver = driver;
+        this.mTocCache = new TocCache(tocCacheDir);
     }
 
     private PacketListener mPacketListener = new PacketListener() {
@@ -133,7 +150,7 @@ public class Crazyflie {
 
     public void disconnect() {
         if (mState != State.DISCONNECTED) {
-            mLogger.debug("Disconnect");
+            mLogger.debug("disconnect()");
 
             if (mDriver.isConnected()) {
                 //Send commander packet with all values set to 0 before closing the connection
@@ -195,7 +212,7 @@ public class Crazyflie {
         for(CrtpPacket resendQueuePacket : mResendQueue) {
             if(isPacketMatchingExpectedReply(resendQueuePacket, packet)) {
                 mResendQueue.remove(resendQueuePacket);
-                mLogger.debug("QUEUE REMOVE: " + resendQueuePacket);
+                // mLogger.debug("QUEUE REMOVE: " + resendQueuePacket);
                 break;
             }
         }
@@ -237,7 +254,7 @@ public class Crazyflie {
      * Called when first packet arrives from Crazyflie.
      * This is used to determine if we are connected to something that is answering.
      *
-     * @param data
+     * @param packet
      */
     public void checkForInitialPacketCallback(CrtpPacket packet) {
         //TODO: should be made more reliable
@@ -247,7 +264,6 @@ public class Crazyflie {
             //TODO: fix hacky-di-hack
             if (this.mDriver instanceof RadioDriver) {
                 this.mDriver.notifyConnected();
-                startConnectionSetup();
             }
         }
         //self.packet_received.remove_callback(self._check_for_initial_packet_cb)
@@ -267,7 +283,7 @@ public class Crazyflie {
 
         mParam = new Param(this);
         //must be defined first to be usable in Log TocFetchFinishedListener
-        final TocFetchFinishedListener paramTocFetchFinishedListener = new TocFetchFinishedListener() {
+        final TocFetchFinishedListener paramTocFetchFinishedListener = new TocFetchFinishedListener(CrtpPort.PARAMETERS) {
             public void tocFetchFinished() {
                 //_param_toc_updated_cb(self):
                 mLogger.info("Param TOC finished updating.");
@@ -280,16 +296,21 @@ public class Crazyflie {
         };
 
         mLogg = new Logg(this);
-        TocFetchFinishedListener loggTocFetchFinishedListener = new TocFetchFinishedListener() {
+        TocFetchFinishedListener loggTocFetchFinishedListener = new TocFetchFinishedListener(CrtpPort.LOGGING) {
             public void tocFetchFinished() {
                 mLogger.info("Logg TOC finished updating.");
-
                 //after log toc has been fetched, fetch param toc
                 mParam.refreshToc(paramTocFetchFinishedListener, mTocCache);
             }
         };
         //mLog.refreshToc(self._log_toc_updated_cb, self._toc_cache);
-        mLogg.refreshToc(loggTocFetchFinishedListener, mTocCache);
+        if (mDriver instanceof RadioDriver) {
+            mLogg.refreshToc(loggTocFetchFinishedListener, mTocCache);
+        } else {
+            //TODO: shortcut for BLELink
+            mState = State.SETUP_FINISHED; //important, otherwise BLE keeps trying to reconnect
+            mDriver.notifySetupFinished();
+        }
 
         //TODO: self.mem.refresh(self._mems_updated_cb)
     }
@@ -302,9 +323,8 @@ public class Crazyflie {
         return mLogg;
     }
 
-    //TODO: do this properly
     public void clearTocCache() {
-        mTocCache = new TocCache(null, null);
+        mTocCache.clear();
     }
 
     public void setParamValue(String completeName, Number value) {
@@ -338,7 +358,7 @@ public class Crazyflie {
     //public void removeDataListener(CrtpPort); ?
 
     /**
-     * @param inPacket
+     * @param packet
      */
     private void notifyDataReceived(CrtpPacket packet) {
         boolean found = false;

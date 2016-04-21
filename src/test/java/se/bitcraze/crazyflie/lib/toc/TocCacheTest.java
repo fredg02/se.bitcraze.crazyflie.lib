@@ -30,6 +30,7 @@ package se.bitcraze.crazyflie.lib.toc;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.util.List;
 
 import org.junit.Test;
@@ -47,7 +48,7 @@ public class TocCacheTest {
 
     @Test
     public void testTocCache() {
-        TocCache tocCache = new TocCache(null, "src/test");
+        TocCache tocCache = new TocCache(new File("src/test"));
         Toc fetchedToc = tocCache.fetch((int) Long.parseLong(CURRENT_CRC, 16), CrtpPort.LOGGING);
 
         if (fetchedToc != null) {
@@ -84,7 +85,7 @@ public class TocCacheTest {
                     List<TocElement> fetchedElements = fetchedToc.getElements();
                     System.out.println("Number of Param TOC elements (fetched): " + fetchedElements.size());
 
-                    TocCache tocCache = new TocCache(null, "src/test");
+                    TocCache tocCache = new TocCache(new File("src/test"));
                     Toc cachedToc = tocCache.fetch(fetchedCrc, CrtpPort.PARAMETERS);
                     if (cachedToc != null) {
                         List<TocElement> cachedElements = cachedToc.getElements();

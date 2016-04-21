@@ -169,7 +169,7 @@ public class RadioDriver extends CrtpDriver {
      */
     @Override
     public void disconnect() {
-        mLogger.debug("RadioDriver disconnect()");
+        mLogger.debug("disconnect()");
         // Stop the comm thread
         stopSendReceiveThread();
         // Avoid NPE because packets are still processed
@@ -353,6 +353,7 @@ public class RadioDriver extends CrtpDriver {
 //                    Thread.sleep(10);
                 } catch (InterruptedException e) {
                     mLogger.debug("RadioDriverThread was interrupted.");
+                    notifyLinkQualityUpdated(0);
                     break;
                 }
             }
@@ -364,4 +365,5 @@ public class RadioDriver extends CrtpDriver {
     public boolean isConnected() {
         return this.mRadioDriverThread != null;
     }
+
 }

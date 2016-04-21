@@ -68,6 +68,7 @@ public class TocFetcher {
     private Set<TocFetchFinishedListener> mTocFetchFinishedListeners = new CopyOnWriteArraySet<TocFetchFinishedListener>();
 
     private DataListener mDataListener;
+    private long tocFetchStartTime;
 
     public enum TocState {
         IDLE, GET_TOC_INFO, GET_TOC_ELEMENT, TOC_FETCH_FINISHED;
@@ -94,7 +95,7 @@ public class TocFetcher {
             }
         };
         this.mCrazyflie.addDataListener(mDataListener);
-
+        tocFetchStartTime = System.currentTimeMillis();
         requestTocInfo();
     }
 
@@ -104,10 +105,11 @@ public class TocFetcher {
      */
     public void tocFetchFinished() {
         this.mCrazyflie.removeDataListener(mDataListener);
-        mLogger.debug("Fetching TOC (Port: " + this.mPort + ") done.");
+        long tocFetchDuration = System.currentTimeMillis() - tocFetchStartTime;
+        mLogger.debug("Fetching TOC (Port: " + this.mPort + ") done in " + tocFetchDuration + "ms.");
         this.mState = TocState.TOC_FETCH_FINISHED;
         // finishedCallback();
-        notifyTocFetchFinished();
+        notifyTocFetchFinished(this.mPort);
     }
 
     public TocState getState() {
@@ -189,7 +191,7 @@ public class TocFetcher {
                 } else {
                     // No more variables in TOC
                     mLogger.info("No more variables in TOC.");
-                    mTocCache.insert(mCrc, mToc);
+                    mTocCache.insert(mCrc, mPort, mToc);
                     tocFetchFinished();
                 }
             }
@@ -221,19 +223,17 @@ public class TocFetcher {
         this.mTocFetchFinishedListeners.add(listener);
     }
 
+    // TODO: never used?
     public void removeTocFetchFinishedListener(TocFetchFinishedListener listener) {
         this.mTocFetchFinishedListeners.remove(listener);
     }
 
-    private void notifyTocFetchFinished() {
+    private void notifyTocFetchFinished(CrtpPort port) {
         for (TocFetchFinishedListener tffl : this.mTocFetchFinishedListeners) {
-            tffl.tocFetchFinished();
+            if (tffl.getPort() == port) {
+                tffl.tocFetchFinished();
+            }
         }
     }
 
-    public interface TocFetchFinishedListener {
-
-        public void tocFetchFinished();
-
-    }
 }

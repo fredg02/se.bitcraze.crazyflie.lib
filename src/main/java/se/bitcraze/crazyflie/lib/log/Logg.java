@@ -46,7 +46,7 @@ import se.bitcraze.crazyflie.lib.toc.Toc;
 import se.bitcraze.crazyflie.lib.toc.TocCache;
 import se.bitcraze.crazyflie.lib.toc.TocElement;
 import se.bitcraze.crazyflie.lib.toc.TocFetcher;
-import se.bitcraze.crazyflie.lib.toc.TocFetcher.TocFetchFinishedListener;
+import se.bitcraze.crazyflie.lib.toc.TocFetchFinishedListener;
 import se.bitcraze.crazyflie.lib.toc.VariableType;
 
 //TODO: find better name

@@ -47,7 +47,7 @@ import se.bitcraze.crazyflie.lib.toc.Toc;
 import se.bitcraze.crazyflie.lib.toc.TocCache;
 import se.bitcraze.crazyflie.lib.toc.TocElement;
 import se.bitcraze.crazyflie.lib.toc.TocFetcher;
-import se.bitcraze.crazyflie.lib.toc.TocFetcher.TocFetchFinishedListener;
+import se.bitcraze.crazyflie.lib.toc.TocFetchFinishedListener;
 
 /**
  * Enables reading/writing of parameter values to/from the Crazyflie.
@@ -292,6 +292,26 @@ public class Param {
             CrtpPacket packet = new CrtpPacket(header.getByte(), bb.array());
             //self.param_updater.request_param_setvalue(pk)
             mPut.addParamRequest(packet);
+        }
+    }
+
+    /**
+     * Get the value for the supplied parameter
+     *
+     * @param completeName
+     * @return
+     */
+    public Number getValue(String completeName) {
+        TocElement tocElement = mToc.getElementByCompleteName(completeName);
+        if (tocElement == null) {
+            mLogger.warn("Cannot get value for " + completeName + ", it's not in the TOC!");
+            return -1;
+        }
+        if (getValuesMap().size() > 0) {
+            return getValuesMap().get(tocElement.getGroup()).get(tocElement.getName());
+        } else {
+            mLogger.warn("Parameters values map is empty!");
+            return -2;
         }
     }
 
