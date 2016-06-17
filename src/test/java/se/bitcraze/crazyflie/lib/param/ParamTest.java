@@ -96,7 +96,7 @@ public class ParamTest {
 
         boolean isTimeout2 = false;
         long startTime2 = System.currentTimeMillis();
-        while(!mParam.checkIfAllUpdated() && !isTimeout2) {
+        while(mParam != null && !mParam.checkIfAllUpdated() && !isTimeout2) {
             isTimeout2 = (System.currentTimeMillis() - startTime2) > 30000;
             try {
                 Thread.sleep(100);
@@ -112,6 +112,10 @@ public class ParamTest {
         }
 
         crazyflie.disconnect();
+
+        if (mParam == null) {
+            fail("mParam is null");
+        }
 
         Map<String, Map<String, Number>> valuesMap = mParam.getValuesMap();
 
@@ -195,6 +199,10 @@ public class ParamTest {
             }
         }
         crazyflie.disconnect();
+
+        if (crazyflie.getParam() == null) {
+            fail("crazyflie.getParam() is null");
+        }
 
         Toc toc = crazyflie.getParam().getToc();
         List<TocElement> elements = toc.getElements();

@@ -28,9 +28,12 @@
 package se.bitcraze.crazyflie.lib.toc;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -44,17 +47,30 @@ import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
 
 public class TocCacheTest {
 
-    private final static String CURRENT_CRC = "F09FB2CA";
+    private final static String CURRENT_CRC_LOGGING = "0C144D45";
+    private final static String CURRENT_CRC_PARAMETERS = "CEBCD7D1";
+
+    private List<TocElement> fetchedElements = new ArrayList<TocElement>();
+    private List<TocElement> cachedElements = new ArrayList<TocElement>();
 
     @Test
-    public void testTocCache() {
-        TocCache tocCache = new TocCache(new File("src/test"));
-        Toc fetchedToc = tocCache.fetch((int) Long.parseLong(CURRENT_CRC, 16), CrtpPort.LOGGING);
+    public void testTocCache_LOGGING() throws FileNotFoundException {
+        testTocCache(CURRENT_CRC_LOGGING, 70, CrtpPort.LOGGING);
+    }
 
+    @Test
+    public void testTocCache_PARAMETERS() throws FileNotFoundException {
+        testTocCache(CURRENT_CRC_PARAMETERS, 73, CrtpPort.PARAMETERS);
+    }
+
+    public void testTocCache(String crc, int tocSize, CrtpPort port) {
+        TocCache tocCache = new TocCache(new File("src/test"));
+        Toc fetchedToc = tocCache.fetch((int) Long.parseLong(crc, 16), port);
+        
         if (fetchedToc != null) {
-            int tocSize = fetchedToc.getTocSize();
-            assertEquals(59, tocSize);
-            for(int i = 0; i < tocSize; i++) {
+            int fetchedTocSize = fetchedToc.getTocSize();
+            assertEquals(tocSize, fetchedTocSize);
+            for(int i = 0; i < fetchedTocSize; i++) {
                 TocElement elementById = fetchedToc.getElementById(i);
                 System.out.println(elementById);
             }
@@ -65,37 +81,37 @@ public class TocCacheTest {
 
     @Test
     public void testTocCacheAgainstFetchedToc() {
-        
+
         if (!TestUtilities.isCrazyradioAvailable()) {
             fail("Crazyradio not connected");
         }
-        
-        final Crazyflie crazyflie = new Crazyflie(CrazyflieTest.getConnectionImpl());
 
-        crazyflie.clearTocCache();
+        final Crazyflie crazyflie = new Crazyflie(CrazyflieTest.getConnectionImpl(), new File("src/test"));
+
+//        crazyflie.clearTocCache();
 
         crazyflie.getDriver().addConnectionListener(new TestConnectionAdapter() {
             
             @Override
+            public void connected(String connectionInfo) {
+                super.connected(connectionInfo);
+            }
+
+            @Override
             public void setupFinished(String connectionInfo) {
+                //TODO: force fetching it from copter
                 Toc fetchedToc = crazyflie.getParam().getToc();
                 if (fetchedToc != null) {
                     int fetchedCrc = fetchedToc.getCrc();
                     System.out.println("Fetched CRC: " + String.format("%08X", fetchedCrc));
-                    List<TocElement> fetchedElements = fetchedToc.getElements();
+                    fetchedElements = fetchedToc.getElements();
                     System.out.println("Number of Param TOC elements (fetched): " + fetchedElements.size());
 
                     TocCache tocCache = new TocCache(new File("src/test"));
                     Toc cachedToc = tocCache.fetch(fetchedCrc, CrtpPort.PARAMETERS);
                     if (cachedToc != null) {
-                        List<TocElement> cachedElements = cachedToc.getElements();
+                        cachedElements = cachedToc.getElements();
                         System.out.println("Number of Param TOC elements (cached): " + cachedElements.size());
-
-                        assertEquals(cachedElements.size(), fetchedElements.size());
-
-                        for(int i = 0; i < fetchedElements.size(); i++) {
-                            assertEquals(fetchedElements.get(i), cachedElements.get(i));
-                        }
                     } else {
                         fail("TocCache is NULL.");
                     }
@@ -116,6 +132,14 @@ public class TocCacheTest {
             }
         }
         crazyflie.disconnect();
+        
+        assertTrue("Number of cached elements must be bigger than zero.", cachedElements.size() > 0);
+        assertTrue("Number of fetched elements must be bigger than zero.", fetchedElements.size() > 0);
+        assertEquals(cachedElements.size(), fetchedElements.size());
+
+        for(int i = 0; i < fetchedElements.size(); i++) {
+            assertEquals(fetchedElements.get(i), cachedElements.get(i));
+        }
     }
 
 }

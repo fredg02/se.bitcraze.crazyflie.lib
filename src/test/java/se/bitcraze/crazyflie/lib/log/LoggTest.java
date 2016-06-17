@@ -30,6 +30,7 @@ package se.bitcraze.crazyflie.lib.log;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -57,7 +58,7 @@ public class LoggTest {
     @Test
     public void testLogg() {
         //TODO: refactor this into a test utility method
-        final Crazyflie crazyflie = new Crazyflie(CrazyflieTest.getConnectionImpl());
+        final Crazyflie crazyflie = new Crazyflie(CrazyflieTest.getConnectionImpl(), new File("src/test"));
 
         crazyflie.clearTocCache();
 

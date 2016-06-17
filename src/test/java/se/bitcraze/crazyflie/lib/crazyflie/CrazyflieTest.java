@@ -27,6 +27,8 @@
 
 package se.bitcraze.crazyflie.lib.crazyflie;
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 
 import se.bitcraze.crazyflie.lib.TestConnectionAdapter;
@@ -41,6 +43,14 @@ public class CrazyflieTest {
 
     public static int channel = 10;
     public static int datarate = 0;
+
+    private boolean connectionRequested = false;
+    private boolean connected = false;
+    private boolean setupFinished = false;
+//    private boolean connectionFailed = false;
+//    private boolean connectionLost = false;
+    private boolean disconnected = false;
+    private boolean linkQuality = false;
 
     public static CrtpDriver getConnectionImpl() {
         return new RadioDriver(new UsbLinkJava());
@@ -91,26 +101,60 @@ public class CrazyflieTest {
 
     @Test
     public void testConnectionListener() {
-        Crazyflie crazyflie = new Crazyflie(getConnectionImpl());
+        final Crazyflie crazyflie = new Crazyflie(getConnectionImpl());
 
         crazyflie.getDriver().addConnectionListener(new TestConnectionAdapter() {
 
+            @Override
+            public void connectionRequested(String connectionInfo) {
+                super.connectionRequested(connectionInfo);
+                connectionRequested = true;
+            }
+
+            @Override
+            public void connected(String connectionInfo) {
+                super.connected(connectionInfo);
+                connected = true;
+            }
+
+            @Override
+            public void setupFinished(String connectionInfo) {
+                super.setupFinished(connectionInfo);
+                setupFinished = true;
+            }
+
+            @Override
+            public void disconnected(String connectionInfo) {
+                super.disconnected(connectionInfo);
+                disconnected = true;
+            }
+
             public void linkQualityUpdated(int percent) {
                 System.out.println("LINK QUALITY: " + percent);
+                linkQuality = true;
             }
 
         });
 
         crazyflie.connect(channel, datarate);
 
-        for (int i = 0; i < 30; i++) {
-            crazyflie.sendPacket(new CommanderPacket(0, 0, 0, (char) 0));
+        int timeout = 5000;
+        
+        while (!setupFinished && timeout > 0) {
             try {
                 Thread.sleep(50, 0);
             } catch (InterruptedException e) {
                 break;
             }
+            timeout -= 50;
         }
+
         crazyflie.disconnect();
+        
+        assertTrue(connectionRequested);
+        assertTrue(connected);
+        assertTrue(setupFinished);
+        assertTrue(disconnected);
+        assertTrue(linkQuality);
     }
 }
