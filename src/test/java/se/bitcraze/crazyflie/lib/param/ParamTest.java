@@ -30,6 +30,7 @@ package se.bitcraze.crazyflie.lib.param;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -61,7 +62,7 @@ public class ParamTest {
     @Test
     public void testParam() {
         //TODO: refactor this into a test utility method
-        final Crazyflie crazyflie = new Crazyflie(CrazyflieTest.getConnectionImpl());
+        final Crazyflie crazyflie = new Crazyflie(CrazyflieTest.getConnectionImpl(), new File("src/test"));
 
         //TODO: test that TocCache actually works
         crazyflie.clearTocCache();
@@ -182,7 +183,7 @@ public class ParamTest {
     @Test
     public void testParamElements() {
         //TODO: refactor this into a test utility method
-        Crazyflie crazyflie = new Crazyflie(CrazyflieTest.getConnectionImpl());
+        Crazyflie crazyflie = new Crazyflie(CrazyflieTest.getConnectionImpl(), new File("src/test"));
 
         crazyflie.clearTocCache();
 
@@ -199,6 +200,10 @@ public class ParamTest {
             }
         }
         crazyflie.disconnect();
+
+        if (crazyflie.getParam() == null) {
+            fail("crazyflie.getParam() is null");
+        }
 
         if (crazyflie.getParam() == null) {
             fail("crazyflie.getParam() is null");
@@ -237,7 +242,7 @@ public class ParamTest {
     @Test
     public void testParamSet() throws InterruptedException {
         //TODO: refactor this into a test utility method
-        Crazyflie crazyflie = new Crazyflie(CrazyflieTest.getConnectionImpl());
+        Crazyflie crazyflie = new Crazyflie(CrazyflieTest.getConnectionImpl(), new File("src/test"));
 
         //crazyflie.clearTocCache();
 

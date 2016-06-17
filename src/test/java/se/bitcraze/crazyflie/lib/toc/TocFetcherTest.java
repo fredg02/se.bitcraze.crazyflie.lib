@@ -30,6 +30,7 @@ package se.bitcraze.crazyflie.lib.toc;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.util.List;
 
 import org.junit.Test;
@@ -85,7 +86,7 @@ public class TocFetcherTest {
             fail("Crazyradio not connected");
         }
         
-        final Crazyflie crazyflie = new Crazyflie(CrazyflieTest.getConnectionImpl());
+        final Crazyflie crazyflie = new Crazyflie(CrazyflieTest.getConnectionImpl(), new File("src/test"));
 
         crazyflie.clearTocCache();
 

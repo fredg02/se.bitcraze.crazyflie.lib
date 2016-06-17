@@ -29,6 +29,8 @@ package se.bitcraze.crazyflie.lib.crazyflie;
 
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
+
 import org.junit.Test;
 
 import se.bitcraze.crazyflie.lib.TestConnectionAdapter;
@@ -58,7 +60,7 @@ public class CrazyflieTest {
 
     @Test
     public void testCrazyflie() {
-        Crazyflie crazyflie = new Crazyflie(getConnectionImpl());
+        Crazyflie crazyflie = new Crazyflie(getConnectionImpl(), new File("src/test"));
 
         crazyflie.connect(channel, datarate);
 

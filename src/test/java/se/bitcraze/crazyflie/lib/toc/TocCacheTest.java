@@ -47,20 +47,20 @@ import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
 
 public class TocCacheTest {
 
-    private final static String CURRENT_CRC_LOGGING = "0C144D45";
-    private final static String CURRENT_CRC_PARAMETERS = "CEBCD7D1";
+    private final static String CURRENT_CRC_LOGGING = "D270732C";
+    private final static String CURRENT_CRC_PARAMETERS = "114CBD6C";
 
     private List<TocElement> fetchedElements = new ArrayList<TocElement>();
     private List<TocElement> cachedElements = new ArrayList<TocElement>();
 
     @Test
     public void testTocCache_LOGGING() throws FileNotFoundException {
-        testTocCache(CURRENT_CRC_LOGGING, 70, CrtpPort.LOGGING);
+        testTocCache(CURRENT_CRC_LOGGING, 42, CrtpPort.LOGGING);
     }
 
     @Test
     public void testTocCache_PARAMETERS() throws FileNotFoundException {
-        testTocCache(CURRENT_CRC_PARAMETERS, 73, CrtpPort.PARAMETERS);
+        testTocCache(CURRENT_CRC_PARAMETERS, 74, CrtpPort.PARAMETERS);
     }
 
     public void testTocCache(String crc, int tocSize, CrtpPort port) {
@@ -80,7 +80,16 @@ public class TocCacheTest {
     }
 
     @Test
-    public void testTocCacheAgainstFetchedToc() {
+    public void testParamTocCacheAgainstFetchedToc() {
+        testTocCacheAgainstFetchedToc(CrtpPort.PARAMETERS);
+    }
+
+    @Test
+    public void testLogTocCacheAgainstFetchedToc() {
+        testTocCacheAgainstFetchedToc(CrtpPort.LOGGING);
+    }
+
+    public void testTocCacheAgainstFetchedToc(final CrtpPort port) {
 
         if (!TestUtilities.isCrazyradioAvailable()) {
             fail("Crazyradio not connected");
@@ -100,18 +109,18 @@ public class TocCacheTest {
             @Override
             public void setupFinished(String connectionInfo) {
                 //TODO: force fetching it from copter
-                Toc fetchedToc = crazyflie.getParam().getToc();
+                Toc fetchedToc = port == CrtpPort.PARAMETERS ? crazyflie.getParam().getToc() : crazyflie.getLogg().getToc();
                 if (fetchedToc != null) {
                     int fetchedCrc = fetchedToc.getCrc();
                     System.out.println("Fetched CRC: " + String.format("%08X", fetchedCrc));
                     fetchedElements = fetchedToc.getElements();
-                    System.out.println("Number of Param TOC elements (fetched): " + fetchedElements.size());
+                   System.out.println("Number of " + port.name() + " TOC elements (fetched): " + fetchedElements.size());
 
                     TocCache tocCache = new TocCache(new File("src/test"));
                     Toc cachedToc = tocCache.fetch(fetchedCrc, CrtpPort.PARAMETERS);
                     if (cachedToc != null) {
                         cachedElements = cachedToc.getElements();
-                        System.out.println("Number of Param TOC elements (cached): " + cachedElements.size());
+                        System.out.println("Number of " + port.name() + " TOC elements (cached): " + cachedElements.size());
                     } else {
                         fail("TocCache is NULL.");
                     }
