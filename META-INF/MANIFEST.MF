@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Crazyflie Lib
+Bundle-SymbolicName: se.bitcraze.crazyflie.lib
+Bundle-Version: 0.0.1.qualifier
+Export-Package: se.bitcraze.crazyflie.lib;
+  uses:="se.bitcraze.crazyflie.lib.crazyflie,
+   se.bitcraze.crazyflie.lib.log,
+   se.bitcraze.crazyflie.lib.crtp,
+   se.bitcraze.crazyflie.lib.crazyradio,
+   org.slf4j",
+ se.bitcraze.crazyflie.lib.bootloader,
+ se.bitcraze.crazyflie.lib.crazyflie;uses:="se.bitcraze.crazyflie.lib.crtp",
+ se.bitcraze.crazyflie.lib.crazyradio,
+ se.bitcraze.crazyflie.lib.crtp;uses:="se.bitcraze.crazyflie.lib.crazyflie,se.bitcraze.crazyflie.lib.crazyradio",
+ se.bitcraze.crazyflie.lib.log;uses:="se.bitcraze.crazyflie.lib.crazyradio",
+ se.bitcraze.crazyflie.lib.param;uses:="se.bitcraze.crazyflie.lib.crazyradio",
+ se.bitcraze.crazyflie.lib.toc;uses:="se.bitcraze.crazyflie.lib.crtp",
+ se.bitcraze.crazyflie.lib.usb
+Bundle-Vendor: Bitcraze
