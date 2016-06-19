@@ -76,11 +76,11 @@ public class LogDataLiveTest {
 
                 mLogg.addLogListener(new TestLogAdapter() {
                     
-                    public void logDataReceived(LogConfig logConfig, Map<String, Number> data) {
-                        System.out.println("LogConfig '" + logConfig.getName()  + "', data : ");
+                    public void logDataReceived(LogConfig logConfig, Map<String, Number> data, int timestamp) {
+                        System.out.println("LogConfig '" + logConfig.getName()  + "', timestamp: " + timestamp + ", data : ");
                         // TODO sort?
                         for (Entry<String, Number> entry : data.entrySet()) {
-                            System.out.println("Name: " + entry.getKey() + ", data: " + entry.getValue());
+                            System.out.println("\t Name: " + entry.getKey() + ", data: " + entry.getValue());
                         }
                         float pmVbatValue = data.get("pm.vbat").floatValue();
                         assertTrue("Value of pm.vbat should be between 3.0f and 4.5f, but was: " + pmVbatValue, 3.0f < pmVbatValue && 4.5f > pmVbatValue);

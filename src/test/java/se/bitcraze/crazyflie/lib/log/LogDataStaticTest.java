@@ -30,6 +30,7 @@ package se.bitcraze.crazyflie.lib.log;
 import static org.junit.Assert.*;
 
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -128,9 +129,10 @@ public class LogDataStaticTest {
         CrtpPacket packet = new CrtpPacket(originalByteArray);
         byte[] payload = packet.getPayload();
         
-        Map<String, Number> parseLogData = Logg.parseLogData(payload, lc_battery);
+        Map<String, Number> parseLogData = new HashMap<String, Number>();
+        int timestamp = Logg.parseLogData(payload, lc_battery, parseLogData);
         for (Entry<String, Number> entry : parseLogData.entrySet()) {
-            System.out.println("Key: " + entry.getKey() + ", value: " + entry.getValue());
+            System.out.println("Key: " + entry.getKey() + ", value: " + entry.getValue() + ", timestamp: " + timestamp);
         }
         
         //TODO: test timestamp

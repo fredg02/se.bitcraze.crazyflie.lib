@@ -58,7 +58,7 @@ public class TestLogAdapter implements LogListener {
         System.out.println("LOG_CONFIG '" + logConfig.getName() + msg);
     }
 
-    public void logDataReceived(LogConfig logConfig, Map<String, Number> data) {
+    public void logDataReceived(LogConfig logConfig, Map<String, Number> data, int timestamp) {
         // System.out.println("LOG_CONFIG DATA RECEIVED: " + logConfig.getName());
     }
 
