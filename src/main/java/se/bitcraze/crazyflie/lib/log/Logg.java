@@ -312,7 +312,7 @@ public class Logg {
                 } else {
                     // msg = self._err_codes[error_status]
                     String msg = ErrCodes.values()[errorStatus].getMsg();
-                    mLogger.warn("Error " + errorStatus + " when starting ID=" + id + "(" + msg + ")");
+                    mLogger.warn("Error " + errorStatus + " when starting ID=" + id + " (" + msg + ")");
 
                     if (logConfig != null) {
                         logConfig.setErrNo(errorStatus);
@@ -529,6 +529,13 @@ public class Logg {
                 mCrazyflie.sendPacket(packet);
             }
         }
+        //hacky workarounds
+        logConfig.setAdded(false);
+        mLogConfigs.remove(logConfig);
+    }
+
+    public List<LogConfig> getLogConfigs() {
+        return mLogConfigs;
     }
 
     /* Log listener methods*/
@@ -544,7 +551,7 @@ public class Logg {
     /**
      * Remove the log listener
      */
-    public void removeLogListeners(LogListener logListener) {
+    public void removeLogListener(LogListener logListener) {
         mLogListeners.remove(logListener);
     }
 

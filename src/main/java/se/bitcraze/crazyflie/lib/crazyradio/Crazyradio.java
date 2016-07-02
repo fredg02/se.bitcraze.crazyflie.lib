@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
 
 import se.bitcraze.crazyflie.lib.usb.CrazyUsbInterface;
 
-
 /**
  * Used for communication with the Crazyradio USB dongle
  *
