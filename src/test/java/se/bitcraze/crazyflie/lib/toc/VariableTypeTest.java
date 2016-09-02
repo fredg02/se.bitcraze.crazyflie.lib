@@ -137,4 +137,18 @@ public class VariableTypeTest {
         //TODO: DOUBLE
     }
 
+    @Test
+    public void testSize() {
+        assertEquals(1, VariableType.UINT8_T.getSize());
+        assertEquals(2, VariableType.UINT16_T.getSize());
+        assertEquals(4, VariableType.UINT32_T.getSize());
+        assertEquals(8, VariableType.UINT64_T.getSize());
+        assertEquals(1, VariableType.INT8_T.getSize());
+        assertEquals(2, VariableType.INT16_T.getSize());
+        assertEquals(4, VariableType.INT32_T.getSize());
+        assertEquals(8, VariableType.INT64_T.getSize());
+        assertEquals(4, VariableType.FLOAT.getSize());
+        assertEquals(8, VariableType.DOUBLE.getSize());
+    }
+
 }
