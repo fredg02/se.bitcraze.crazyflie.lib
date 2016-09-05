@@ -34,27 +34,19 @@ import se.bitcraze.crazyflie.lib.log.LogListener;
 
 public class TestLogAdapter implements LogListener {
 
+    //TODO: use LogAdapter instead (redirect logging to console if possible)
+
     public void logConfigAdded(LogConfig logConfig) {
-        String msg = "";
-        if(logConfig.isAdded()) {
-            msg = "' ADDED";
-        } else {
-            msg = "' DELETED";
-        }
+        String msg = logConfig.isAdded() ? "' ADDED" : "' DELETED";
         System.out.println("LOG_CONFIG '" + logConfig.getName() + msg);
     }
 
     public void logConfigError(LogConfig logConfig) {
-        System.out.println("LOG_CONFIG ERROR: " + logConfig.getName() + ", ErrNo: " + logConfig.getErrNo());
+        System.out.println("LOG_CONFIG ERROR: " + logConfig.getName() + "': " + logConfig.getErrMsg() + ", ErrNo: " + logConfig.getErrNo());
     }
 
     public void logConfigStarted(LogConfig logConfig) {
-        String msg = "";
-        if(logConfig.isStarted()) {
-            msg = "' STARTED";
-        } else {
-            msg = "' STOPPED";
-        }
+        String msg = logConfig.isStarted() ? "' STARTED" : "' STOPPED";
         System.out.println("LOG_CONFIG '" + logConfig.getName() + msg);
     }
 
