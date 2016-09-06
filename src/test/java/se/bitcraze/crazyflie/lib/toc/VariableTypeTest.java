@@ -138,7 +138,7 @@ public class VariableTypeTest {
     }
 
     @Test
-    public void testSize() {
+    public void testVariableTypeSize() {
         assertEquals(1, VariableType.UINT8_T.getSize());
         assertEquals(2, VariableType.UINT16_T.getSize());
         assertEquals(4, VariableType.UINT32_T.getSize());

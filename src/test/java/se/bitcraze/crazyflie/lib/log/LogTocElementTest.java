@@ -117,8 +117,6 @@ public class LogTocElementTest {
         System.out.println("ParamTocElement VariableTypeMap:");
         ParamTocElement paramTocElement = new ParamTocElement();
         showMap(paramTocElement);
-
-        
     }
     
     private void showMap(TocElement tocElement) {
