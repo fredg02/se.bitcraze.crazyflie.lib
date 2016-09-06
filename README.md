@@ -1,7 +1,7 @@
 # Crazyflie Java library
 
 The intention of this library is to be the Java equivalent of
-the **cflib** contained in the [Crazyflie Python client](https://github.com/bitcraze/crazyflie-clients-python).
+[crazyflie-lib-python](https://github.com/bitcraze/crazyflie-lib-python), a Python based library that is used by the [Crazyflie Python client](https://github.com/bitcraze/crazyflie-clients-python).
  
 Therefore this library is heavily based on the Python implementation.
 Some components are almost identical, some differ more to accommodate different
@@ -26,7 +26,7 @@ Integration
 The Crazyflie Java library is a [Maven](https://maven.apache.org) project and can therefore be compiled
 into a simple JAR with the following command:
 ```
-mvn clean install -DskipTests
+mvn clean verify -DskipTests
 ```
 
 The compiled JAR can then be found in the **target** directory (e.g. ``se.bitcraze.crazyflie.lib-0.0.1-SNAPSHOT.jar``).
@@ -46,25 +46,24 @@ Tests
 
 JUnit tests can be executed from the command line with:
 ```
-mvn clean install
+mvn clean verify
 ```
 
-Or from within Eclipse.
+Or from within Eclipse by running ``/se.bitcraze.crazyflie.lib/src/test/java/se/bitcraze/crazyflie/lib/AllTests.java`` as a JUnit test. 
 
-**Please make sure that a Crazyradio (PA) is connected and a Crazyflie 1.0 or 2.0 is switched on, when running the tests.**
-(otherwise they will fail)  
+**Please make sure that a Crazyradio (PA) is connected and a Crazyflie 1.0 or 2.0 is switched on, when running the tests** (otherwise they will fail).
 
 
 Examples
 --------
 
-Examples are included in the project **se.bitcraze.crazyflie.lib.examples**.
+Examples are included in the project [se.bitcraze.crazyflie.lib.examples](https://github.com/fredg02/se.bitcraze.crazyflie.lib.examples).
 
 
 Known issues
 ------------
 
-* Bootloader not yet supported 
+* Bootloader not fully supported yet 
 * Debug driver incomplete (Tests currently need Crazyflie/Crazyradio to run successfully)
 * Too many Thread.sleep()s ;)
 
