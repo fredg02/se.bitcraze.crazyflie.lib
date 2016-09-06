@@ -97,7 +97,7 @@ public class LoggTest {
                 // Start config
                 mLogg.start(testConfig);
 
-                // Start a timer to disconnect after 5s
+                // Start a timer to disconnect after 3s
                 Timer timer = new Timer();
                 timer.schedule(new TimerTask() {
 
