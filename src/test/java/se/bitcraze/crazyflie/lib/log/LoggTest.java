@@ -38,11 +38,14 @@ import java.util.Map.Entry;
 
 import org.junit.Test;
 
+import se.bitcraze.crazyflie.lib.MockDriver;
 import se.bitcraze.crazyflie.lib.TestConnectionAdapter;
 import se.bitcraze.crazyflie.lib.TestLogAdapter;
 import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie;
 import se.bitcraze.crazyflie.lib.crazyflie.CrazyflieTest;
 import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
+import se.bitcraze.crazyflie.lib.toc.Toc;
+import se.bitcraze.crazyflie.lib.toc.TocElement;
 
 public class LoggTest {
 
@@ -54,6 +57,37 @@ public class LoggTest {
     private boolean mSetupFinished = false;
 
     ConnectionData mConnectionData = new ConnectionData(CrazyflieTest.channel, CrazyflieTest.datarate);
+
+    /**
+     * Trying to create a config with a variable that is not in the TOC (or while the TOC is empty) caused NPEs
+     * in Logg.create()
+     */
+    // offline test
+    @Test
+    public void testCreateConfigWithNonExistentTocItem() {
+        LogConfig testConfig = new LogConfig("testConfig");
+        testConfig.addVariable("foo.bar");
+        
+        Crazyflie cf = new Crazyflie(new MockDriver(MockDriver.CF2));
+        
+        Logg logg = new Logg(cf);
+        
+        // first test (TOC is null)
+        // TODO: should this throw an exception?
+        logg.create(testConfig);
+        
+        // second test (TOC exists, TocElement exists, but no VariableType)
+        // TODO: should this throw an exception?
+        Toc loggToc = new Toc();
+        TocElement fooBar = new TocElement();
+        fooBar.setGroup("foo");
+        fooBar.setName("bar");
+        loggToc.addElement(fooBar);
+        
+        logg.setToc(loggToc);
+        
+        logg.create(testConfig);
+    }
 
     @Test
     public void testLogg() {
