@@ -45,7 +45,6 @@ import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket.Header;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
 import se.bitcraze.crazyflie.lib.param.ParamTocElement;
-import se.bitcraze.crazyflie.lib.toc.TocFetcher.TocState;
 
 public class TocFetcherTest {
 
@@ -59,10 +58,10 @@ public class TocFetcherTest {
         Crazyflie crazyflieDummy = new Crazyflie(new MockDriver(MockDriver.CF1));
         Toc toc = new Toc();
         TocFetcher tocFetcher = new TocFetcher(crazyflieDummy, CrtpPort.PARAMETERS, toc, null);
+        tocFetcher.start();
 
-        tocFetcher.setState(TocState.GET_TOC_INFO); //TODO: try to remove
-
-        // Manually injecting toc info packet
+        // TODO: move to MockDriver
+        // Manually injecting TOC info packet
         Header tocInfoHeader = new Header(TocFetcher.TOC_CHANNEL, CrtpPort.PARAMETERS);
         CrtpPacket tocInfoPacket = new CrtpPacket(tocInfoHeader.getByte(), new byte[] {1,53,-83,125,-68,-24,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0});
         tocFetcher.newPacketReceived(tocInfoPacket);
@@ -78,6 +77,20 @@ public class TocFetcherTest {
         assertEquals(ParamTocElement.RO_ACCESS, id00.getAccess());
     }
 
+    @Test
+    public void testTocFetcherOffline_TocIsBiggerThan128() {
+        Crazyflie crazyflieDummy = new Crazyflie(new MockDriver(MockDriver.CF1));
+        TocFetcher tocFetcher = new TocFetcher(crazyflieDummy, CrtpPort.PARAMETERS, new Toc(), null);
+        tocFetcher.start();
+
+        // TODO: move to MockDriver
+        // Manually injecting TOC info packet
+        Header tocInfoHeader = new Header(TocFetcher.TOC_CHANNEL, CrtpPort.PARAMETERS);
+        CrtpPacket tocInfoPacket = new CrtpPacket(tocInfoHeader.getByte(), new byte[] {1,-68,-83,125,-68,-24,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0});
+        tocFetcher.newPacketReceived(tocInfoPacket);
+        
+        assertEquals(188, tocFetcher.getNoOfItems());
+    }
 
     @Test
     public void testTocFetcher() {

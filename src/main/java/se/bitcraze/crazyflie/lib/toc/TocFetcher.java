@@ -116,9 +116,9 @@ public class TocFetcher {
         return this.mState;
     }
 
-    // TODO: only for testing, try to remove
-    public void setState(TocState state) {
-        this.mState = state;
+    // TODO: only for testing?
+    public int getNoOfItems() {
+        return this.mNoOfItems;
     }
 
     public void newPacketReceived(CrtpPacket packet) {
@@ -136,6 +136,8 @@ public class TocFetcher {
             if (packet.getPayload()[0] == CMD_TOC_INFO) {
                 // [self.nbr_of_items, self._crc] = struct.unpack("<BI", payload[:5])
                 this.mNoOfItems = payloadBuffer.get();
+                // Fix for TOC > 128 items (fixed by Arnaud)
+                this.mNoOfItems &= 0x00ff;
                 this.mCrc = payloadBuffer.getInt();
                 mToc.setCrc(mCrc);
 
@@ -162,7 +164,8 @@ public class TocFetcher {
                 // Always add new element, but only request new if it's not the last one.
 
                 // if self.requested_index != ord(payload[0]):
-                if (this.mRequestedIndex != payloadBuffer.get(0)) {
+             // Fix for TOC > 128 items (fixed by Arnaud)
+                if (this.mRequestedIndex != (payloadBuffer.get(0) & 0x00ff)) {
                     /*
                         # TODO: There might be a timing issue here with resending old
                         #       packets while loosing new ones. Then if 7 is requested
