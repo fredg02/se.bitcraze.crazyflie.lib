@@ -453,6 +453,10 @@ public class Logg {
                 noOfLogVariables++;
             } else { // Item in TOC
                 String name = variable.getName();
+                if (mToc == null) {
+                    mLogger.error("TOC is null.");
+                    return;
+                }
                 int tocElementId = mToc.getElementId(name);
                 if (tocElementId == -1) {
                     mLogger.error("Toc element " + name + " not found in TOC.");

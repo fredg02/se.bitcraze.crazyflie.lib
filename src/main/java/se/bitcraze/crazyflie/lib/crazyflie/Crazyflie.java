@@ -258,6 +258,7 @@ public class Crazyflie {
     public void checkForInitialPacketCallback(CrtpPacket packet) {
         //TODO: should be made more reliable
         if (this.mState == State.INITIALIZED) {
+            mLogger.info("Initial packet has been received! => State.CONNECTED");
             this.mState = State.CONNECTED;
             //self.link_established.call(self.link_uri)
             //TODO: fix hacky-di-hack
@@ -402,7 +403,7 @@ public class Crazyflie {
         final Logger mLogger = LoggerFactory.getLogger("IncomingPacketHandler");
 
         public void run() {
-            while(getDriver().isConnected() && !Thread.currentThread().isInterrupted()) {
+            while(!Thread.currentThread().isInterrupted()) {
                 CrtpPacket packet = getDriver().receivePacket(1);
                 if(packet == null) {
                     continue;
