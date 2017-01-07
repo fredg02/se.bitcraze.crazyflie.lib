@@ -3,7 +3,11 @@ package se.bitcraze.crazyflie.lib.bootloader;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+import se.bitcraze.crazyflie.lib.OfflineTests;
+
+@Category(OfflineTests.class)
 public class TargetTest {
 
 

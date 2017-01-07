@@ -27,7 +27,7 @@
 
 package se.bitcraze.crazyflie.lib.log;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -35,10 +35,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+import se.bitcraze.crazyflie.lib.OfflineTests;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
 import se.bitcraze.crazyflie.lib.toc.VariableType;
 
+@Category(OfflineTests.class)
 public class LogDataStaticTest {
 
     /*

@@ -17,8 +17,10 @@ import javax.usb.UsbException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import se.bitcraze.crazyflie.lib.MockDriver;
+import se.bitcraze.crazyflie.lib.OfflineTests;
 import se.bitcraze.crazyflie.lib.TestUtilities;
 import se.bitcraze.crazyflie.lib.bootloader.Bootloader.BootloaderListener;
 import se.bitcraze.crazyflie.lib.bootloader.Bootloader.FlashTarget;
@@ -314,6 +316,7 @@ public class BootloaderTest {
         assertEquals(127792, targets.get(0).getData().length);
     }
 
+    @Category(OfflineTests.class)
     @Test
     public void testReadManifest() throws IOException {
         Manifest readManifest = Bootloader.readManifest(new File("src/test/manifest.json"));
@@ -339,6 +342,7 @@ public class BootloaderTest {
         assertEquals("fw", firmwareDetails2.getType());
     }
 
+    @Category(OfflineTests.class)
     @Test
     public void writeManifest() throws IOException {
         Manifest manifest = new Manifest();

@@ -33,7 +33,11 @@ import static org.junit.Assert.assertEquals;
 import java.nio.ByteBuffer;
 
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+import se.bitcraze.crazyflie.lib.OfflineTests;
+
+@Category(OfflineTests.class)
 public class VariableTypeTest {
 
     private ByteBuffer mBuffer = ByteBuffer.allocate(8);

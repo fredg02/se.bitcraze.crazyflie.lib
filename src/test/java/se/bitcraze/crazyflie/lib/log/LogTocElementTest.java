@@ -32,11 +32,14 @@ import static org.junit.Assert.assertEquals;
 import java.util.Map.Entry;
 
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+import se.bitcraze.crazyflie.lib.OfflineTests;
 import se.bitcraze.crazyflie.lib.param.ParamTocElement;
 import se.bitcraze.crazyflie.lib.toc.TocElement;
 import se.bitcraze.crazyflie.lib.toc.VariableType;
 
+@Category(OfflineTests.class)
 public class LogTocElementTest {
 
     @Test

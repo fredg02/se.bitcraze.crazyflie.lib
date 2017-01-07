@@ -34,8 +34,10 @@ import java.io.File;
 import java.util.List;
 
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import se.bitcraze.crazyflie.lib.MockDriver;
+import se.bitcraze.crazyflie.lib.OfflineTests;
 import se.bitcraze.crazyflie.lib.TestConnectionAdapter;
 import se.bitcraze.crazyflie.lib.TestUtilities;
 import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie;
@@ -53,6 +55,7 @@ public class TocFetcherTest {
     boolean mStateSetupFinished = false;
     boolean mStateDisconnected = false;
 
+    @Category(OfflineTests.class)
     @Test
     public void testTocFetcherOffline() {
         Crazyflie crazyflieDummy = new Crazyflie(new MockDriver(MockDriver.CF1));
@@ -77,6 +80,7 @@ public class TocFetcherTest {
         assertEquals(ParamTocElement.RO_ACCESS, id00.getAccess());
     }
 
+    @Category(OfflineTests.class)
     @Test
     public void testTocFetcherOffline_TocIsBiggerThan128() {
         Crazyflie crazyflieDummy = new Crazyflie(new MockDriver(MockDriver.CF1));
