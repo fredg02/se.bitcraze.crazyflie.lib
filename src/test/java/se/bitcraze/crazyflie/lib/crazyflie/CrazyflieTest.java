@@ -27,9 +27,10 @@
 
 package se.bitcraze.crazyflie.lib.crazyflie;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
+import java.util.ArrayList;
 
 import org.junit.Test;
 
@@ -41,6 +42,7 @@ import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
 import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
 
+//TODO: use MockDriver if no real Crazyflie is available
 public class CrazyflieTest {
 
     public static int channel = 10;
@@ -59,30 +61,16 @@ public class CrazyflieTest {
     }
 
     @Test
-    public void testCrazyflie() {
-        Crazyflie crazyflie = new Crazyflie(getConnectionImpl(), new File("src/test"));
-
-        crazyflie.connect(channel, datarate);
-
-        for (int i = 0; i < 10; i++) {
-            crazyflie.sendPacket(new CommanderPacket(0, 0, 0, (char) 0));
-            try {
-                Thread.sleep(50, 0);
-            } catch (InterruptedException e) {
-                break;
-            }
-        }
-        crazyflie.disconnect();
-    }
-
-    @Test
     public void testDataListener() {
         Crazyflie crazyflie = new Crazyflie(getConnectionImpl());
 
+        final ArrayList<CrtpPacket> packetList = new ArrayList<CrtpPacket>();
+        
         crazyflie.addDataListener(new DataListener(CrtpPort.CONSOLE) {
 
             @Override
             public void dataReceived(CrtpPacket packet) {
+                packetList.add(packet);
                 System.out.println("Received " + packet);
             }
 
@@ -99,6 +87,8 @@ public class CrazyflieTest {
             }
         }
         crazyflie.disconnect();
+        
+        assertFalse("PacketList should not be empty", packetList.isEmpty());
     }
 
     @Test
