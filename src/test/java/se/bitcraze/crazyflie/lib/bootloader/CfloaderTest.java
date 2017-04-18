@@ -21,7 +21,7 @@ public class CfloaderTest {
         if (TestUtilities.isCrazyradioAvailable()) {
             mDriver = new RadioDriver(new UsbLinkJava());
         } else {
-            mDriver = new MockDriver(MockDriver.CF1);
+            mDriver = new MockDriver();
         }
         mCfloader = new Cfloader(mDriver);
     }

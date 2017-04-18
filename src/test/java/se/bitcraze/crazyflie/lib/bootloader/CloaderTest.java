@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeFalse;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -13,17 +14,22 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+import se.bitcraze.crazyflie.lib.MockDriver;
+import se.bitcraze.crazyflie.lib.OfflineTests;
 import se.bitcraze.crazyflie.lib.TestUtilities;
 import se.bitcraze.crazyflie.lib.bootloader.Target.TargetTypes;
 import se.bitcraze.crazyflie.lib.bootloader.Utilities.BootVersion;
 import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
+import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
 import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
 
-//TODO: mock bootloader reply packages
+//TODO: mock bootloader reply packets
 //TODO: Fix USB error after reset to firmware
 //TODO: test info on NRF51
+@Category(OfflineTests.class)
 public class CloaderTest {
 
     private Cloader cloader;
@@ -31,11 +37,14 @@ public class CloaderTest {
 
     @Before
     public void setUp() throws IOException {
-        if (!TestUtilities.isCrazyradioAvailable()) {
-            fail("Crazyradio not attached!");
+        CrtpDriver mDriver = null;
+        if (TestUtilities.isCrazyradioAvailable()) {
+            mDriver = new RadioDriver(new UsbLinkJava());
+        } else {
+            mDriver = new MockDriver();
         }
 
-        cloader = new Cloader(new RadioDriver(new UsbLinkJava()));
+        cloader = new Cloader(mDriver);
         System.out.print("Restart the Crazyflie you want to bootload in the next 10 seconds ...");
         bootloaderConnection = cloader.scanForBootloader();
         if (bootloaderConnection != null) {
@@ -140,8 +149,10 @@ public class CloaderTest {
         Target target = cloader.getTargetsAsList().get(0);
         if (target.getFlashPages() == 128) { //CF 1.0
             cloader.close();
-            fail("Update mapping can only be tested on CF 2.0.");
         }
+        // Using assumption instead of @ignore
+        assumeFalse("testCloader_updateMapping can only be tested on CF 2.0.", target.getFlashPages() == 128);
+
         Integer[] decompressedMappingData = cloader.updateMapping(TargetTypes.STM32);
         System.out.println("Decompressed mapping data: " + Arrays.toString(decompressedMappingData));
 
@@ -151,14 +162,13 @@ public class CloaderTest {
         cloader.resetToFirmware(getTargetType(target));
     }
 
+    /**
+     * TODO: does not even work with CF1 atm
+     * 
+     * @throws IOException
+     */
     @Test @Ignore
     public void testCloaderCF1_readFlash() throws IOException {
-        Target target = cloader.getTargetsAsList().get(0);
-        if (target.getFlashPages() != 128) { //128 = CF 1.0, 1024 = CF 2.0
-            cloader.close();
-            fail("testCloaderCF1_readFlash should only be tested on CF 1.0.");
-        }
-
         boolean checkLinkAndGetInfo = cloader.checkLinkAndGetInfo(TargetTypes.STM32); //CF1
         assertTrue(checkLinkAndGetInfo);
 
@@ -167,6 +177,13 @@ public class CloaderTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        Target target = cloader.getTargetsAsList().get(0);
+        if (target.getFlashPages() != 128) { //128 = CF 1.0, 1024 = CF 2.0
+            cloader.close();
+        }
+        // Using assumption instead of @ignore
+        assumeFalse("testCloaderCF1_readFlash should only be tested on CF 1.0.", target.getFlashPages() != 128);
 
         System.out.println("Reading flash...");
         byte[] readFlash = cloader.readFlash(0xFF, 0x00);
@@ -211,11 +228,19 @@ public class CloaderTest {
         }
     }
 
-    @Test @Ignore
+    @Test
     public void testCloaderCF1_setAddress() throws IOException {
         boolean checkLinkAndGetInfo = cloader.checkLinkAndGetInfo(TargetTypes.STM32); //CF1
         assertTrue(checkLinkAndGetInfo);
 
+        Target target = cloader.getTargetsAsList().get(0);
+        if (target.getFlashPages() != 128) { //128 = CF 1.0, 1024 = CF 2.0
+            cloader.close();
+        }
+
+        // Using assumption instead of @ignore
+        assumeFalse("testCloaderCF1_setAddress should only be tested on CF 1.0.", target.getFlashPages() != 128);
+        
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {

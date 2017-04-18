@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 import se.bitcraze.crazyflie.lib.bootloader.BootloaderTest;
+import se.bitcraze.crazyflie.lib.bootloader.CloaderTest;
 import se.bitcraze.crazyflie.lib.bootloader.TargetTest;
 import se.bitcraze.crazyflie.lib.bootloader.UtilitiesTest;
 import se.bitcraze.crazyflie.lib.log.LogDataStaticTest;
@@ -18,6 +19,7 @@ import se.bitcraze.crazyflie.lib.toc.VariableTypeTest;
 @RunWith(Categories.class)
 @Categories.IncludeCategory(OfflineTests.class)
 @Suite.SuiteClasses({
+    CloaderTest.class,
     TocFetcherTest.class,
     TocTest.class,
     VariableTypeTest.class,
