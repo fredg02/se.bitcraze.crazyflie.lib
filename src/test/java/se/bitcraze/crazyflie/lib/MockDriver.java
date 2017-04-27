@@ -152,7 +152,7 @@ public class MockDriver extends RadioDriver  {
     }
 
     @Override
-    public boolean scanSelected(int channel, int datarate, byte[] packet) {
+    public boolean scanSelected(ConnectionData connectionData, byte[] packet) {
         return true;
     }
 

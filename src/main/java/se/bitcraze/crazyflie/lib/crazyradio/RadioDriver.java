@@ -228,11 +228,11 @@ public class RadioDriver extends CrtpDriver {
         return connectionDataList;
     }
 
-    public boolean scanSelected(int channel, int datarate, byte[] packet) {
+    public boolean scanSelected(ConnectionData connectionData, byte[] packet) {
         if (mCradio == null) {
             mCradio = new Crazyradio(mUsbInterface);
         }
-        return mCradio.scanSelected(channel, datarate, packet);
+        return mCradio.scanSelected(connectionData.getChannel(), connectionData.getDataRate(), packet);
     }
 
     public Crazyradio getRadio() {

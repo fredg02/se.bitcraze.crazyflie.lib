@@ -77,7 +77,7 @@ public class Crazyradio {
     private float mVersion; // Crazyradio firmware version
     private String mSerialNumber; // Crazyradio serial number
 
-    public final static byte[] NULL_PACKET = new byte[] { (byte) 0xff };
+    protected final static byte[] NULL_PACKET = new byte[] { (byte) 0xff };
 
     /**
      * Create object and scan for USB dongle if no device is supplied
@@ -283,23 +283,36 @@ public class Crazyradio {
             if (hasFwScan()) {
                 result.addAll(firmwareScan(start, stop));
             } else {
-                // Slow PC-driven scan
-                mLogger.debug("Slow scan...");
-                // for i in range(start, stop + 1):
-                for (int channel = start; channel <= stop; channel++) {
-                    if(scanSelected(channel, NULL_PACKET)) {
-                        mLogger.debug("Found channel: " + channel);
-                        result.add(channel);
-                    }
-                    try {
-                        Thread.sleep(20);
-                    } catch (InterruptedException e) {
-                        mLogger.error("InterruptedException: " + e.getMessage());
-                    }
-                }
+                result = slowScan(start, stop);
             }
         } else {
             mLogger.warn("Crazyradio not attached.");
+        }
+        return result;
+    }
+
+
+    /**
+     * Slow PC-driven scan
+     * 
+     * @param start
+     * @param stop
+     * @return list of channels
+     */
+    private List<Integer> slowScan(int start, int stop) {
+        mLogger.debug("Slow scan...");
+        List<Integer> result = new ArrayList<Integer>();
+        // for i in range(start, stop + 1):
+        for (int channel = start; channel <= stop; channel++) {
+            if(scanSelected(channel, NULL_PACKET)) {
+                mLogger.debug("Found channel: %s", channel);
+                result.add(channel);
+            }
+            try {
+                Thread.sleep(20);
+            } catch (InterruptedException e) {
+                mLogger.error("InterruptedException: " + e.getMessage());
+            }
         }
         return result;
     }
@@ -339,7 +352,7 @@ public class Crazyradio {
         final int nfound = mUsbInterface.sendControlTransfer(0xc0, SCAN_CHANNELS, 0, 0, rdata);
         for (int i = 0; i < nfound; i++) {
             result.add((int) rdata[i]);
-            mLogger.debug("Found channel: " + rdata[i]);
+            mLogger.debug("Found channel: %s", rdata[i]);
         }
         return result;
     }
@@ -373,7 +386,7 @@ public class Crazyradio {
         return ackIn;
     }
 
-    public void sendVendorSetup(int request, int value, int index, byte[] data) {
+    private void sendVendorSetup(int request, int value, int index, byte[] data) {
         // usb.TYPE_VENDOR = 64 <=> 0x40
         int usbTypeVendor = 0x40;
         mUsbInterface.sendControlTransfer(usbTypeVendor, request, value, index, data);
