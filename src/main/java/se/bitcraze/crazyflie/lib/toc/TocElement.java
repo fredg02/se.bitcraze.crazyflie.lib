@@ -65,7 +65,7 @@ public class TocElement implements Comparable<TocElement> {
         if (data != null) {
             setGroupAndName(data);
 
-            setIdent(data[0]);
+            setIdent(data[0] & 0x00ff);
 
             setCtype(mVariableTypeMap.get(data[1] & 0x0F));
 
