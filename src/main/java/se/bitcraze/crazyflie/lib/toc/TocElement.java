@@ -28,18 +28,16 @@
 package se.bitcraze.crazyflie.lib.toc;
 
 import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
 
 /**
  * An element in the TOC
  *
  */
 public class TocElement implements Comparable<TocElement> {
-
-    protected Map<Integer, VariableType> mVariableTypeMap;
 
     public static final int RW_ACCESS = 1;
     public static final int RO_ACCESS = 0;
@@ -51,8 +49,6 @@ public class TocElement implements Comparable<TocElement> {
     private int mAccess = RO_ACCESS;
 
     public TocElement() {
-        mVariableTypeMap = new HashMap<Integer, VariableType>(10);
-        fillVariableTypeMap();
     }
 
     /**
@@ -60,14 +56,16 @@ public class TocElement implements Comparable<TocElement> {
      *
      * @param data the binary payload of the element
      */
-    public TocElement(byte[] data) {
+    public TocElement(CrtpPort port, byte[] data) {
         this();
         if (data != null) {
             setGroupAndName(data);
-
             setIdent(data[0] & 0x00ff);
-
-            setCtype(mVariableTypeMap.get(data[1] & 0x0F));
+            if (port == CrtpPort.LOGGING) {
+                setCtype(new Toc().getVariableTypeMapLog().get(data[1] & 0x0F)); 
+            } else {
+                setCtype(new Toc().getVariableTypeMapParam().get(data[1] & 0x0F));
+            }
 
             // setting pytype not needed in Java cf lib
 
@@ -115,21 +113,6 @@ public class TocElement implements Comparable<TocElement> {
 
     public VariableType getCtype() {
         return mCtype;
-    }
-
-    @JsonIgnore
-    public Map<Integer, VariableType> getMap() {
-        return mVariableTypeMap;
-    }
-
-    @JsonIgnore
-    public int getVariableTypeId() {
-        for (int key : mVariableTypeMap.keySet()) {
-            if (mVariableTypeMap.get(key) == this.mCtype) {
-                return key;
-            }
-        }
-        return -1;
     }
 
     public void setCtype(VariableType ctype) {

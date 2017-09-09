@@ -46,7 +46,6 @@ import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket.Header;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
-import se.bitcraze.crazyflie.lib.param.ParamTocElement;
 
 public class TocFetcherTest {
 
@@ -77,7 +76,7 @@ public class TocFetcherTest {
         TocElement id00 = toc.getElementById(0);
         assertEquals("imu_tests.MPU6050", id00.getCompleteName());
         assertEquals(VariableType.UINT8_T, id00.getCtype());
-        assertEquals(ParamTocElement.RO_ACCESS, id00.getAccess());
+        assertEquals(TocElement.RO_ACCESS, id00.getAccess());
     }
 
     @Category(OfflineTests.class)

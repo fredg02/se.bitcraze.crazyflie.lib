@@ -47,20 +47,20 @@ import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
 
 public class TocCacheTest {
 
-    private final static String CURRENT_CRC_LOGGING = "D270732C";
-    private final static String CURRENT_CRC_PARAMETERS = "114CBD6C";
+    private final static String CURRENT_CRC_LOGGING = "7508BC21";
+    private final static String CURRENT_CRC_PARAMETERS = "2DB36E98";
 
     private List<TocElement> fetchedElements = new ArrayList<TocElement>();
     private List<TocElement> cachedElements = new ArrayList<TocElement>();
 
     @Test
     public void testTocCache_LOGGING() throws FileNotFoundException {
-        testTocCache(CURRENT_CRC_LOGGING, 42, CrtpPort.LOGGING);
+        testTocCache(CURRENT_CRC_LOGGING, 173, CrtpPort.LOGGING);
     }
 
     @Test
     public void testTocCache_PARAMETERS() throws FileNotFoundException {
-        testTocCache(CURRENT_CRC_PARAMETERS, 74, CrtpPort.PARAMETERS);
+        testTocCache(CURRENT_CRC_PARAMETERS, 127, CrtpPort.PARAMETERS);
     }
 
     public void testTocCache(String crc, int tocSize, CrtpPort port) {
@@ -70,9 +70,8 @@ public class TocCacheTest {
         if (fetchedToc != null) {
             int fetchedTocSize = fetchedToc.getTocSize();
             assertEquals(tocSize, fetchedTocSize);
-            for(int i = 0; i < fetchedTocSize; i++) {
-                TocElement elementById = fetchedToc.getElementById(i);
-                System.out.println(elementById);
+            for (TocElement te : fetchedToc.getElements()) {
+                System.out.println(te.getIdent() + " " + te);
             }
         } else {
             fail("fetchedToc is null");

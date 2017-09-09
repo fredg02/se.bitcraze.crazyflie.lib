@@ -35,7 +35,8 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import se.bitcraze.crazyflie.lib.OfflineTests;
-import se.bitcraze.crazyflie.lib.param.ParamTocElement;
+import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
+import se.bitcraze.crazyflie.lib.toc.Toc;
 import se.bitcraze.crazyflie.lib.toc.TocElement;
 import se.bitcraze.crazyflie.lib.toc.VariableType;
 
@@ -50,7 +51,7 @@ public class LogTocElementTest {
         //original byte: 80,0,0,7,112,109,0,118,98,97,116,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
         byte[] id0 = new byte[] {0,7,112,109,0,118,98,97,116,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
-        LogTocElement lteId00 = new LogTocElement(id0);
+        TocElement lteId00 = new TocElement(CrtpPort.LOGGING, id0);
 
         assertEquals("pm", lteId00.getGroup());
         assertEquals("vbat", lteId00.getName());
@@ -62,7 +63,7 @@ public class LogTocElementTest {
         //original byte: 80,0,1,4,112,109,0,115,116,97,116,101,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
         byte[] id1 = new byte[] {1,4,112,109,0,115,116,97,116,101,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,};
 
-        LogTocElement lteId01 = new LogTocElement(id1);
+        TocElement lteId01 = new TocElement(CrtpPort.LOGGING, id1);
 
         assertEquals("pm", lteId01.getGroup());
         assertEquals("state", lteId01.getName());
@@ -74,7 +75,7 @@ public class LogTocElementTest {
         //original byte: 80,0,20,2,115,116,97,98,105,108,105,122,101,114,0,116,104,114,117,115,116,0,0,0,0,0,0,0,0,0,0,0,
         byte[] id20 = new byte[] {20,2,115,116,97,98,105,108,105,122,101,114,0,116,104,114,117,115,116,0,0,0,0,0,0,0,0,0,0,0,};
 
-        LogTocElement lteId20 = new LogTocElement(id20);
+        TocElement lteId20 = new TocElement(CrtpPort.LOGGING, id20);
 
         assertEquals("stabilizer", lteId20.getGroup());
         assertEquals("thrust", lteId20.getName());
@@ -86,7 +87,7 @@ public class LogTocElementTest {
         //original byte: 80,0,13,6,109,111,116,111,114,0,109,52,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
         byte[] id13 = new byte[] {13,6,109,111,116,111,114,0,109,52,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,};
 
-        LogTocElement lteId13 = new LogTocElement(id13);
+        TocElement lteId13 = new TocElement(CrtpPort.LOGGING, id13);
 
         assertEquals("motor", lteId13.getGroup());
         assertEquals("m4", lteId13.getName());
@@ -99,10 +100,10 @@ public class LogTocElementTest {
     public void testGetVariableTypeId() {
         //pm.vbat
         byte[] pmVbat = new byte[] {0,7,112,109,0,118,98,97,116,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-        LogTocElement lte_pmVbat = new LogTocElement(pmVbat);
+        TocElement lte_pmVbat = new TocElement(CrtpPort.LOGGING, pmVbat);
         
         VariableType ctype = lte_pmVbat.getCtype();
-        int variableTypeId = lte_pmVbat.getVariableTypeId();
+        int variableTypeId = new Toc().getVariableTypeIdLog(ctype); 
         
         System.out.println("Ctype: " + ctype.name());
         System.out.println("VariableTypeId: " + variableTypeId);
@@ -114,16 +115,16 @@ public class LogTocElementTest {
     @Test
     public void testTocElements() {
         System.out.println("LogTocElement VariableTypeMap:");
-        LogTocElement logTocElement = new LogTocElement();
+        TocElement logTocElement = new TocElement();
         showMap(logTocElement);
 
         System.out.println("ParamTocElement VariableTypeMap:");
-        ParamTocElement paramTocElement = new ParamTocElement();
+        TocElement paramTocElement = new TocElement();
         showMap(paramTocElement);
     }
     
     private void showMap(TocElement tocElement) {
-        for (Entry<Integer, VariableType> entry : tocElement.getMap().entrySet()) {
+        for (Entry<Integer, VariableType> entry : new Toc().getVariableTypeMapLog().entrySet()) {
             System.out.println(entry.getKey() + " " + entry.getValue());
         }
         System.out.println();

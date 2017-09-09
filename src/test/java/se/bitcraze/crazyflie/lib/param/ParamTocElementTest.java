@@ -33,6 +33,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import se.bitcraze.crazyflie.lib.OfflineTests;
+import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
 import se.bitcraze.crazyflie.lib.toc.TocElement;
 import se.bitcraze.crazyflie.lib.toc.VariableType;
 
@@ -48,33 +49,33 @@ public class ParamTocElementTest {
         //UINT8_T
         //original byte: 1,32,0,0,72,105,109,117,95,116,101,115,116,115,0,77,80,85,54,48,53,48,0,0,0,0,0,0,0,0,0,0,0
         byte[] id0 = new byte[] {0,72,105,109,117,95,116,101,115,116,115,0,77,80,85,54,48,53,48,0,0,0,0,0,0,0,0,0,0,0};
-        ParamTocElement pteId00 = new ParamTocElement(id0);
-        checkParamTocElement(pteId00, "imu_tests", "MPU6050", VariableType.UINT8_T, TocElement.RO_ACCESS);
+        TocElement pteId00 = new TocElement(CrtpPort.PARAMETERS, id0);
+        checkTocElement(pteId00, "imu_tests", "MPU6050", VariableType.UINT8_T, TocElement.RO_ACCESS);
         assertEquals(0, pteId00.getIdent());                              //ID can change after firmware update
 
         //UINT16_T
         //original byte: 1,32,0,6,73,99,112,117,0,102,108,97,115,104,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
         byte[] id6 = new byte[] {6,73,99,112,117,0,102,108,97,115,104,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-        ParamTocElement pteId06 = new ParamTocElement(id6);
-        checkParamTocElement(pteId06, "cpu", "flash", VariableType.UINT16_T, TocElement.RO_ACCESS);
+        TocElement pteId06 = new TocElement(CrtpPort.PARAMETERS, id6);
+        checkTocElement(pteId06, "cpu", "flash", VariableType.UINT16_T, TocElement.RO_ACCESS);
         assertEquals(6, pteId06.getIdent());                              //ID can change after firmware update
 
         //UINT32_T
         //original byte: 1,32,0,7,74,99,112,117,0,105,100,48,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
         byte[] id7 = new byte[] {7,74,99,112,117,0,105,100,48,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-        ParamTocElement pteId07 = new ParamTocElement(id7);
-        checkParamTocElement(pteId07, "cpu", "id0", VariableType.UINT32_T, TocElement.RO_ACCESS);
+        TocElement pteId07 = new TocElement(CrtpPort.PARAMETERS, id7);
+        checkTocElement(pteId07, "cpu", "id0", VariableType.UINT32_T, TocElement.RO_ACCESS);
         assertEquals(7, pteId07.getIdent());                              //ID can change after firmware update
 
         //FLOAT
         //original byte: 1,32,0,11,6,112,105,100,95,114,97,116,101,0,114,111,108,108,95,107,112,0,0,0,0,0,0,0,0,0,0,0,0
         byte[] id11 = new byte[] {11,6,112,105,100,95,114,97,116,101,0,114,111,108,108,95,107,112,0,0,0,0,0,0,0,0,0,0,0,0};
-        ParamTocElement pteId11 = new ParamTocElement(id11);
-        checkParamTocElement(pteId11, "pid_rate", "roll_kp", VariableType.FLOAT, TocElement.RW_ACCESS);
+        TocElement pteId11 = new TocElement(CrtpPort.PARAMETERS, id11);
+        checkTocElement(pteId11, "pid_rate", "roll_kp", VariableType.FLOAT, TocElement.RW_ACCESS);
         assertEquals(11, pteId11.getIdent());                              //ID can change after firmware update
     }
 
-    private static void checkParamTocElement(ParamTocElement pte, String group, String name, VariableType ctype, int access) {
+    private static void checkTocElement(TocElement pte, String group, String name, VariableType ctype, int access) {
         assertEquals(group, pte.getGroup());
         assertEquals(name, pte.getName());
         assertEquals(group + "." + name, pte.getCompleteName());

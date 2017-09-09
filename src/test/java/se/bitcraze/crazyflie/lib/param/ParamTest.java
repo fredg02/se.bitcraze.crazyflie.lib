@@ -151,32 +151,25 @@ public class ParamTest {
             int flash = valuesMap.get("cpu").get("flash").intValue();
             if(flash == 128) { // CF1
                 //uint8_t
-                //13 is the correct value for CF1 according to Python client
                 assertEquals(13, valuesMap.get("imu_acc_lpf").get("factor"));
 
                 //uint32_t == Long
-                //825374770 is the correct value for CF2 according to Python client
                 assertEquals(2266244689L, valuesMap.get("cpu").get("id2"));
             } else if(flash == 1024) { // CF2
                 //uint8_t
-                //13 is the correct value for CF2 according to Python client
-                assertEquals(13, valuesMap.get("imu_acc_lpf").get("factor"));
+                assertEquals(1, valuesMap.get("imu_tests").get("MPU6500"));
 
                 //uint32_t == Long
-                //825374770 is the correct value for CF2 according to Python client
-                assertEquals(825374770L, valuesMap.get("cpu").get("id2"));
+                assertEquals(926103090L, valuesMap.get("cpu").get("id2"));
             } else {
                 fail("cpu.flash value is not 128 or 1024.");
             }
 
             //uint16_t
-            //43000 is the correct value for CF1 and CF2 according to Python client
-            assertEquals(43000, valuesMap.get("altHold").get("baseThrust"));
+            assertEquals(4000, valuesMap.get("sound").get("freq"));
 
             //float
-            //0.180000007153 is the correct value for CF1 and CF2 according to Python client
-            //TODO: is 0.18 exact enough, or is there too much rounding?
-            assertEquals(0.18f, valuesMap.get("altHold").get("ki"));
+            assertEquals(4.2f, valuesMap.get("ring").get("fullCharge"));
         }
     }
 
@@ -220,23 +213,23 @@ public class ParamTest {
 
         TocElement imu_tests = toc.getElementByCompleteName("imu_tests.HMC5883L");
         assertEquals(VariableType.UINT8_T, imu_tests.getCtype());
-        assertEquals(ParamTocElement.RO_ACCESS, imu_tests.getAccess());
+        assertEquals(TocElement.RO_ACCESS, imu_tests.getAccess());
 
         TocElement cpuFlash = toc.getElementByCompleteName("cpu.flash");
         assertEquals(VariableType.UINT16_T, cpuFlash.getCtype());
-        assertEquals(ParamTocElement.RO_ACCESS, cpuFlash.getAccess());
+        assertEquals(TocElement.RO_ACCESS, cpuFlash.getAccess());
 
         TocElement cpuId0 = toc.getElementByCompleteName("cpu.id0");
         assertEquals(VariableType.UINT32_T, cpuId0.getCtype());
-        assertEquals(ParamTocElement.RO_ACCESS, cpuId0.getAccess());
+        assertEquals(TocElement.RO_ACCESS, cpuId0.getAccess());
 
         TocElement althold = toc.getElementByCompleteName("flightmode.althold");
         assertEquals(VariableType.UINT8_T, althold.getCtype());
-        assertEquals(ParamTocElement.RW_ACCESS, althold.getAccess());
+        assertEquals(TocElement.RW_ACCESS, althold.getAccess());
 
         TocElement pitch_kd = toc.getElementByCompleteName("pid_attitude.pitch_kd");
         assertEquals(VariableType.FLOAT, pitch_kd.getCtype());
-        assertEquals(ParamTocElement.RW_ACCESS, pitch_kd.getAccess());
+        assertEquals(TocElement.RW_ACCESS, pitch_kd.getAccess());
     }
 
     @Test
@@ -260,33 +253,37 @@ public class ParamTest {
         mParam = crazyflie.getParam();
         System.out.println("Number of TOC elements: " + mParam.getToc().getElements().size());
         // Requesting initial param update
-        mParam.requestParamUpdate("altHold.maxThrust");
+        String group = "sound";
+        String name = "freq";
+        String param = group + "." + name;
+
+        mParam.requestParamUpdate(param);
         Thread.sleep(150);
 
         // Getting original param value
-        Number originalValue = mParam.getValuesMap().get("altHold").get("maxThrust");
-        System.out.println("altHold.maxThrust - original value: " + originalValue);
-        assertEquals(60000, originalValue);
+        Number originalValue = mParam.getValuesMap().get(group).get(name);
+        System.out.println(param + " - original value: " + originalValue);
+        assertEquals(4000, originalValue);
 
         // Setting new param value
-        mParam.setValue("altHold.maxThrust", 60001);
+        mParam.setValue(param, 4001);
         Thread.sleep(150);
 
         // Requesting param update
-        mParam.requestParamUpdate("altHold.maxThrust");
+        mParam.requestParamUpdate(param);
         Thread.sleep(150);
-        Number newValue = mParam.getValuesMap().get("altHold").get("maxThrust");
-        System.out.println("altHold.maxThrust - new value: " + newValue);
-        assertEquals(60001, newValue);
+        Number newValue = mParam.getValuesMap().get(group).get(name);
+        System.out.println(param + " - new value: " + newValue);
+        assertEquals(4001, newValue);
 
         // Reset param value to original value
-        mParam.setValue("altHold.maxThrust", 60000);
+        mParam.setValue(param, 4000);
         Thread.sleep(150);
-        mParam.requestParamUpdate("altHold.maxThrust");
+        mParam.requestParamUpdate(param);
         Thread.sleep(150);
-        Number resetValue = mParam.getValuesMap().get("altHold").get("maxThrust");
-        System.out.println("altHold.maxThrust - reset value: " + resetValue);
-        assertEquals(60000, resetValue);
+        Number resetValue = mParam.getValuesMap().get(group).get(name);
+        System.out.println(param + " - reset value: " + resetValue);
+        assertEquals(4000, resetValue);
 
         crazyflie.disconnect();
     }

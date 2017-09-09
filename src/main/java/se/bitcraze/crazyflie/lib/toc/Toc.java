@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +48,14 @@ public class Toc {
 
     private Map<String, TocElement> mTocElementMap = new HashMap<String, TocElement>();
 
+    private final static Map<Integer, VariableType> mVariableTypeMapParam = new HashMap<Integer, VariableType>(10);
+    private final static Map<Integer, VariableType> mVariableTypeMapLog = new HashMap<Integer, VariableType>(10);
+
+    static {
+        fillVariableTypeMapParam();
+        fillVariableTypeMapLog();
+    }
+    
     public Toc() {
     }
 
@@ -153,4 +162,73 @@ public class Toc {
     public int getTocSize() {
         return mTocElementMap.size();
     }
+
+
+    private static void fillVariableTypeMapParam() {
+        /*
+        types = {0x08: ("uint8_t",  '<B'),
+                 0x09: ("uint16_t", '<H'),
+                 0x0A: ("uint32_t", '<L'),
+                 0x0B: ("uint64_t", '<Q'),
+                 0x00: ("int8_t",   '<b'),
+                 0x01: ("int16_t",  '<h'),
+                 0x02: ("int32_t",  '<i'),
+                 0x03: ("int64_t",  '<q'),
+                 0x05: ("FP16",     ''),
+                 0x06: ("float",    '<f'),
+                 0x07: ("double",   '<d')}
+        */
+        
+        mVariableTypeMapParam.put(0x00, VariableType.INT8_T);
+        mVariableTypeMapParam.put(0x01, VariableType.INT16_T);
+        mVariableTypeMapParam.put(0x02, VariableType.INT32_T);
+        mVariableTypeMapParam.put(0x03, VariableType.INT64_T);
+        /*TODO: 0x05 FP16*/
+        mVariableTypeMapParam.put(0x06, VariableType.FLOAT);
+        mVariableTypeMapParam.put(0x07, VariableType.DOUBLE);
+        mVariableTypeMapParam.put(0x08, VariableType.UINT8_T);
+        mVariableTypeMapParam.put(0x09, VariableType.UINT16_T);
+        mVariableTypeMapParam.put(0x0A, VariableType.UINT32_T);
+        mVariableTypeMapParam.put(0x0B, VariableType.UINT64_T);
+    }
+
+    private static void fillVariableTypeMapLog() {
+        /*
+        types = {0x01: ("uint8_t",  '<B', 1),
+                 0x02: ("uint16_t", '<H', 2),
+                 0x03: ("uint32_t", '<L', 4),
+                 0x04: ("int8_t",   '<b', 1),
+                 0x05: ("int16_t",  '<h', 2),
+                 0x06: ("int32_t",  '<i', 4),
+                 0x08: ("FP16",     '<h', 2),
+                 0x07: ("float",    '<f', 4)}
+        */
+        
+        mVariableTypeMapLog.put(0x01, VariableType.UINT8_T);
+        mVariableTypeMapLog.put(0x02, VariableType.UINT16_T);
+        mVariableTypeMapLog.put(0x03, VariableType.UINT32_T);
+        mVariableTypeMapLog.put(0x04, VariableType.INT8_T);
+        mVariableTypeMapLog.put(0x05, VariableType.INT16_T);
+        mVariableTypeMapLog.put(0x06, VariableType.INT32_T);
+        mVariableTypeMapLog.put(0x07, VariableType.FLOAT);
+        /*TODO: 0x08 FP16*/
+    }
+
+    public Map<Integer, VariableType> getVariableTypeMapParam() {
+        return mVariableTypeMapParam;
+    }
+
+    public Map<Integer, VariableType> getVariableTypeMapLog() {
+        return mVariableTypeMapLog;
+    }
+    
+    public int getVariableTypeIdLog (VariableType vt) {
+        for (Entry<Integer, VariableType> entry : getVariableTypeMapLog().entrySet()) {
+            if (entry.getValue() == vt) {
+                return entry.getKey();
+            }
+        }
+        return -1;
+    }
+    
 }

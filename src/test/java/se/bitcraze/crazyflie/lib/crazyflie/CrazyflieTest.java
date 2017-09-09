@@ -45,7 +45,7 @@ import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
 //TODO: use MockDriver if no real Crazyflie is available
 public class CrazyflieTest {
 
-    public static int channel = 10;
+    public static int channel = 80;
     public static int datarate = 0;
 
     private boolean connectionRequested = false;
@@ -66,6 +66,7 @@ public class CrazyflieTest {
 
         final ArrayList<CrtpPacket> packetList = new ArrayList<CrtpPacket>();
         
+        //FIXME: only works right after start up
         crazyflie.addDataListener(new DataListener(CrtpPort.CONSOLE) {
 
             @Override
