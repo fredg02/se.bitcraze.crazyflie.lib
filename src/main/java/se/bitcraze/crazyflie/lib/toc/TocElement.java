@@ -37,12 +37,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * An element in the TOC
  *
  */
-public class TocElement {
+public class TocElement implements Comparable<TocElement> {
 
     protected Map<Integer, VariableType> mVariableTypeMap;
 
-    public static int RW_ACCESS = 1;
-    public static int RO_ACCESS = 0;
+    public static final int RW_ACCESS = 1;
+    public static final int RO_ACCESS = 0;
 
     private int mIdent = 0;
     private String mGroup = "";
@@ -79,10 +79,10 @@ public class TocElement {
             }
         }
     }
-    
+
     protected void fillVariableTypeMap() {
-        
-    };
+        //empty on purpose, implemented in LogTocElement and ParamTocElement
+    }
 
     public int getIdent() {
         return mIdent;
@@ -171,6 +171,7 @@ public class TocElement {
         result = prime * result + mAccess;
         result = prime * result + ((mCtype == null) ? 0 : mCtype.hashCode());
         result = prime * result + ((mGroup == null) ? 0 : mGroup.hashCode());
+        result = prime * result + mIdent;
         result = prime * result + ((mName == null) ? 0 : mName.hashCode());
         return result;
     }
@@ -200,6 +201,9 @@ public class TocElement {
         } else if (!mGroup.equals(other.mGroup)) {
             return false;
         }
+        if (mIdent != other.mIdent) {
+            return false;
+        }
         if (mName == null) {
             if (other.mName != null) {
                 return false;
@@ -208,6 +212,11 @@ public class TocElement {
             return false;
         }
         return true;
+    }
+
+    public int compareTo(TocElement te) {
+        int identCmp = Integer.compare(this.getIdent(), te.getIdent());
+        return (identCmp != 0 ? identCmp : this.getCompleteName().compareTo(te.getCompleteName()));
     }
 
 }

@@ -28,6 +28,7 @@
 package se.bitcraze.crazyflie.lib.toc;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -136,11 +137,9 @@ public class Toc {
      */
     //TODO: generate list not every time
     public List<TocElement> getElements() {
-        List<TocElement> tocElementList = new ArrayList<TocElement>();
-        for (int i = 0; i < getTocSize(); i++) {
-            tocElementList.add(getElementById(i));
-        }
-        return tocElementList;
+        List<TocElement> values = new ArrayList<TocElement>(mTocElementMap.values());
+        Collections.sort(values);
+        return values;
     }
 
     public Map<String, TocElement> getTocElementMap() {

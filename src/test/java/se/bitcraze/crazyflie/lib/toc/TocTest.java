@@ -28,6 +28,7 @@
 package se.bitcraze.crazyflie.lib.toc;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
@@ -48,23 +49,39 @@ public class TocTest {
     public void setUp() throws Exception {
         mToc = new Toc();
         assertTrue(mToc.getTocElementMap().isEmpty());
-        TocElement tocElement = new TocElement();
-        tocElement.setGroup("testGroup");
-        tocElement.setName("testName");
-        tocElement.setIdent(1);
+        TocElement tocElement = createTocElement("testGroup", "testName", 1);
         mToc.addElement(tocElement);
     }
 
     @Test
     public void testAddElement() {
         assertEquals(1, mToc.getTocSize());
-        // add toc element
-        TocElement tocElement2 = new TocElement();
-        tocElement2.setGroup("testGroup2");
-        tocElement2.setName("testName2");
-        tocElement2.setIdent(2);
+        TocElement tocElement2 = createTocElement("testGroup2", "testName2", 2);
         mToc.addElement(tocElement2);
         assertEquals(2, mToc.getTocSize());
+
+        assertNotNull(mToc.getElements().get(0));
+        assertNotNull(mToc.getElements().get(1));
+    }
+
+    @Test
+    public void testSortedList() {
+        TocElement tocElement2 = createTocElement("testGroup2", "testName2", 2);
+        mToc.addElement(tocElement2);
+        TocElement tocElement3 = createTocElement("abc", "123", 3);
+        mToc.addElement(tocElement3);
+        TocElement tocElement4 = createTocElement("foo", "bar", 6);
+        mToc.addElement(tocElement4);
+        TocElement tocElement5 = createTocElement("bla", "blub", 4);
+        mToc.addElement(tocElement5);
+        
+        List<TocElement> elements = mToc.getElements();
+        System.out.println(elements);
+        assertEquals(1, elements.get(0).getIdent());
+        assertEquals(2, elements.get(1).getIdent());
+        assertEquals(3, elements.get(2).getIdent());
+        assertEquals(4, elements.get(3).getIdent());
+        assertEquals(6, elements.get(4).getIdent());
     }
 
     @Test
@@ -148,4 +165,13 @@ public class TocTest {
         mToc.clear();
         assertEquals(0, mToc.getTocSize());
     }
+
+    static TocElement createTocElement (String group, String name, int ident) {
+        TocElement tocElement = new TocElement();
+        tocElement.setGroup(group);
+        tocElement.setName(name);
+        tocElement.setIdent(ident);
+        return tocElement;
+    }
+
 }
