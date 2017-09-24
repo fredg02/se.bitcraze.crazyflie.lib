@@ -18,3 +18,4 @@ Export-Package: se.bitcraze.crazyflie.lib;
  se.bitcraze.crazyflie.lib.toc;uses:="se.bitcraze.crazyflie.lib.crtp",
  se.bitcraze.crazyflie.lib.usb
 Bundle-Vendor: Bitcraze
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
