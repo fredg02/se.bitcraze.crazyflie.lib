@@ -1,3 +1,5 @@
 language: java
 script:
-- mvn clean verify -Dtest=AllTestsOffline
+- mvn clean verify -f se.bitcraze.crazyflie.lib-target/pom.xml
+- ant -f se.bitcraze.crazyflie.lib-parent/fixTargetDefinition.xml
+- mvn clean verify -f se.bitcraze.crazyflie.lib-parent/pom.xml

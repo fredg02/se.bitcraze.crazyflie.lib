@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="se.bitcraze.crazyflie.lib.feature"
+      label="Crazyflie Java library feature"
+      version="0.0.1.qualifier"
+      provider-name="Bitcraze">
+
+   <description url="https://github.com/fredg02/se.bitcraze.crazyflie.lib">
+      Crazyflie Java library
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      [Enter Copyright Description here.]
+   </copyright>
+
+   <license url="http://www.example.com/license">
+      [Enter License Description here.]
+   </license>
+
+   <plugin
+         id="se.bitcraze.crazyflie.lib"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

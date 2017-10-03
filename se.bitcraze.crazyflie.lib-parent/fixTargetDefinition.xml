@@ -1,0 +1,10 @@
+<project name="Fix target definition" default="default">
+  <target name="default">
+    <property name="absolute.path" location="../se.bitcraze.crazyflie.lib-target/se.bitcraze.crazyflie.lib-target.target/target/repository"/>
+    <echo message="Absolute path: ${absolute.path}"/>
+    <replace file="../se.bitcraze.crazyflie.lib-target/se.bitcraze.crazyflie.lib-target.target" 
+            token="/this/needs/to/be/replaced/with/the/actual/path" 
+            value="${absolute.path}"
+    />
+  </target>
+</project>

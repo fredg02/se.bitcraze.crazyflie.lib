@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Crazyflie Lib
+Bundle-Name: Crazyflie Java library
 Bundle-SymbolicName: se.bitcraze.crazyflie.lib
 Bundle-Version: 0.0.1.qualifier
 Export-Package: se.bitcraze.crazyflie.lib;
@@ -19,3 +19,18 @@ Export-Package: se.bitcraze.crazyflie.lib;
  se.bitcraze.crazyflie.lib.usb
 Bundle-Vendor: Bitcraze
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.fasterxml.jackson.core.jackson-annotations;bundle-version="2.9.0",
+ com.fasterxml.jackson.core.jackson-core;bundle-version="2.9.0",
+ com.fasterxml.jackson.core.jackson-databind;bundle-version="2.9.0",
+ org.usb4java;bundle-version="1.2.0",
+ org.usb4java.javax;bundle-version="1.2.0",
+ org.usb4java.libusb4java.linux-arm;bundle-version="1.2.0",
+ org.usb4java.libusb4java.linux-x86;bundle-version="1.2.0",
+ org.usb4java.libusb4java.linux-x86_64;bundle-version="1.2.0",
+ org.usb4java.libusb4java.osx-x86;bundle-version="1.2.0",
+ org.usb4java.libusb4java.osx-x86_64;bundle-version="1.2.0",
+ org.usb4java.libusb4java.windows-x86;bundle-version="1.2.0",
+ org.usb4java.libusb4java.windows-x86_64;bundle-version="1.2.0",
+ javax.usb.api;bundle-version="1.0.2",
+ junit;bundle-version="4.12.0",
+ slf4j.api;bundle-version="1.7.10"
