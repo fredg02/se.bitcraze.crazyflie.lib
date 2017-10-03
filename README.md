@@ -1,5 +1,7 @@
 # Crazyflie Java library
 
+![Travis CI build status](https://travis-ci.org/fredg02/se.bitcraze.crazyflie.lib.svg?branch=master)
+
 The intention of this library is to be the Java equivalent of
 [crazyflie-lib-python](https://github.com/bitcraze/crazyflie-lib-python), a Python based library that is used by the [Crazyflie Python client](https://github.com/bitcraze/crazyflie-clients-python).
  
