@@ -21,6 +21,12 @@ Features
 * Abstract USB interface that allows to use different USB implementations,
 eg. pure Java and Android
 
+Installation
+------------
+
+It can be installed in Eclipse from the P2 update site:
+
+[https://fredg02.github.io/se.bitcraze.crazyflie.lib/p2](https://fredg02.github.io/se.bitcraze.crazyflie.lib/p2)
 
 Integration
 -----------
