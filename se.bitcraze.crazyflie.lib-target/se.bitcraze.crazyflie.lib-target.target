@@ -1,37 +1,42 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?>
-<target name="Running Platform" sequenceNumber="18">
-  <locations>
-    <location path="${eclipse_home}" type="Profile"/>
-    <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-      <unit id="junit" version="4.12.0"/>
-      <unit id="org.usb4java.javax" version="1.2.0"/>
-      <unit id="slf4j.api" version="1.7.10"/>
-      <unit id="org.usb4java.libusb4java.windows-x86" version="1.2.0"/>
-      <unit id="org.usb4java.libusb4java.linux-x86" version="1.2.0"/>
-      <unit id="org.usb4java.libusb4java.osx-x86" version="1.2.0"/>
-      <unit id="com.fasterxml.jackson.core.jackson-core" version="2.9.0"/>
-      <unit id="javax.usb.api" version="1.0.2"/>
-      <unit id="org.hamcrest.core" version="1.3.0"/>
-      <unit id="org.usb4java.libusb4java.windows-x86_64" version="1.2.0"/>
-      <unit id="org.usb4java.libusb4java.linux-arm" version="1.2.0"/>
-      <unit id="org.usb4java.libusb4java.linux-x86_64" version="1.2.0"/>
-      <unit id="org.usb4java.libusb4java.osx-x86_64" version="1.2.0"/>
-      <unit id="org.apache.commons.lang3" version="3.2.1"/>
-      <unit id="com.fasterxml.jackson.core.jackson-databind" version="2.9.0"/>
-      <unit id="org.usb4java" version="1.2.0"/>
-      <unit id="com.fasterxml.jackson.core.jackson-annotations" version="2.9.0"/>
-      <unit id="slf4j.simple" version="1.7.10"/>
-      <repository location="file:/this/needs/to/be/replaced/with/the/actual/path"/>
-    </location>
-  </locations>
-  <environment>
-    <os>linux</os>
-    <ws>gtk</ws>
-    <arch>x86_64</arch>
-    <nl>en_US</nl>
-  </environment>
-  <launcherArgs>
-    <vmArgs>-Dosgi.requiredJavaVersion=1.7 -XX:MaxPermSize=256m -Xms256m -Xmx1024m</vmArgs>
-  </launcherArgs>
+<?pde version="3.8"?><target name="Running Platform" sequenceNumber="22">
+<locations>
+<location path="${eclipse_home}" type="Profile"/>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<unit id="junit" version="4.12.0"/>
+<unit id="org.usb4java.javax" version="1.2.0"/>
+<unit id="org.usb4java.source" version="1.2.0"/>
+<unit id="com.fasterxml.jackson.core.jackson-databind.source" version="2.9.0"/>
+<unit id="javax.usb.api.source" version="1.0.2"/>
+<unit id="org.usb4java.libusb4java.windows-x86" version="1.2.0"/>
+<unit id="org.usb4java.libusb4java.linux-x86" version="1.2.0"/>
+<unit id="org.usb4java.libusb4java.osx-x86" version="1.2.0"/>
+<unit id="com.fasterxml.jackson.core.jackson-core" version="2.9.0"/>
+<unit id="javax.usb.api" version="1.0.2"/>
+<unit id="com.fasterxml.jackson.core.jackson-annotations.source" version="2.9.0"/>
+<unit id="org.apache.commons.lang3.source" version="3.2.1"/>
+<unit id="org.hamcrest.core" version="1.3.0"/>
+<unit id="org.usb4java.libusb4java.windows-x86_64" version="1.2.0"/>
+<unit id="org.usb4java.libusb4java.linux-arm" version="1.2.0"/>
+<unit id="org.usb4java.libusb4java.linux-x86_64" version="1.2.0"/>
+<unit id="org.usb4java.libusb4java.osx-x86_64" version="1.2.0"/>
+<unit id="org.apache.commons.lang3" version="3.2.1"/>
+<unit id="com.fasterxml.jackson.core.jackson-databind" version="2.9.0"/>
+<unit id="org.usb4java" version="1.2.0"/>
+<unit id="com.fasterxml.jackson.core.jackson-core.source" version="2.9.0"/>
+<unit id="com.fasterxml.jackson.core.jackson-annotations" version="2.9.0"/>
+<unit id="slf4j.simple" version="1.7.2"/>
+<unit id="org.usb4java.javax.source" version="1.2.0"/>
+<repository location="file:/this/needs/to/be/replaced/with/the/actual/path"/>
+</location>
+</locations>
+<environment>
+<os>linux</os>
+<ws>gtk</ws>
+<arch>x86_64</arch>
+<nl>en_US</nl>
+</environment>
+<launcherArgs>
+<vmArgs>-Dosgi.requiredJavaVersion=1.7 -XX:MaxPermSize=256m -Xms256m -Xmx1024m</vmArgs>
+</launcherArgs>
 </target>

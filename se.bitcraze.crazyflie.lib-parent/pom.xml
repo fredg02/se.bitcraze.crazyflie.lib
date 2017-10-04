@@ -9,6 +9,13 @@
     <tycho.version>0.24.0</tycho.version>
     <jackson.version>2.9.0</jackson.version>
   </properties>
+  <repositories>
+    <repository>
+      <id>oxygen</id>
+      <layout>p2</layout>
+      <url>http://download.eclipse.org/releases/oxygen</url>
+    </repository>
+  </repositories>
   <modules>
     <module>../se.bitcraze.crazyflie.lib</module>
     <module>../se.bitcraze.crazyflie.lib.examples</module>
