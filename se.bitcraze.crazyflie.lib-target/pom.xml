@@ -28,22 +28,7 @@
             </goals>
             <configuration>
               <artifacts>
-                <artifact>
-                  <id>javax.usb:usb-api:1.0.2</id>
-                  <source>true</source>
-                </artifact>
-                <artifact>
-                  <id>org.usb4java:usb4java:1.2.0</id>
-                  <source>true</source>
-                </artifact>
-                <artifact>
-                  <id>org.usb4java:usb4java-javax:1.2.0</id>
-                  <source>true</source>
-                </artifact>
                 <!-- OSGi bundles -->
-                <artifact>
-                  <id>junit:junit:4.12</id>
-                </artifact>
                 <artifact>
                   <id>org.slf4j:slf4j-simple:1.7.2</id>
                   <transitive>false</transitive>

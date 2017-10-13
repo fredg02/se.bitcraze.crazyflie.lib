@@ -3,34 +3,34 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Crazyflie Java library
 Bundle-SymbolicName: se.bitcraze.crazyflie.lib
 Bundle-Version: 0.0.1.qualifier
-Export-Package: se.bitcraze.crazyflie.lib;
-  uses:="se.bitcraze.crazyflie.lib.crazyflie,
-   se.bitcraze.crazyflie.lib.log,
-   se.bitcraze.crazyflie.lib.crtp,
+Export-Package: se.bitcraze.crazyflie.lib.bootloader;uses:="org.slf4j,se.bitcraze.crazyflie.lib.crazyradio,se.bitcraze.crazyflie.lib.crtp",
+ se.bitcraze.crazyflie.lib.crazyflie;
+  uses:="se.bitcraze.crazyflie.lib.log,
+   org.slf4j,
+   se.bitcraze.crazyflie.lib.param,
    se.bitcraze.crazyflie.lib.crazyradio,
-   org.slf4j",
- se.bitcraze.crazyflie.lib.bootloader,
- se.bitcraze.crazyflie.lib.crazyflie;uses:="se.bitcraze.crazyflie.lib.crtp",
- se.bitcraze.crazyflie.lib.crazyradio,
+   se.bitcraze.crazyflie.lib.crtp",
+ se.bitcraze.crazyflie.lib.crazyradio;uses:="se.bitcraze.crazyflie.lib.usb,org.slf4j,se.bitcraze.crazyflie.lib.crtp",
  se.bitcraze.crazyflie.lib.crtp;uses:="se.bitcraze.crazyflie.lib.crazyflie,se.bitcraze.crazyflie.lib.crazyradio",
- se.bitcraze.crazyflie.lib.log;uses:="se.bitcraze.crazyflie.lib.crazyradio",
- se.bitcraze.crazyflie.lib.param;uses:="se.bitcraze.crazyflie.lib.crazyradio",
- se.bitcraze.crazyflie.lib.toc;uses:="se.bitcraze.crazyflie.lib.crtp",
- se.bitcraze.crazyflie.lib.usb
+ se.bitcraze.crazyflie.lib.log;
+  uses:="org.slf4j,
+   se.bitcraze.crazyflie.lib.crazyflie,
+   se.bitcraze.crazyflie.lib.crtp,
+   se.bitcraze.crazyflie.lib.toc",
+ se.bitcraze.crazyflie.lib.param;
+  uses:="org.slf4j,
+   se.bitcraze.crazyflie.lib.crazyflie,
+   se.bitcraze.crazyflie.lib.crtp,
+   se.bitcraze.crazyflie.lib.toc",
+ se.bitcraze.crazyflie.lib.toc;uses:="org.slf4j,se.bitcraze.crazyflie.lib.crazyflie,se.bitcraze.crazyflie.lib.crtp",
+ se.bitcraze.crazyflie.lib.usb;uses:="javax.usb,org.slf4j"
 Bundle-Vendor: Bitcraze
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: com.fasterxml.jackson.core.jackson-annotations;bundle-version="2.9.0",
+Require-Bundle: org.slf4j.api;bundle-version="1.7.2",
+ org.junit;bundle-version="4.12.0",
+ com.fasterxml.jackson.core.jackson-annotations;bundle-version="2.9.0",
  com.fasterxml.jackson.core.jackson-core;bundle-version="2.9.0",
  com.fasterxml.jackson.core.jackson-databind;bundle-version="2.9.0",
- org.usb4java;bundle-version="1.2.0",
- org.usb4java.javax;bundle-version="1.2.0",
- org.usb4java.libusb4java.linux-arm;bundle-version="1.2.0",
- org.usb4java.libusb4java.linux-x86;bundle-version="1.2.0",
- org.usb4java.libusb4java.linux-x86_64;bundle-version="1.2.0",
- org.usb4java.libusb4java.osx-x86;bundle-version="1.2.0",
- org.usb4java.libusb4java.osx-x86_64;bundle-version="1.2.0",
- org.usb4java.libusb4java.windows-x86;bundle-version="1.2.0",
- org.usb4java.libusb4java.windows-x86_64;bundle-version="1.2.0",
- javax.usb.api;bundle-version="1.0.2",
- junit;bundle-version="4.12.0",
- org.slf4j.api;bundle-version="1.7.2"
+ org.usb4java.bundle;bundle-version="1.2.0",
+ usb4java-javax_javax.usb.api;bundle-version="1.2.0"
+Bundle-ClassPath: .

@@ -17,6 +17,16 @@
       [Enter License Description here.]
    </license>
 
+   <requires>
+      <import plugin="org.slf4j.api" version="1.7.2" match="greaterOrEqual"/>
+      <import plugin="org.junit" version="4.12.0" match="greaterOrEqual"/>
+      <import plugin="com.fasterxml.jackson.core.jackson-annotations" version="2.9.0" match="greaterOrEqual"/>
+      <import plugin="com.fasterxml.jackson.core.jackson-core" version="2.9.0" match="greaterOrEqual"/>
+      <import plugin="com.fasterxml.jackson.core.jackson-databind" version="2.9.0" match="greaterOrEqual"/>
+      <import plugin="org.usb4java.bundle" version="1.2.0" match="greaterOrEqual"/>
+      <import plugin="usb4java-javax_javax.usb.api" version="1.2.0" match="greaterOrEqual"/>
+   </requires>
+
    <plugin
          id="se.bitcraze.crazyflie.lib"
          download-size="0"
