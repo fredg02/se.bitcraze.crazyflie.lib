@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?><target name="Running Platform" sequenceNumber="41">
+<locations>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="com.fasterxml.jackson.core.jackson-databind.source" version="2.9.0"/>
+<unit id="com.fasterxml.jackson.core.jackson-databind" version="2.9.0"/>
+<unit id="com.fasterxml.jackson.core.jackson-core.source" version="2.9.0"/>
+<unit id="com.fasterxml.jackson.core.jackson-annotations" version="2.9.0"/>
+<unit id="com.fasterxml.jackson.core.jackson-core" version="2.9.0"/>
+<unit id="com.fasterxml.jackson.core.jackson-annotations.source" version="2.9.0"/>
+<repository location="file:/this/needs/to/be/replaced/with/the/actual/path"/>
+</location>
+<location path="${eclipse_home}" type="Profile"/>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="usb4java.feature.source.feature.group" version="1.0.0"/>
+<unit id="usb4java.feature.feature.group" version="1.0.0"/>
+<repository location="http://fredg02.github.io/usb4java-for-eclipse-p2"/>
+</location>
+</locations>
+<environment>
+<os>linux</os>
+<ws>gtk</ws>
+<arch>x86_64</arch>
+<nl>en_US</nl>
+</environment>
+<launcherArgs>
+<vmArgs>-Dosgi.requiredJavaVersion=1.7 -XX:MaxPermSize=256m -Xms256m -Xmx1024m</vmArgs>
+</launcherArgs>
+</target>

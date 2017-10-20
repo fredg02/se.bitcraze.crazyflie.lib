@@ -50,17 +50,17 @@ import java.util.zip.ZipInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import se.bitcraze.crazyflie.lib.bootloader.Target.TargetTypes;
-import se.bitcraze.crazyflie.lib.bootloader.Utilities.BootVersion;
-import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
-import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
-
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+
+import se.bitcraze.crazyflie.lib.bootloader.Target.TargetTypes;
+import se.bitcraze.crazyflie.lib.bootloader.Utilities.BootVersion;
+import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
+import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
 
 /**
  * Bootloading utilities for the Crazyflie.
@@ -166,11 +166,11 @@ public class Bootloader {
         return this.mCload.readFlash(0xFF, configPage);
     }
 
-    public void writeCF1Config(byte[] data) {
+    public boolean writeCF1Config(byte[] data) {
         Target target = this.mCload.getTargets().get(TargetTypes.STM32); //CF1
         int configPage = target.getFlashPages() - 1;
         FlashTarget toFlash = new FlashTarget(target, data, "CF1 config", configPage);
-        internalFlash(toFlash);
+        return internalFlash(toFlash);
     }
 
     //TODO: improve
@@ -211,7 +211,9 @@ public class Bootloader {
         }
         int fileCounter = 0;
         for (FlashTarget ft : filesToFlash) {
-            internalFlash(ft, fileCounter, filesToFlash.size());
+            if (!internalFlash(ft, fileCounter, filesToFlash.size())) {
+                return false;
+            };
             fileCounter++;
         }
         return true;
@@ -410,12 +412,12 @@ public class Bootloader {
         }
     }
 
-    public void internalFlash(FlashTarget target) {
-        internalFlash(target, 1, 1);
+    private boolean internalFlash(FlashTarget target) {
+        return internalFlash(target, 1, 1);
     }
 
     // def _internal_flash(self, target, current_file_number=1, total_files=1):
-    public void internalFlash(FlashTarget flashTarget, int currentFileNo, int totalFiles) {
+    private boolean internalFlash(FlashTarget flashTarget, int currentFileNo, int totalFiles) {
         Target t_data = flashTarget.getTarget();
         byte[] image = flashTarget.getData();
         int pageSize = t_data.getPageSize();
@@ -429,7 +431,7 @@ public class Bootloader {
         if (image.length > ((t_data.getFlashPages() - startPage) * pageSize)) {
             mLogger.error("Error: Not enough space to flash the image file.");
             //raise Exception()
-            return;
+            return false;
         }
 
         int noOfPages = (image.length / pageSize) + 1;
@@ -469,14 +471,14 @@ public class Bootloader {
                 if (!this.mCload.writeFlash(t_data.getId(), 0, startPage + i - (bufferCounter - 1), bufferCounter)) {
                     handleFlashError();
                     //raise Exception()
-                    return;
+                    return false;
                 }
                 bufferCounter = 0;
             }
         }
         if (isCancelled()) {
             mLogger.info("Flashing cancelled!");
-            return;
+            return false;
         }
         if (bufferCounter > 0) {
             mLogger.info("BufferCounter: " + bufferCounter);
@@ -484,11 +486,12 @@ public class Bootloader {
             if (!this.mCload.writeFlash(t_data.getId(), 0, (startPage + ((image.length - 1) / pageSize)) - (bufferCounter - 1), bufferCounter)) {
                 handleFlashError();
                 //raise Exception()
-                return;
+                return false;
             }
         }
         mLogger.info("Flashing done!");
         notifyUpdateStatus("Flashing done!");
+        return true;
     }
 
     private boolean isCancelled() {
