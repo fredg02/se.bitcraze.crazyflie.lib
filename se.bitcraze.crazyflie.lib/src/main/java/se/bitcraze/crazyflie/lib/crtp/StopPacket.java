@@ -7,11 +7,9 @@ import java.nio.ByteBuffer;
  */
 
 public class StopPacket extends CrtpPacket {
-    /**
-     * Create a new commander packet.
-     */
+
     public StopPacket() {
-        super(0, CrtpPort.GENERIC_COMMANDER);
+        super(0, CrtpPort.COMMANDER_GENERIC);
     }
 
     @Override

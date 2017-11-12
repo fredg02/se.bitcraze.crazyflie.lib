@@ -36,42 +36,49 @@ public abstract class ConnectionAdapter implements ConnectionListener {
     /* (non-Javadoc)
      * @see se.bitcraze.crazyflielib.ConnectionListener#connectionRequested(java.lang.String)
      */
+    @Override
     public void connectionRequested(String connectionInfo) {
     }
 
     /* (non-Javadoc)
      * @see se.bitcraze.crazyflielib.ConnectionListener#connected(java.lang.String)
      */
+    @Override
     public void connected(String connectionInfo) {
     }
 
     /* (non-Javadoc)
      * @see se.bitcraze.crazyflielib.ConnectionListener#setupFinished(java.lang.String)
      */
+    @Override
     public void setupFinished(String connectionInfo) {
     }
 
     /* (non-Javadoc)
      * @see se.bitcraze.crazyflielib.ConnectionListener#connectionFailed(java.lang.String, java.lang.String)
      */
+    @Override
     public void connectionFailed(String connectionInfo, String msg) {
     }
 
     /* (non-Javadoc)
      * @see se.bitcraze.crazyflielib.ConnectionListener#connectionLost(java.lang.String, java.lang.String)
      */
+    @Override
     public void connectionLost(String connectionInfo, String msg) {
     }
 
     /* (non-Javadoc)
      * @see se.bitcraze.crazyflielib.ConnectionListener#disconnected(java.lang.String)
      */
+    @Override
     public void disconnected(String connectionInfo) {
     }
 
     /* (non-Javadoc)
      * @see se.bitcraze.crazyflielib.ConnectionListener#linkQualityUpdated(int)
      */
+    @Override
     public void linkQualityUpdated(int percent) {
     }
 

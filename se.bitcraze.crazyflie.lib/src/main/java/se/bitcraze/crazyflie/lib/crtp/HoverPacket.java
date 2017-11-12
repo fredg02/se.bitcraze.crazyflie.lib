@@ -3,12 +3,13 @@ package se.bitcraze.crazyflie.lib.crtp;
 import java.nio.ByteBuffer;
 
 /**
- * Hover packet (for FlowDeck)
+ * Control mode where the height is sent as an absolute
+ * setpoint (intended to be the distance to the surface
+ * under the Crazflie).
  */
-
 public class HoverPacket extends CrtpPacket {
-    private final float mYx;
-    private final float mYy;
+    private final float mVx;
+    private final float mVy;
     private final float mYawrate;
     private final float mZdistance;
 
@@ -17,34 +18,33 @@ public class HoverPacket extends CrtpPacket {
      *
      * @param vx (m/s)
      * @param vy (m/s)
-     * @param yaw (Deg./s)
+     * @param yawrate (Deg./s)
      * @param zDistance (m)
      */
-    public HoverPacket(float vx, float vy, float yaw, float zDistance) {
-        super(0, CrtpPort.GENERIC_COMMANDER);
-
-        this.mYx = vx;
-        this.mYy = vy;
-        this.mYawrate = yaw;
+    public HoverPacket(float vx, float vy, float yawrate, float zDistance) {
+        super(0, CrtpPort.COMMANDER_GENERIC);
+        this.mVx = vx;
+        this.mVy = vy;
+        this.mYawrate = yawrate;
         this.mZdistance = zDistance;
     }
 
     @Override
     protected void serializeData(ByteBuffer buffer) {
         buffer.put((byte)0x05);
-        buffer.putFloat(mYx);
-        buffer.putFloat(-mYy); //invert axis
+        buffer.putFloat(mVx);
+        buffer.putFloat(-mVy); //invert axis
         buffer.putFloat(mYawrate);
         buffer.putFloat(mZdistance);
     }
 
     @Override
     protected int getDataByteCount() {
-        return 4 * 4 + 1; // 4 floats with size 4, 1 byte (type)
+        return 1 + 4 * 4; // 1 byte (type), 4 floats with size 4
     }
 
     @Override
     public String toString() {
-        return "HoverPacket: yx: " + this.mYx + " yy: " + this.mYy + " yawrate: " + this.mYawrate + " zDistance: " + this.mZdistance;
+        return "HoverPacket: vx: " + this.mVx + " vy: " + this.mVy + " yawrate: " + this.mYawrate + " zDistance: " + this.mZdistance;
     }
 }
