@@ -42,6 +42,7 @@ import se.bitcraze.crazyflie.lib.TestConnectionAdapter;
 import se.bitcraze.crazyflie.lib.TestUtilities;
 import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie;
 import se.bitcraze.crazyflie.lib.crazyflie.CrazyflieTest;
+import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
 import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
 
@@ -129,7 +130,8 @@ public class TocCacheTest {
             }
         });
 
-        crazyflie.connect(CrazyflieTest.channel, CrazyflieTest.datarate);
+        crazyflie.setConnectionData(new ConnectionData(CrazyflieTest.channel, CrazyflieTest.datarate));
+        crazyflie.connect();
 
         for (int i = 0; i < 300; i++) {
             crazyflie.sendPacket(new CommanderPacket(0, 0, 0, (char) 0));

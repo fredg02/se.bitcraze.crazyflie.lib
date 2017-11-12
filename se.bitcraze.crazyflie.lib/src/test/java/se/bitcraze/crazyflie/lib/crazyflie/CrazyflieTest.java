@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import org.junit.Test;
 
 import se.bitcraze.crazyflie.lib.TestConnectionAdapter;
+import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
 import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
@@ -77,7 +78,8 @@ public class CrazyflieTest {
 
         });
 
-        crazyflie.connect(channel, datarate);
+        crazyflie.setConnectionData(new ConnectionData(channel, datarate));
+        crazyflie.connect();
 
         for (int i = 0; i < 30; i++) {
             crazyflie.sendPacket(new CommanderPacket(0, 0, 0, (char) 0));
@@ -129,7 +131,8 @@ public class CrazyflieTest {
 
         });
 
-        crazyflie.connect(channel, datarate);
+        crazyflie.setConnectionData(new ConnectionData(channel, datarate));
+        crazyflie.connect();
 
         int timeout = 5000;
         

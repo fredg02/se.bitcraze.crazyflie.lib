@@ -32,9 +32,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Map.Entry;
 
 import org.junit.Test;
 
@@ -169,7 +169,8 @@ public class LoggTest {
 
         });
 
-        crazyflie.connect(mConnectionData);
+        crazyflie.setConnectionData(mConnectionData);
+        crazyflie.connect();
 
         // setup finished timeout
         boolean isTimeout = false;

@@ -78,7 +78,8 @@ public class ParamTest {
 
         });
 
-        crazyflie.connect(mConnectionData);
+        crazyflie.setConnectionData(mConnectionData);
+        crazyflie.connect();
 
         // setup finished timeout
         boolean isTimeout = false;
@@ -181,7 +182,8 @@ public class ParamTest {
 
         crazyflie.getDriver().addConnectionListener(new TestConnectionAdapter() {});
 
-        crazyflie.connect(mConnectionData);
+        crazyflie.setConnectionData(mConnectionData);
+        crazyflie.connect();
 
         for (int i = 0; i < 200; i++) {
             crazyflie.sendPacket(new CommanderPacket(0, 0, 0, (char) 0));
@@ -238,7 +240,8 @@ public class ParamTest {
 
         //crazyflie.clearTocCache();
 
-        crazyflie.connect(mConnectionData);
+        crazyflie.setConnectionData(mConnectionData);
+        crazyflie.connect();
 
         // wait until setup is finished
         while (!crazyflie.isConnected()) {

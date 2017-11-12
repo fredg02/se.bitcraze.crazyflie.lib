@@ -109,13 +109,8 @@ public class Crazyflie {
 
     };
 
-    public void connect(int channel, int datarate) {
-        connect(new ConnectionData(channel, datarate));
-    }
-
-    public void connect(ConnectionData connectionData) {
+    public void connect() {
         mLogger.debug("Connect");
-        mConnectionData = connectionData;
         mState = State.INITIALIZED;
 
         addPacketListener(mPacketListener);
@@ -123,7 +118,7 @@ public class Crazyflie {
         // try to connect
         try {
             if (mDriver instanceof RadioDriver) {
-                ((RadioDriver) mDriver).setConnectionData(connectionData);
+                ((RadioDriver) mDriver).setConnectionData(mConnectionData);
             }
             mDriver.connect();
         } catch (IOException ioe) {
@@ -180,6 +175,10 @@ public class Crazyflie {
     // TODO: should this be public?
     public State getState() {
         return mState;
+    }
+
+    public void setConnectionData(ConnectionData connectionData) {
+        this.mConnectionData = connectionData;
     }
 
     /**
