@@ -86,9 +86,6 @@ public abstract class CrtpDriver {
      */
     public abstract CrtpPacket receivePacket(int wait);
 
-
-    public abstract boolean scanSelected(ConnectionData connectionData, byte[] packet);
-
     /* CONNECTION LISTENER */
 
     public void addConnectionListener(ConnectionListener listener) {
@@ -168,7 +165,4 @@ public abstract class CrtpDriver {
         }
     }
 
-    public abstract void startSendReceiveThread();
-
-    public abstract void stopSendReceiveThread();
 }

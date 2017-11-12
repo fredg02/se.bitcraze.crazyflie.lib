@@ -112,11 +112,14 @@ public class Cloader {
      * @return always the first available bootloader connection
      */
     public ConnectionData scanForBootloader() {
+        if (!(mDriver instanceof RadioDriver)) {
+            throw new IllegalArgumentException("Scanning for bootloader is only supported with a Crazyradio connection.");
+        }
         long startTime = System.currentTimeMillis();
         List<ConnectionData> resultList = new ArrayList<ConnectionData>();
         while (resultList.isEmpty() && (System.currentTimeMillis() - startTime) < 10000) {
             for (ConnectionData connectionData : mAvailableBootConnections) {
-                if(this.mDriver.scanSelected(connectionData, new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF})) {
+                if(((RadioDriver) mDriver).scanSelected(connectionData, new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF})) {
                     resultList.add(connectionData);
                 }
             }
@@ -143,10 +146,10 @@ public class Cloader {
         }
 
         if (replyPk != null) {
-
+            //FIXME
             //new_address = (0xb1, ) + struct.unpack("<BBBB", pk.data[2:6][::-1])
-            byte[] payload = replyPk.getPayload();
-            byte[] newAddress = new byte[]{(byte) 0xb1,payload[5], payload[4], payload[3], payload[2]};
+            //byte[] payload = replyPk.getPayload();
+            //byte[] newAddress = new byte[]{(byte) 0xb1,payload[5], payload[4], payload[3], payload[2]};
 
             sendBootloaderPacket(new byte[]{(byte) targetId, (byte) 0xF0, (byte) 0x00});
 
@@ -333,11 +336,14 @@ public class Cloader {
             mLogger.error("Radio address should be 5 bytes long");
             return false;
         }
+        if (!(mDriver instanceof RadioDriver)) {
+            throw new IllegalArgumentException("Setting the copter's radio address is only supported with a Crazyradio connection.");
+        }
 
         mLogger.debug("Setting bootloader radio address to " + Utilities.getHexString(newAddress));
 
         // self.link.pause()
-        this.mDriver.stopSendReceiveThread();
+        ((RadioDriver) this.mDriver).stopSendReceiveThread();
 
         Crazyradio crazyRadio = ((RadioDriver) this.mDriver).getRadio();
         //TODO: is there a more elegant way to do this?
@@ -362,12 +368,12 @@ public class Cloader {
             RadioAck ack = crazyRadio.sendPacket(new byte[] {(byte) 0xFF});
             if (ack != null) {
                 mLogger.info("Bootloader set to radio address " + Utilities.getHexString(newAddress));;
-                this.mDriver.startSendReceiveThread();
+                ((RadioDriver) this.mDriver).startSendReceiveThread();
                 return true;
             }
         }
         //this.mDriver.restart();
-        this.mDriver.startSendReceiveThread();
+        ((RadioDriver) this.mDriver).startSendReceiveThread();
         return false;
     }
 

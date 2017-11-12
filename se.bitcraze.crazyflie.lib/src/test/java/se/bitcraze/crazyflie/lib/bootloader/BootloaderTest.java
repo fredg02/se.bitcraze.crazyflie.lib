@@ -216,7 +216,7 @@ public class BootloaderTest {
         if (mBootloader.startBootloader(false)) {
             System.out.println(" Done!");
 
-            mDriver.stopSendReceiveThread();
+            ((RadioDriver) this.mDriver).stopSendReceiveThread();
 
             Target target = mBootloader.getCloader().getTargets().get(TargetTypes.STM32);
 
