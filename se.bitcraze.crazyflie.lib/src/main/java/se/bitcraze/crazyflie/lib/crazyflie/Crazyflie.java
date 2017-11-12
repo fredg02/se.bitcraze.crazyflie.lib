@@ -255,7 +255,7 @@ public class Crazyflie {
      *
      * @param packet
      */
-    public void checkForInitialPacketCallback(CrtpPacket packet) {
+    private void checkForInitialPacketCallback(CrtpPacket packet) {
         //TODO: should be made more reliable
         if (this.mState == State.INITIALIZED) {
             mLogger.info("Initial packet has been received! => State.CONNECTED");

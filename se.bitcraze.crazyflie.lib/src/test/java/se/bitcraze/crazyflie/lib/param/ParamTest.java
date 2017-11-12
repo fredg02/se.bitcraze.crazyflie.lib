@@ -38,7 +38,6 @@ import org.junit.Test;
 
 import se.bitcraze.crazyflie.lib.TestConnectionAdapter;
 import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie;
-import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie.State;
 import se.bitcraze.crazyflie.lib.crazyflie.CrazyflieTest;
 import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
 import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
@@ -242,7 +241,7 @@ public class ParamTest {
         crazyflie.connect(mConnectionData);
 
         // wait until setup is finished
-        while (crazyflie.getState() != State.SETUP_FINISHED) {
+        while (!crazyflie.isConnected()) {
             try {
                 Thread.sleep(250);
             } catch (InterruptedException e) {
