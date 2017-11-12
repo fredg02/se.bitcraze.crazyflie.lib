@@ -50,7 +50,8 @@ public class CloaderTest {
         if (bootloaderConnection != null) {
             System.out.println(" Done!");
             System.out.println("BootloaderConnection: " + bootloaderConnection);
-            cloader.openBootloaderConnection(bootloaderConnection);
+            cloader.setConnectionData(bootloaderConnection);
+            cloader.openBootloaderConnection();
         } else {
             cloader.close();
             fail("No bootloader connection found.");

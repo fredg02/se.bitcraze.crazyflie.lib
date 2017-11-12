@@ -68,10 +68,12 @@ public class RadioDriver extends CrtpDriver {
     }
 
     /* (non-Javadoc)
-     * @see se.bitcraze.crazyflie.lib.crtp.CrtpDriver#connect(se.bitcraze.crazyflie.lib.crazyradio.ConnectionData)
+     * @see se.bitcraze.crazyflie.lib.crtp.CrtpDriver#connect()
      */
-    public void connect(ConnectionData connectionData) {
-        this.mConnectionData = connectionData;
+    public void connect() {
+        if (this.mConnectionData == null) {
+            throw new IllegalStateException("ConnectionData must be set before attempting to connect to Crazyradio.");
+        }
         if(mCradio == null) {
             notifyConnectionRequested();
 //            try {
@@ -97,8 +99,8 @@ public class RadioDriver extends CrtpDriver {
             mLogger.warn("Radio version <0.4 will be obsolete soon!");
         }
 
-        this.mCradio.setChannel(connectionData.getChannel());
-        this.mCradio.setDatarate(connectionData.getDataRate());
+        this.mCradio.setChannel(mConnectionData.getChannel());
+        this.mCradio.setDatarate(mConnectionData.getDataRate());
 
         /*
         if uri_data.group(9):
@@ -109,6 +111,15 @@ public class RadioDriver extends CrtpDriver {
 
         // Launch the comm thread
         startSendReceiveThread();
+    }
+
+    /**
+     * Sets the connection data (channel and data rate)
+     * 
+     * @param connectionData
+     */
+    public void setConnectionData(ConnectionData connectionData) {
+        this.mConnectionData = connectionData;
     }
 
     /*

@@ -54,10 +54,9 @@ public abstract class CrtpDriver {
     /**
      * Connect the driver
      *
-     * @param connectionData
      * @throws IOException
      */
-    public abstract void connect(ConnectionData connectionData) throws IOException;
+    public abstract void connect() throws IOException;
 
     /**
      * Close the link

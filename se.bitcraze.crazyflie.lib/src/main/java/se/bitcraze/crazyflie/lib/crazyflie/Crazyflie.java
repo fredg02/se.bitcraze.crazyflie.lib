@@ -122,7 +122,10 @@ public class Crazyflie {
 
         // try to connect
         try {
-            mDriver.connect(mConnectionData);
+            if (mDriver instanceof RadioDriver) {
+                ((RadioDriver) mDriver).setConnectionData(connectionData);
+            }
+            mDriver.connect();
         } catch (IOException ioe) {
             mLogger.debug(ioe.getMessage());
 //            notifyConnectionFailed("Connection failed: " + ioe.getMessage());

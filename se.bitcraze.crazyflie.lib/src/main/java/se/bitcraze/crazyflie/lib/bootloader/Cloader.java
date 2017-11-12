@@ -273,17 +273,21 @@ public class Cloader {
         return true;
     }
 
-    public void openBootloaderConnection(ConnectionData connectionData) throws IOException {
-        if (this.mDriver != null) {
+    // FIXME: is this method really necessary?
+    public void openBootloaderConnection() throws IOException {
+        if (this.mDriver.isConnected()) {
             this.mDriver.disconnect();
         }
-        if (connectionData != null) {
-            this.mDriver.connect(connectionData);
-        } else {
-            // self.link = cflib.crtp.get_link_driver(self.clink_address)
-        }
+        this.mDriver.connect();
     }
 
+    // FIXME: is this method really necessary?
+    public void setConnectionData(ConnectionData connectionData) {
+        if (mDriver instanceof RadioDriver) {
+            ((RadioDriver) mDriver).setConnectionData(connectionData);
+        }
+    }
+    
     /**
      * Try to get a connection with the bootloader by requesting info
      * 5 times. This let roughly 10 seconds to boot the copter ...

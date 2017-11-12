@@ -37,7 +37,7 @@ public class MockDriver extends RadioDriver  {
     }
 
     @Override
-    public void connect(ConnectionData connectionData) {
+    public void connect() {
         mLogger.debug("MockDriver connect()");
     }
 

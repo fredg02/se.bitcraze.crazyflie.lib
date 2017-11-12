@@ -65,7 +65,8 @@ public class RadioDriverTest {
         if (connectionDataList.isEmpty()) {
             fail("No active connections found. Please make sure at least one Crazyflie is turned on");
         } else {
-            mRadioDriver.connect(connectionDataList.get(0));
+            mRadioDriver.setConnectionData(connectionDataList.get(0));
+            mRadioDriver.connect();
             for (int i = 0; i <= 50; i++) {
                 mRadioDriver.sendPacket(CrtpPacket.NULL_PACKET);
                 try {
@@ -84,7 +85,8 @@ public class RadioDriverTest {
         if (connectionDataList.isEmpty()) {
             fail("No active connections found. Please make sure at least one Crazyflie is turned on");
         } else {
-            mRadioDriver.connect(connectionDataList.get(0));
+            mRadioDriver.setConnectionData(connectionDataList.get(0));
+            mRadioDriver.connect();
             for (int i = 0; i <= 10; i++) {
                 mRadioDriver.sendPacket(CrtpPacket.NULL_PACKET);
                 try {

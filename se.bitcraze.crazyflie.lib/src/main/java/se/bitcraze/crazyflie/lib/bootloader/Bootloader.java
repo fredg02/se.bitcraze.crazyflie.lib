@@ -118,7 +118,8 @@ public class Bootloader {
             if (bootloaderConnection != null) {
                 mLogger.info("startBootloader: bootloader connection found");
                 try {
-                    this.mCload.openBootloaderConnection(bootloaderConnection);
+                    this.mCload.setConnectionData(bootloaderConnection);
+                    this.mCload.openBootloaderConnection();
                     started = this.mCload.checkLinkAndGetInfo(TargetTypes.STM32); //TODO: what is the real parameter for this?
                 } catch (IOException e) {
                     mLogger.warn(e.getMessage());
