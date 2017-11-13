@@ -202,7 +202,7 @@ public class RadioDriver extends CrtpDriver {
     /**
      * Scan interface for Crazyflies
      */
-    public static List<ConnectionData> scanInterface(Crazyradio crazyRadio, CrazyUsbInterface crazyUsbInterface) {
+    private static List<ConnectionData> scanInterface(Crazyradio crazyRadio, CrazyUsbInterface crazyUsbInterface) {
         List<ConnectionData> connectionDataList = new ArrayList<ConnectionData>();
 
         if(crazyRadio == null) {
