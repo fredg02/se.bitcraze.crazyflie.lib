@@ -236,7 +236,7 @@ public class Crazyflie {
             while(true) {
                 if (!mResendQueue.isEmpty()) {
                     CrtpPacket resendPacket = mResendQueue.poll();
-                    mLogger.debug("RESEND: " + resendPacket + " ID: " + resendPacket.getPayload()[0]);
+                    mLogger.debug("RESEND: {} ID: {}", resendPacket, resendPacket.getPayload()[0]);
                     sendPacket(resendPacket);
                 }
                 try {
@@ -282,7 +282,7 @@ public class Crazyflie {
      * Start the connection setup by refreshing the TOCs
      */
     private void startConnectionSetup() {
-        mLogger.info("We are connected [" + mConnectionData.toString() + "], requesting connection setup...");
+        mLogger.info("We are connected [{}], requesting connection setup...", mConnectionData.toString());
 
         mParam = new Param(this);
         //must be defined first to be usable in Log TocFetchFinishedListener
