@@ -250,30 +250,25 @@ public class RadioDriver extends CrtpDriver {
             mLogger.error("Radio address should be 5 bytes long");
             return false;
         }
-        
         // self.link.pause()
         stopSendReceiveThread();
 
         int SET_BOOTLOADER_ADDRESS = 0x11; // Only implemented on Crazyflie version 0x00
-        
         //TODO: is there a more elegant way to do this?
         //pkdata = (0xFF, 0xFF, 0x11) + tuple(new_address)
         byte[] pkData = new byte[newAddress.length + 3];
         pkData[0] = (byte) 0xFF;
         pkData[1] = (byte) 0xFF;
         pkData[2] = (byte) SET_BOOTLOADER_ADDRESS;
+        System.arraycopy(newAddress, 0, pkData, 3, newAddress.length);
 
         for (int i = 0; i < 10; i++) {
             mLogger.debug("Trying to set new radio address");
             //self.link.cradio.set_address((0xE7,) * 5)
             mCradio.setAddress(new byte[]{(byte) 0xE7, (byte) 0xE7, (byte) 0xE7, (byte) 0xE7, (byte) 0xE7});
-
-            System.arraycopy(newAddress, 0, pkData, 3, newAddress.length);
             mCradio.sendPacket(pkData);
-
             //self.link.cradio.set_address(tuple(new_address))
             mCradio.setAddress(newAddress);
-
             //if self.link.cradio.send_packet((0xff,)).ack:
             RadioAck ack = mCradio.sendPacket(new byte[] {(byte) 0xFF});
             if (ack != null) {
