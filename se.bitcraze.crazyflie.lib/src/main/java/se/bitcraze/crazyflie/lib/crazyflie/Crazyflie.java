@@ -378,14 +378,12 @@ public class Crazyflie {
 
     /* PACKET LISTENER */
 
-    //TODO: should PacketListener methods be public?
-
-    public void addPacketListener(PacketListener listener) {
+    private void addPacketListener(PacketListener listener) {
         mLogger.debug("Adding packet listener...");
         this.mPacketListeners.add(listener);
     }
 
-    public void removePacketListener(PacketListener listener) {
+    private void removePacketListener(PacketListener listener) {
         mLogger.debug("Removing packet listener...");
         this.mPacketListeners.remove(listener);
     }
@@ -407,15 +405,12 @@ public class Crazyflie {
         public void run() {
             while(!Thread.currentThread().isInterrupted()) {
                 CrtpPacket packet = getDriver().receivePacket(1);
-                if(packet == null) {
-                    continue;
+                if(packet != null) {
+                    //All-packet callbacks
+                    //self.cf.packet_received.call(pk)
+                    notifyPacketReceived(packet);
+                    notifyDataReceived(packet);
                 }
-
-                //All-packet callbacks
-                //self.cf.packet_received.call(pk)
-                notifyPacketReceived(packet);
-
-                notifyDataReceived(packet);
             }
             mLogger.debug("IncomingPacketHandlerThread was interrupted.");
         }
