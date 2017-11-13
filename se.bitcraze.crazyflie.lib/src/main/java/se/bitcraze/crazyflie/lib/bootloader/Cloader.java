@@ -42,7 +42,6 @@ import se.bitcraze.crazyflie.lib.bootloader.Target.TargetTypes;
 import se.bitcraze.crazyflie.lib.bootloader.Utilities.BootVersion;
 import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
 import se.bitcraze.crazyflie.lib.crazyradio.Crazyradio;
-import se.bitcraze.crazyflie.lib.crazyradio.RadioAck;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
@@ -336,49 +335,11 @@ public class Cloader {
      * This function works only with crazyradio CRTP link.
      */
     public boolean setAddress(byte[] newAddress) {
-        if (newAddress.length != 5) {
-            mLogger.error("Radio address should be 5 bytes long");
-            return false;
-        }
         if (!(mDriver instanceof RadioDriver)) {
             throw new IllegalArgumentException("Setting the copter's radio address is only supported with a Crazyradio connection.");
         }
-
         mLogger.debug("Setting bootloader radio address to " + Utilities.getHexString(newAddress));
-
-        // self.link.pause()
-        ((RadioDriver) this.mDriver).stopSendReceiveThread();
-
-        Crazyradio crazyRadio = ((RadioDriver) this.mDriver).getRadio();
-        //TODO: is there a more elegant way to do this?
-        //pkdata = (0xFF, 0xFF, 0x11) + tuple(new_address)
-        byte[] pkData = new byte[newAddress.length + 3];
-        pkData[0] = (byte) 0xFF;
-        pkData[1] = (byte) 0xFF;
-        pkData[2] = (byte) SET_ADDRESS;
-
-        for (int i = 0; i < 10; i++) {
-            mLogger.debug("Trying to set new radio address");
-            //self.link.cradio.set_address((0xE7,) * 5)
-            crazyRadio.setAddress(new byte[]{(byte) 0xE7, (byte) 0xE7, (byte) 0xE7, (byte) 0xE7, (byte) 0xE7});
-
-            System.arraycopy(newAddress, 0, pkData, 3, newAddress.length);
-            crazyRadio.sendPacket(pkData);
-
-            //self.link.cradio.set_address(tuple(new_address))
-            crazyRadio.setAddress(newAddress);
-
-            //if self.link.cradio.send_packet((0xff,)).ack:
-            RadioAck ack = crazyRadio.sendPacket(new byte[] {(byte) 0xFF});
-            if (ack != null) {
-                mLogger.info("Bootloader set to radio address " + Utilities.getHexString(newAddress));;
-                ((RadioDriver) this.mDriver).startSendReceiveThread();
-                return true;
-            }
-        }
-        //this.mDriver.restart();
-        ((RadioDriver) this.mDriver).startSendReceiveThread();
-        return false;
+        return ((RadioDriver) this.mDriver).setBootloaderAddress(newAddress);
     }
 
     public Target requestInfoUpdate(int targetId) {

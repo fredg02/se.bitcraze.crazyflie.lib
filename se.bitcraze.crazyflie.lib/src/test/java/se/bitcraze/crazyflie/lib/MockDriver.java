@@ -156,16 +156,6 @@ public class MockDriver extends RadioDriver  {
         return true;
     }
 
-    @Override
-    public void startSendReceiveThread() {
-        mLogger.debug("MockDriver startSendReceiveThread()");
-    }
-
-    @Override
-    public void stopSendReceiveThread() {
-        mLogger.debug("MockDriver stopSendReceiveThread()");
-    }
-
     // TODO: workaround until everything is mocked
     public Crazyradio getRadio() {
         return new Crazyradio(new UsbLinkJava());

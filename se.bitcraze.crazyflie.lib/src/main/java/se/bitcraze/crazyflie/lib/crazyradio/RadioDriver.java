@@ -36,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import se.bitcraze.crazyflie.lib.bootloader.Utilities;
 import se.bitcraze.crazyflie.lib.crazyflie.ConnectionListener;
 import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
@@ -58,7 +59,7 @@ public class RadioDriver extends CrtpDriver {
     private final BlockingQueue<CrtpPacket> mOutQueue;
 
     private ConnectionData mConnectionData;
-
+    
     /**
      * Create the link driver
      */
@@ -137,11 +138,6 @@ public class RadioDriver extends CrtpDriver {
             mLogger.error("InterruptedException: " + e.getMessage());
             return null;
         }
-    }
-
-    //TODO: Remove
-    public int getInQueueSize() {
-        return mInQueue.size();
     }
 
     /*
@@ -249,12 +245,49 @@ public class RadioDriver extends CrtpDriver {
         return mCradio.scanSelected(connectionData.getChannel(), connectionData.getDataRate(), packet);
     }
 
-    public Crazyradio getRadio() {
-        return this.mCradio;
+    public boolean setBootloaderAddress(byte[] newAddress) {
+        if (newAddress.length != 5) {
+            mLogger.error("Radio address should be 5 bytes long");
+            return false;
+        }
+        
+        // self.link.pause()
+        stopSendReceiveThread();
+
+        int SET_BOOTLOADER_ADDRESS = 0x11; // Only implemented on Crazyflie version 0x00
+        
+        //TODO: is there a more elegant way to do this?
+        //pkdata = (0xFF, 0xFF, 0x11) + tuple(new_address)
+        byte[] pkData = new byte[newAddress.length + 3];
+        pkData[0] = (byte) 0xFF;
+        pkData[1] = (byte) 0xFF;
+        pkData[2] = (byte) SET_BOOTLOADER_ADDRESS;
+
+        for (int i = 0; i < 10; i++) {
+            mLogger.debug("Trying to set new radio address");
+            //self.link.cradio.set_address((0xE7,) * 5)
+            mCradio.setAddress(new byte[]{(byte) 0xE7, (byte) 0xE7, (byte) 0xE7, (byte) 0xE7, (byte) 0xE7});
+
+            System.arraycopy(newAddress, 0, pkData, 3, newAddress.length);
+            mCradio.sendPacket(pkData);
+
+            //self.link.cradio.set_address(tuple(new_address))
+            mCradio.setAddress(newAddress);
+
+            //if self.link.cradio.send_packet((0xff,)).ack:
+            RadioAck ack = mCradio.sendPacket(new byte[] {(byte) 0xFF});
+            if (ack != null) {
+                mLogger.info("Bootloader set to radio address " + Utilities.getHexString(newAddress));;
+                startSendReceiveThread();
+                return true;
+            }
+        }
+        //this.mDriver.restart();
+        startSendReceiveThread();
+        return false;
     }
 
-
-    public void startSendReceiveThread() {
+    private void startSendReceiveThread() {
         if (mRadioDriverThread == null) {
             //self._thread = _RadioDriverThread(self.cradio, self.in_queue, self.out_queue, link_quality_callback, link_error_callback)
             RadioDriverThread rDT = new RadioDriverThread();
@@ -263,7 +296,7 @@ public class RadioDriver extends CrtpDriver {
         }
     }
 
-    public void stopSendReceiveThread() {
+    private void stopSendReceiveThread() {
         if (this.mRadioDriverThread != null) {
             this.mRadioDriverThread.interrupt();
             this.mRadioDriverThread = null;
@@ -273,7 +306,7 @@ public class RadioDriver extends CrtpDriver {
     /**
      * Radio link receiver thread is used to read data from the Crazyradio USB driver.
      */
-    public class RadioDriverThread implements Runnable {
+    private class RadioDriverThread implements Runnable {
 
         final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
 
