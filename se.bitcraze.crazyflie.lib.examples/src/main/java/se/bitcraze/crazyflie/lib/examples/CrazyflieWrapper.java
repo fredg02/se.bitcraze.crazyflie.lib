@@ -39,7 +39,8 @@ public class CrazyflieWrapper {
             }
 
         });
-        mCrazyflie.connect(foundCrazyflies.get(0));
+        mCrazyflie.setConnectionData(foundCrazyflies.get(0));
+        mCrazyflie.connect();
     }
 
     private List<ConnectionData> scan() {

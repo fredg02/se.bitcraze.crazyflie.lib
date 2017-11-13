@@ -41,7 +41,8 @@ public class ParamExample extends ConnectionAdapter{
         System.out.println("Connecting to " + connectionData);
 
         // Try to connect to the Crazyflie
-        mCrazyflie.connect(connectionData);
+        mCrazyflie.setConnectionData(connectionData);
+        mCrazyflie.connect();
     }
 
     public boolean isConnected() {

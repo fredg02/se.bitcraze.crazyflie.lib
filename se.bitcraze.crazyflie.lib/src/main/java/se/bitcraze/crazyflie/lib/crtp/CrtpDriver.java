@@ -32,7 +32,6 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import se.bitcraze.crazyflie.lib.crazyflie.ConnectionListener;
-import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
 
 /**
  * CTRP Driver main class
@@ -42,8 +41,6 @@ import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
 public abstract class CrtpDriver {
 
     protected Set<ConnectionListener> mConnectionListeners = new CopyOnWriteArraySet<ConnectionListener>();
-
-    protected ConnectionData mConnectionData;
 
     /**
      * Driver constructor. Throw an exception if the driver is unable to open the URI
@@ -98,70 +95,42 @@ public abstract class CrtpDriver {
     /**
      * Notify all registered listeners about a requested connection
      */
-    protected void notifyConnectionRequested() {
-        for (ConnectionListener cl : this.mConnectionListeners) {
-            cl.connectionRequested(mConnectionData.toString());
-        }
-    }
+    protected abstract void notifyConnectionRequested();
 
     /**
      * Notify all registered listeners about a connect.
      */
-    public void notifyConnected() {
-        for (ConnectionListener cl : this.mConnectionListeners) {
-            cl.connected(mConnectionData.toString());
-        }
-    }
+    public abstract void notifyConnected();
 
     /**
      * Notify all registered listeners about a finished setup.
      */
-    public void notifySetupFinished() {
-        for (ConnectionListener cl : this.mConnectionListeners) {
-            cl.setupFinished(mConnectionData.toString());
-        }
-    }
+    public abstract void notifySetupFinished();
 
     /**
      * Notify all registered listeners about a failed connection attempt.
      *
      * @param msg
      */
-    protected void notifyConnectionFailed(String msg) {
-        for (ConnectionListener cl : this.mConnectionListeners) {
-            cl.connectionFailed(mConnectionData.toString(), msg);
-        }
-    }
+    protected abstract void notifyConnectionFailed(String msg);
 
     /**
      * Notify all registered listeners about a lost connection.
      *
      * @param msg
      */
-    protected void notifyConnectionLost(String msg) {
-        for (ConnectionListener cl : this.mConnectionListeners) {
-            cl.connectionLost(mConnectionData.toString(), msg);
-        }
-    }
+    protected abstract void notifyConnectionLost(String msg);
 
     /**
      * Notify all registered listeners about a disconnect.
      */
-    protected void notifyDisconnected() {
-        for (ConnectionListener cl : this.mConnectionListeners) {
-            cl.disconnected(mConnectionData.toString());
-        }
-    }
+    protected abstract void notifyDisconnected();
 
     /**
      * Notify all registered listeners about a link quality update.
      *
      * @param percent quality of the link (0 = connection lost, 100 = good)
      */
-    protected void notifyLinkQualityUpdated(int percent) {
-        for (ConnectionListener cl : this.mConnectionListeners) {
-            cl.linkQualityUpdated(percent);
-        }
-    }
+    protected abstract void notifyLinkQualityUpdated(int percent);
 
 }

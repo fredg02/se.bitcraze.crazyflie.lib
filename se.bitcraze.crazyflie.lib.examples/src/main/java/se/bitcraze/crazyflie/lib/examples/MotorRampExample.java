@@ -63,7 +63,8 @@ public class MotorRampExample {
 
         });
 
-        mCrazyflie.connect(connectionData);
+        mCrazyflie.setConnectionData(connectionData);
+        mCrazyflie.connect();
 
         System.out.println("Connection to " + connectionData);
     }

@@ -47,7 +47,8 @@ public class ConsoleExample {
         System.out.println("Connecting to " + connectionData);
 
         // Try to connect to the Crazyflie
-        mCrazyflie.connect(connectionData);
+        mCrazyflie.setConnectionData(connectionData);
+        mCrazyflie.connect();
 
         // Start a timer to disconnect after 5s
         Timer timer = new Timer();

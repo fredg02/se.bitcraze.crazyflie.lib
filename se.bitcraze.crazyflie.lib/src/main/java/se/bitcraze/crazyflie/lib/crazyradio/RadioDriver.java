@@ -36,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import se.bitcraze.crazyflie.lib.crazyflie.ConnectionListener;
 import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
 import se.bitcraze.crazyflie.lib.usb.CrazyUsbInterface;
@@ -55,6 +56,8 @@ public class RadioDriver extends CrtpDriver {
 
     private final BlockingQueue<CrtpPacket> mInQueue;
     private final BlockingQueue<CrtpPacket> mOutQueue;
+
+    private ConnectionData mConnectionData;
 
     /**
      * Create the link driver
@@ -377,4 +380,81 @@ public class RadioDriver extends CrtpDriver {
         return this.mRadioDriverThread != null;
     }
 
+        /* CONNECTION LISTENER */
+
+    /**
+     * Notify all registered listeners about a requested connection
+     */
+    @Override
+    protected void notifyConnectionRequested() {
+        for (ConnectionListener cl : this.mConnectionListeners) {
+            cl.connectionRequested(mConnectionData.toString());
+        }
+    }
+
+    /**
+     * Notify all registered listeners about a connect.
+     */
+    @Override
+    public void notifyConnected() {
+        for (ConnectionListener cl : this.mConnectionListeners) {
+            cl.connected(mConnectionData.toString());
+        }
+    }
+
+    /**
+     * Notify all registered listeners about a finished setup.
+     */
+    @Override
+    public void notifySetupFinished() {
+        for (ConnectionListener cl : this.mConnectionListeners) {
+            cl.setupFinished(mConnectionData.toString());
+        }
+    }
+
+    /**
+     * Notify all registered listeners about a failed connection attempt.
+     *
+     * @param msg
+     */
+    @Override
+    protected void notifyConnectionFailed(String msg) {
+        for (ConnectionListener cl : this.mConnectionListeners) {
+            cl.connectionFailed(mConnectionData.toString(), msg);
+        }
+    }
+
+    /**
+     * Notify all registered listeners about a lost connection.
+     *
+     * @param msg
+     */
+    @Override
+    protected void notifyConnectionLost(String msg) {
+        for (ConnectionListener cl : this.mConnectionListeners) {
+            cl.connectionLost(mConnectionData.toString(), msg);
+        }
+    }
+
+    /**
+     * Notify all registered listeners about a disconnect.
+     */
+    @Override
+    protected void notifyDisconnected() {
+        for (ConnectionListener cl : this.mConnectionListeners) {
+            cl.disconnected(mConnectionData.toString());
+        }
+    }
+
+    /**
+     * Notify all registered listeners about a link quality update.
+     *
+     * @param percent quality of the link (0 = connection lost, 100 = good)
+     */
+    @Override
+    protected void notifyLinkQualityUpdated(int percent) {
+        for (ConnectionListener cl : this.mConnectionListeners) {
+            cl.linkQualityUpdated(percent);
+        }
+    }
 }

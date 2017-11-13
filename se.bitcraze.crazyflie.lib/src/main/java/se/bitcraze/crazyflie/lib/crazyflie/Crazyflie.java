@@ -400,7 +400,7 @@ public class Crazyflie {
     /**
      * Handles incoming packets and sends the data to the correct listeners
      */
-    public class IncomingPacketHandler implements Runnable {
+    private class IncomingPacketHandler implements Runnable {
 
         final Logger mLogger = LoggerFactory.getLogger("IncomingPacketHandler");
 
