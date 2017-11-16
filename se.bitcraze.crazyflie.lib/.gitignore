@@ -2,3 +2,5 @@
 /target/
 /log.txt
 /manifestTest.json
+/paramCache/
+/logCache/

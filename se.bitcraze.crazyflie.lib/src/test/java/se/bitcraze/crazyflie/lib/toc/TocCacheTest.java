@@ -56,12 +56,12 @@ public class TocCacheTest {
 
     @Test
     public void testTocCache_LOGGING() throws FileNotFoundException {
-        testTocCache(CURRENT_CRC_LOGGING, 173, CrtpPort.LOGGING);
+        testTocCache(CURRENT_CRC_LOGGING, 180, CrtpPort.LOGGING);
     }
 
     @Test
     public void testTocCache_PARAMETERS() throws FileNotFoundException {
-        testTocCache(CURRENT_CRC_PARAMETERS, 127, CrtpPort.PARAMETERS);
+        testTocCache(CURRENT_CRC_PARAMETERS, 131, CrtpPort.PARAMETERS);
     }
 
     public void testTocCache(String crc, int tocSize, CrtpPort port) {
