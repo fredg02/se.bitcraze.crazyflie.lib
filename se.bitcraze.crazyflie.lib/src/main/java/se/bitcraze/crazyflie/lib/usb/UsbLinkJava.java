@@ -187,9 +187,7 @@ public class UsbLinkJava implements CrazyUsbInterface {
                 usbControlIrp.setData(data);
                 int dataLength = (data == null) ? 0 : data.length;
                 usbControlIrp.setLength(dataLength);
-
-                mLogger.debug("sendControlTransfer,  requestType: {}, request: {}, value: {}, index: {}, data: {}", requestType, request, value, index, Utilities.getByteString(data));
-
+                debugControlTransfer((byte) requestType, (byte) request, (byte) value, (byte) index, data);
                 if(sendUsbControlIrp(mUsbDevice, usbControlIrp)){
                     returnCode = usbControlIrp.getActualLength();
                 }
@@ -200,6 +198,10 @@ public class UsbLinkJava implements CrazyUsbInterface {
             }
         }
         return returnCode;
+    }
+
+    private void debugControlTransfer(byte requestType, byte request, byte value, byte index, byte[] data) {
+        mLogger.debug("sendControlTransfer,  requestType: {}, request: {}, value: {}, index: {}, data: {}", requestType, request, value, index, Utilities.getByteString(data));
     }
 
     /* (non-Javadoc)
@@ -249,7 +251,7 @@ public class UsbLinkJava implements CrazyUsbInterface {
         int returnCode = -1;
 
         if(UsbConst.ENDPOINT_DIRECTION_OUT == usbEndpoint.getDirection()){
-            mLogger.debug("sendBulkTransfer - direction: OUT,  byteString: {}", Utilities.getByteString(data));
+            debugBulkTransfer("OUT", data);
         }
 
         UsbPipe usbPipe = usbEndpoint.getUsbPipe();
@@ -278,11 +280,15 @@ public class UsbLinkJava implements CrazyUsbInterface {
         }
 
         if(UsbConst.ENDPOINT_DIRECTION_IN == usbEndpoint.getDirection()){
-            //TODO: show type of packet in debug log
-            mLogger.debug("sendBulkTransfer - direction: IN,  byteString: {}", Utilities.getByteString(data));
+            debugBulkTransfer("IN", data);
         }
 
         return returnCode;
+    }
+
+    private void debugBulkTransfer(String direction, byte[] data) {
+        //TODO: show type of packet in debug log
+        mLogger.debug("sendBulkTransfer - direction: {},  byteString: {}", direction, Utilities.getByteString(data));
     }
 
     /**

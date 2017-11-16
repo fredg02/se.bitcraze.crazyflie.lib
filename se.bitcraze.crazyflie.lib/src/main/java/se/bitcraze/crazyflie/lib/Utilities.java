@@ -15,14 +15,13 @@ public class Utilities {
             sb.append(b);
             sb.append(",");
         }
-        String byteString = sb.toString();
-        return byteString;
+        return sb.toString();
     }
 
     public static String getHexString(byte... array) {
         StringBuffer sb = new StringBuffer();
         for (byte b : array) {
-            sb.append(String.format("0x%02X", b));
+            sb.append(String.format("%02X", b));
             sb.append(" ");
         }
         return sb.toString();
