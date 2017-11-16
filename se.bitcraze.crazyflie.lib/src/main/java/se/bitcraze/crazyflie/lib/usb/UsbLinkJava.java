@@ -50,6 +50,8 @@ import javax.usb.UsbServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import se.bitcraze.crazyflie.lib.Utilities;
+
 
 /**
  * TODO: While multiple Crazyradios can be found with findDevices() only the first Crazyradio
@@ -93,18 +95,14 @@ public class UsbLinkJava implements CrazyUsbInterface {
             throw new IOException(e.getMessage());
         }
         List<UsbDevice> usbDevices = findUsbDevices(mRootHub, (short) vid, (short) pid);
-        if (usbDevices.isEmpty()) {
-            mLogger.warn("USB device not found. (VID: " + vid + ", PID: " + pid + ")");
+        if (usbDevices.isEmpty() || usbDevices.get(0) == null) {
+            mLogger.warn("USB device not found. (VID: {}, PID: {})", vid, pid);
             return;
         }
-        this.mUsbDevice = usbDevices.get(0);
         // TODO: Only gets the first USB device that is found
-        if (mUsbDevice == null) {
-            mLogger.warn("USB device not found. (VID: " + vid + ", PID: " + pid + ")");
-            return;
-        }
+        this.mUsbDevice = usbDevices.get(0);
 
-        mLogger.debug("setDevice " + this.mUsbDevice);
+        mLogger.debug("setDevice {}", this.mUsbDevice);
 
         UsbConfiguration activeUsbConfiguration = this.mUsbDevice.getActiveUsbConfiguration();
 
@@ -190,7 +188,7 @@ public class UsbLinkJava implements CrazyUsbInterface {
                 int dataLength = (data == null) ? 0 : data.length;
                 usbControlIrp.setLength(dataLength);
 
-                mLogger.debug("sendControlTransfer,  requestType: {}, request: {}, value: {}, index: {}, data: {}", requestType, request, value, index, getByteString(data));
+                mLogger.debug("sendControlTransfer,  requestType: {}, request: {}, value: {}, index: {}, data: {}", requestType, request, value, index, Utilities.getByteString(data));
 
                 if(sendUsbControlIrp(mUsbDevice, usbControlIrp)){
                     returnCode = usbControlIrp.getActualLength();
@@ -238,7 +236,7 @@ public class UsbLinkJava implements CrazyUsbInterface {
         if(mUsbDevice != null){
             try {
                 returnCode = sendBulkTransfer(mEpIn, data);
-                mLogger.debug("bulkRead: return code = " + returnCode);
+                mLogger.debug("bulkRead: return code = {}", returnCode);
             } catch (UsbException e) {
                 mLogger.error("bulkRead failed: " + e.getMessage());
             }
@@ -251,7 +249,7 @@ public class UsbLinkJava implements CrazyUsbInterface {
         int returnCode = -1;
 
         if(UsbConst.ENDPOINT_DIRECTION_OUT == usbEndpoint.getDirection()){
-            mLogger.debug("sendBulkTransfer - direction: OUT,  byteString: {}", getByteString(data));
+            mLogger.debug("sendBulkTransfer - direction: OUT,  byteString: {}", Utilities.getByteString(data));
         }
 
         UsbPipe usbPipe = usbEndpoint.getUsbPipe();
@@ -280,28 +278,11 @@ public class UsbLinkJava implements CrazyUsbInterface {
         }
 
         if(UsbConst.ENDPOINT_DIRECTION_IN == usbEndpoint.getDirection()){
-        	//TODO: show type of packet in debug log
-            mLogger.debug("sendBulkTransfer - direction: IN,  byteString: {}", getByteString(data));
+            //TODO: show type of packet in debug log
+            mLogger.debug("sendBulkTransfer - direction: IN,  byteString: {}", Utilities.getByteString(data));
         }
 
         return returnCode;
-    }
-
-    /**
-     * Returns byte array as comma separated string
-     * (for debugging purposes)
-     *
-     * @param data
-     * @return
-     */
-    public static String getByteString(byte[] data) {
-        StringBuffer sb = new StringBuffer();
-        for (byte b : data) {
-            sb.append(b);
-            sb.append(",");
-        }
-        String byteString = sb.toString();
-        return byteString;
     }
 
     /**

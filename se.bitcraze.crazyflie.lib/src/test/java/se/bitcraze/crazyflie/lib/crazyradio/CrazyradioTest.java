@@ -38,6 +38,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import se.bitcraze.crazyflie.lib.Utilities;
 import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
 
 
@@ -104,7 +105,7 @@ public class CrazyradioTest {
                 System.out.println("isAck: " + radioAck.isAck());
                 System.out.println("isPowerDet: " + radioAck.isPowerDet());
                 System.out.println("getRetry: " + radioAck.getRetry());
-                System.out.println("getData: " + UsbLinkJava.getByteString(radioAck.getData()));
+                System.out.println("getData: " + Utilities.getByteString(radioAck.getData()));
                 assertTrue(radioAck.isAck());
                 assertFalse(radioAck.isPowerDet());
                 assertTrue(radioAck.getData().length > 0);

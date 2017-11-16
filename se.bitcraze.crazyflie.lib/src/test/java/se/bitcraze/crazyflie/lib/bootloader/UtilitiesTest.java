@@ -9,7 +9,6 @@ import org.junit.experimental.categories.Category;
 
 import se.bitcraze.crazyflie.lib.OfflineTests;
 import se.bitcraze.crazyflie.lib.bootloader.Target.TargetTypes;
-import se.bitcraze.crazyflie.lib.bootloader.Utilities.BootVersion;
 
 @Category(OfflineTests.class)
 public class UtilitiesTest {

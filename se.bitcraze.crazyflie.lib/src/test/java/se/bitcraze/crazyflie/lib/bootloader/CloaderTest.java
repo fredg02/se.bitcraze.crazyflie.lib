@@ -17,8 +17,8 @@ import org.junit.Test;
 
 import se.bitcraze.crazyflie.lib.MockDriver;
 import se.bitcraze.crazyflie.lib.TestUtilities;
+import se.bitcraze.crazyflie.lib.Utilities;
 import se.bitcraze.crazyflie.lib.bootloader.Target.TargetTypes;
-import se.bitcraze.crazyflie.lib.bootloader.Utilities.BootVersion;
 import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
@@ -190,7 +190,7 @@ public class CloaderTest {
         System.out.println("Readflash length: " + readFlash.length);
         System.out.println("Flash:");
         for(int i = 0; i < 40; i++) {
-            System.out.println(UsbLinkJava.getByteString(Arrays.copyOfRange(readFlash, i*25, (i*25)+25)));
+            System.out.println(Utilities.getByteString(Arrays.copyOfRange(readFlash, i*25, (i*25)+25)));
         }
 
 //        FileOutputStream fos = new FileOutputStream("flashFromCrazyflie.bin");

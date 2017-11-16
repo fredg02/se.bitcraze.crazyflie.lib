@@ -38,8 +38,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import se.bitcraze.crazyflie.lib.Utilities;
 import se.bitcraze.crazyflie.lib.bootloader.Target.TargetTypes;
-import se.bitcraze.crazyflie.lib.bootloader.Utilities.BootVersion;
 import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
 import se.bitcraze.crazyflie.lib.crazyradio.Crazyradio;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;

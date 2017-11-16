@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import se.bitcraze.crazyflie.lib.bootloader.Utilities;
+import se.bitcraze.crazyflie.lib.Utilities;
 import se.bitcraze.crazyflie.lib.crazyflie.ConnectionListener;
 import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;

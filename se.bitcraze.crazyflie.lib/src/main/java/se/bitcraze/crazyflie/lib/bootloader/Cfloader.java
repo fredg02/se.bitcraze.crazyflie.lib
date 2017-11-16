@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import se.bitcraze.crazyflie.lib.bootloader.Target.TargetTypes;
-import se.bitcraze.crazyflie.lib.bootloader.Utilities.BootVersion;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
 import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;

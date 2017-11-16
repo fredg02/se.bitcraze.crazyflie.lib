@@ -51,8 +51,8 @@ public class MockDriver extends RadioDriver  {
         byte headerByte = packet.getHeaderByte();
         byte[] payload = packet.getPayload();
 
-        mLogger.debug("MockDriver sendPacket header byte: " + UsbLinkJava.getByteString(new byte[] {headerByte}));
-        mLogger.debug("MockDriver sendPacket payload: " + UsbLinkJava.getByteString(payload));
+        mLogger.debug("MockDriver sendPacket header byte: " + Utilities.getByteString(new byte[] {headerByte}));
+        mLogger.debug("MockDriver sendPacket payload: " + Utilities.getByteString(payload));
 
         byte[] data = new byte[] {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,}; // default data
 
