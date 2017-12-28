@@ -41,7 +41,7 @@ public class BootloaderTest {
         if (TestUtilities.isCrazyradioAvailable()) {
             mDriver = new RadioDriver(new UsbLinkJava());
         } else {
-            mDriver = new MockDriver(MockDriver.CF1);
+            mDriver = new MockDriver();
         }
         mBootloader = new Bootloader(mDriver);
     }

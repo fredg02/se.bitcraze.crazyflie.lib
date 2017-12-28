@@ -68,7 +68,7 @@ public class LoggTest {
         LogConfig testConfig = new LogConfig("testConfig");
         testConfig.addVariable("foo.bar");
         
-        Crazyflie cf = new Crazyflie(new MockDriver(MockDriver.CF2));
+        Crazyflie cf = new Crazyflie(new MockDriver());
         
         Logg logg = new Logg(cf);
         

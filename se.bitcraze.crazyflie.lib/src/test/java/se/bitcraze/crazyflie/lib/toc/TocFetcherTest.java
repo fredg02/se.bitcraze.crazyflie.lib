@@ -58,7 +58,7 @@ public class TocFetcherTest {
     @Category(OfflineTests.class)
     @Test
     public void testTocFetcherOffline() {
-        Crazyflie crazyflieDummy = new Crazyflie(new MockDriver(MockDriver.CF1));
+        Crazyflie crazyflieDummy = new Crazyflie(new MockDriver());
         Toc toc = new Toc();
         TocFetcher tocFetcher = new TocFetcher(crazyflieDummy, CrtpPort.PARAMETERS, toc, null);
         tocFetcher.start();
@@ -83,7 +83,7 @@ public class TocFetcherTest {
     @Category(OfflineTests.class)
     @Test
     public void testTocFetcherOffline_TocIsBiggerThan128() {
-        Crazyflie crazyflieDummy = new Crazyflie(new MockDriver(MockDriver.CF1));
+        Crazyflie crazyflieDummy = new Crazyflie(new MockDriver());
         TocFetcher tocFetcher = new TocFetcher(crazyflieDummy, CrtpPort.PARAMETERS, new Toc(), null);
         tocFetcher.start();
 

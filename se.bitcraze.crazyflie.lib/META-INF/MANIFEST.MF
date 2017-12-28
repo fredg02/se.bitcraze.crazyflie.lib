@@ -3,7 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Crazyflie Java library
 Bundle-SymbolicName: se.bitcraze.crazyflie.lib
 Bundle-Version: 0.0.1.qualifier
-Export-Package: se.bitcraze.crazyflie.lib.bootloader;uses:="org.slf4j,se.bitcraze.crazyflie.lib.crazyradio,se.bitcraze.crazyflie.lib.crtp",
+Export-Package: se.bitcraze.crazyflie.lib,
+ se.bitcraze.crazyflie.lib.bootloader;uses:="org.slf4j,se.bitcraze.crazyflie.lib.crazyradio,se.bitcraze.crazyflie.lib.crtp",
  se.bitcraze.crazyflie.lib.crazyflie;
   uses:="se.bitcraze.crazyflie.lib.log,
    org.slf4j,

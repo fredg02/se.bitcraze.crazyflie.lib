@@ -73,11 +73,14 @@ public class Crazyradio {
     public final static int P_0DBM = 3;
 
     private CrazyUsbInterface mUsbInterface;
-    private int mArc;
+    protected int mArc;
     private float mVersion; // Crazyradio firmware version
     private String mSerialNumber; // Crazyradio serial number
 
     protected final static byte[] NULL_PACKET = new byte[] { (byte) 0xff };
+
+    public Crazyradio() {
+    }
 
     /**
      * Create object and scan for USB dongle if no device is supplied
@@ -344,7 +347,7 @@ public class Crazyradio {
 
     /* ### Data transfers ### */
 
-    private List<Integer> firmwareScan(int start, int stop) {
+    protected List<Integer> firmwareScan(int start, int stop) {
         mLogger.debug("Fast scan...");
         List<Integer> result = new ArrayList<Integer>();
         final byte[] rdata = new byte[64];
@@ -386,7 +389,7 @@ public class Crazyradio {
         return ackIn;
     }
 
-    private void sendVendorSetup(int request, int value, int index, byte[] data) {
+    protected void sendVendorSetup(int request, int value, int index, byte[] data) {
         // usb.TYPE_VENDOR = 64 <=> 0x40
         int usbTypeVendor = 0x40;
         mUsbInterface.sendControlTransfer(usbTypeVendor, request, value, index, data);

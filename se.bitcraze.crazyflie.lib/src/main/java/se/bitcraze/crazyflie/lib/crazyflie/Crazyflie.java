@@ -36,6 +36,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import se.bitcraze.crazyflie.lib.MockDriver;
 import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
@@ -307,7 +308,7 @@ public class Crazyflie {
             }
         };
         //mLog.refreshToc(self._log_toc_updated_cb, self._toc_cache);
-        if (mDriver instanceof RadioDriver) {
+        if (mDriver instanceof RadioDriver && !(mDriver instanceof MockDriver)) {
             mLogg.refreshToc(loggTocFetchFinishedListener, mTocCache);
         } else {
             //TODO: shortcut for BLELink

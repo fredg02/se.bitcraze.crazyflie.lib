@@ -62,6 +62,8 @@ public class UsbLinkJava implements CrazyUsbInterface {
 
     final static Logger mLogger = LoggerFactory.getLogger("UsbLinkJava");
 
+    private static final boolean FILTER_OUT_NULL_AND_ACK_PACKETS = true;
+
     //USB Timeout is set in javax.usb.properties
 
     private UsbDevice mUsbDevice;
@@ -201,7 +203,7 @@ public class UsbLinkJava implements CrazyUsbInterface {
     }
 
     private void debugControlTransfer(byte requestType, byte request, byte value, byte index, byte[] data) {
-        mLogger.debug("sendControlTransfer,  requestType: {}, request: {}, value: {}, index: {}, data: {}", requestType, request, value, index, Utilities.getByteString(data));
+        mLogger.debug("sendControlTransfer, requestType: {}, request: {}, value: {}, index: {}, data: {}", Utilities.getHexString(requestType), Utilities.getHexString(request), Utilities.getHexString(value), Utilities.getHexString(index), Utilities.getHexString(data));
     }
 
     /* (non-Javadoc)
@@ -288,7 +290,12 @@ public class UsbLinkJava implements CrazyUsbInterface {
 
     private void debugBulkTransfer(String direction, byte[] data) {
         //TODO: show type of packet in debug log
-        mLogger.debug("sendBulkTransfer - direction: {},  byteString: {}", direction, Utilities.getByteString(data));
+        if (FILTER_OUT_NULL_AND_ACK_PACKETS &&
+           (("OUT".equalsIgnoreCase(direction) && "FF ".equalsIgnoreCase(Utilities.getHexString(data))) ||
+           ("IN".equalsIgnoreCase(direction) && Utilities.getHexString(data).startsWith("01 00 00")))) {
+           return;
+        }
+        mLogger.debug("sendBulkTransfer - direction: {}, byteString: {}", direction, Utilities.getHexString(data));
     }
 
     /**

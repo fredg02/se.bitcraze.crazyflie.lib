@@ -50,12 +50,12 @@ public class RadioDriver extends CrtpDriver {
 
     final static Logger mLogger = LoggerFactory.getLogger("RadioDriver");
 
-    private Crazyradio mCradio;
+    protected Crazyradio mCradio;
     private Thread mRadioDriverThread;
 
     private CrazyUsbInterface mUsbInterface;
 
-    private final BlockingQueue<CrtpPacket> mInQueue;
+    protected final BlockingQueue<CrtpPacket> mInQueue;
     private final BlockingQueue<CrtpPacket> mOutQueue;
 
     private ConnectionData mConnectionData;
@@ -282,7 +282,7 @@ public class RadioDriver extends CrtpDriver {
         return false;
     }
 
-    private void startSendReceiveThread() {
+    protected void startSendReceiveThread() {
         if (mRadioDriverThread == null) {
             //self._thread = _RadioDriverThread(self.cradio, self.in_queue, self.out_queue, link_quality_callback, link_error_callback)
             RadioDriverThread rDT = new RadioDriverThread();
@@ -291,7 +291,7 @@ public class RadioDriver extends CrtpDriver {
         }
     }
 
-    private void stopSendReceiveThread() {
+    protected void stopSendReceiveThread() {
         if (this.mRadioDriverThread != null) {
             this.mRadioDriverThread.interrupt();
             this.mRadioDriverThread = null;
