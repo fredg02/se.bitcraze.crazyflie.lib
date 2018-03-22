@@ -73,6 +73,8 @@ public class LoggingExample extends ConnectionAdapter{
         // The definition of the logconfig can be made before the setup is finished
         final LogConfig lcBattery = new LogConfig("Battery", 1000);
         lcBattery.addVariable("pm.vbat", VariableType.FLOAT);
+        lcBattery.addVariable("baro.temp", VariableType.FLOAT);
+        lcBattery.addVariable("baro.pressure", VariableType.FLOAT);
 
         /**
          *  Adding the configuration cannot be done until a Crazyflie is connected and
@@ -228,6 +230,7 @@ public class LoggingExample extends ConnectionAdapter{
                     e.printStackTrace();
                 }
             }
+            System.exit(0);
         } else {
             System.out.println("No Crazyflies found, cannot run example");
         }
