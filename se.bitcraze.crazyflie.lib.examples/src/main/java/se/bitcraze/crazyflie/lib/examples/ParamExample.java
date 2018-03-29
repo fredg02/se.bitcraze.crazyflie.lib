@@ -60,8 +60,8 @@ public class ParamExample extends ConnectionAdapter{
      * @param connectionInfo
      */
     @Override
-    public void setupFinished(String connectionInfo) {
-        System.out.println("Setup finished for " + connectionInfo);
+    public void setupFinished() {
+        System.out.println("Setup finished");
 
         // Print the param TOC
         Toc paramToc = this.mCrazyflie.getParam().getToc();
@@ -144,8 +144,8 @@ public class ParamExample extends ConnectionAdapter{
      * Callback when connection initial connection fails (i.e no Crazyflie at the specified address)
      */
     @Override
-    public void connectionFailed(String connectionInfo, String msg) {
-        System.out.println("Connection to " + connectionInfo + " failed: " + msg);
+    public void connectionFailed(String msg) {
+        System.out.println("Connection failed: " + msg);
         setConnected(false);
     }
 
@@ -153,16 +153,16 @@ public class ParamExample extends ConnectionAdapter{
      * Callback when disconnected after a connection has been made (i.e. Crazyflie moves out of range)
      */
     @Override
-    public void connectionLost(String connectionInfo, String msg) {
-        System.out.println("Connection to " + connectionInfo + " lost: " + msg);
+    public void connectionLost(String msg) {
+        System.out.println("Connection lost: " + msg);
     }
 
     /*
      * Callback when the Crazyflie is disconnected (called in all cases)
      */
     @Override
-    public void disconnected(String connectionInfo) {
-        System.out.println("Disconnected from " + connectionInfo);
+    public void disconnected() {
+        System.out.println("Disconnected");
         setConnected(false);
     }
 

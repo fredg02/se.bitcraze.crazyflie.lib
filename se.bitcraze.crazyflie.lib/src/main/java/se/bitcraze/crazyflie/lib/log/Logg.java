@@ -372,7 +372,7 @@ public class Logg {
         }
     }
 
-    /*package private */ static int parseLogData(byte[] payload, LogConfig logConfig, Map<String, Number> logDataMap) {
+    /* package private */ static int parseLogData(byte[] payload, LogConfig logConfig, Map<String, Number> logDataMap) {
         //get timestamp
         int timestamp = parseTimestamp(payload[1], payload[2], payload[3]);
         // logdata = packet.data[4:]
@@ -388,7 +388,7 @@ public class Logg {
 
     // timestamps = struct.unpack("<BBB", packet.data[1:4])
     // timestamp = (timestamps[0] | timestamps[1] << 8 | timestamps[2] << 16)
-    /*package private */ static int parseTimestamp(byte data1, byte data2, byte data3) {
+    /* package private */ static int parseTimestamp(byte data1, byte data2, byte data3) {
         //allocate 4 bytes for an int
         ByteBuffer buffer = ByteBuffer.allocate(4).order(CrtpPacket.BYTE_ORDER);
         buffer.put(data1);
@@ -403,7 +403,7 @@ public class Logg {
 
     // Commands used when accessing the Log configurations
     public final static int CMD_CREATE_LOGCONFIG = 0;
-    private final static int CMD_APPEND_LOGCONFIG = 1;
+    public final static int CMD_APPEND_LOGCONFIG = 1;
     public final static int CMD_DELETE_LOGCONFIG = 2;
     public final static int CMD_START_LOGGING = 3;
     public final static int CMD_STOP_LOGGING = 4;
@@ -412,7 +412,7 @@ public class Logg {
 
     // Channels used for the logging port
     private final static int CHAN_TOC = 0;
-    public final static int CHAN_SETTINGS = 1;
+    private final static int CHAN_SETTINGS = 1;
     private final static int CHAN_LOGDATA = 2;
 
 

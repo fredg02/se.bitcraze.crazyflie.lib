@@ -286,7 +286,7 @@ public class Cloader {
             ((RadioDriver) mDriver).setConnectionData(connectionData);
         }
     }
-    
+
     /**
      * Try to get a connection with the bootloader by requesting info
      * 5 times. This let roughly 10 seconds to boot the copter ...
@@ -356,7 +356,7 @@ public class Cloader {
     /**
      * Call the command getInfo and fill up the information received in the fields of the object
      */
-    public boolean updateInfo(int targetId) {
+    private boolean updateInfo(int targetId) {
         // Call getInfo ...
         // pk.data = (target_id, 0x10)
         mLogger.info("Send update info packet");
@@ -592,13 +592,13 @@ public class Cloader {
         return this.mProtocolVersion;
     }
 
-    public void sendBootloaderPacket(byte[] data) {
+    private void sendBootloaderPacket(byte[] data) {
         Header header = new Header((byte) 0xFF);
         CrtpPacket pk = new CrtpPacket(header.getByte(), data);
         this.mDriver.sendPacket(pk);
     }
 
-    public boolean isBootloaderReplyPacket(CrtpPacket paket, int firstByte, int secondByte) {
+    private boolean isBootloaderReplyPacket(CrtpPacket paket, int firstByte, int secondByte) {
         if (paket == null) {
             return false;
         }

@@ -8,7 +8,7 @@ import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 
 
 //TODO: only send ACKs when appropriate
-public class MockDriver extends RadioDriver  {
+public class MockDriver extends RadioDriver {
 
     final static Logger mLogger = LoggerFactory.getLogger("MockDriver");
 

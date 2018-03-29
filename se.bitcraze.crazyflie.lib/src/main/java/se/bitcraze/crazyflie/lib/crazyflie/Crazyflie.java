@@ -50,7 +50,7 @@ import se.bitcraze.crazyflie.lib.toc.TocFetchFinishedListener;
 
 public class Crazyflie {
 
-    final Logger mLogger = LoggerFactory.getLogger("Crazyflie");
+    private final Logger mLogger = LoggerFactory.getLogger("Crazyflie");
 
     private CrtpDriver mDriver;
     private Thread mIncomingPacketHandlerThread;
@@ -59,7 +59,6 @@ public class Crazyflie {
     private Thread mResendQueueHandlerThread;
 
     private Set<DataListener> mDataListeners = new CopyOnWriteArraySet<DataListener>();
-    private Set<PacketListener> mPacketListeners = new CopyOnWriteArraySet<PacketListener>();
 
     private State mState = State.DISCONNECTED;
 
@@ -76,7 +75,12 @@ public class Crazyflie {
         DISCONNECTED,
         INITIALIZED,
         CONNECTED,
-        SETUP_FINISHED;
+        SETUP_FINISHED
+    }
+
+    /* used in examples */
+    public State getState() {
+        return mState;
     }
 
     /**
@@ -99,36 +103,22 @@ public class Crazyflie {
         this.mTocCache = new TocCache(tocCacheDir);
     }
 
-    private PacketListener mPacketListener = new PacketListener() {
-
-        public void packetReceived(CrtpPacket packet) {
-            checkReceivedPackets(packet);
-        }
-
-        public void packetSent() {
-        }
-
-    };
-
     public void connect() {
-        mLogger.debug("Connect");
+        mLogger.debug("connect()");
         mState = State.INITIALIZED;
-
-        addPacketListener(mPacketListener);
 
         // try to connect
         try {
             if (mDriver instanceof RadioDriver) {
+                if (mConnectionData == null) {
+                    throw new IllegalStateException("ConnectionData must be set for Crazyradio connections!");
+                }
                 ((RadioDriver) mDriver).setConnectionData(mConnectionData);
             }
             mDriver.connect();
-        } catch (IOException ioe) {
+        } catch (IOException | IllegalArgumentException ioe) {
             mLogger.debug(ioe.getMessage());
 //            notifyConnectionFailed("Connection failed: " + ioe.getMessage());
-            disconnect();
-        } catch (IllegalArgumentException iae) {
-            mLogger.debug(iae.getMessage());
-//            notifyConnectionFailed("Connection failed: " + iae.getMessage());
             disconnect();
         }
 
@@ -147,23 +137,21 @@ public class Crazyflie {
     }
 
     public void disconnect() {
+        mLogger.debug("disconnect()");
         if (mState != State.DISCONNECTED) {
-            mLogger.debug("disconnect()");
 
             if (mDriver.isConnected()) {
                 //Send commander packet with all values set to 0 before closing the connection
                 sendPacket(new CommanderPacket(0, 0, 0, (char) 0));
-                mDriver.disconnect();
-            } else {
-                mDriver.disconnect();
             }
+            mDriver.disconnect();
+
             if(mIncomingPacketHandlerThread != null) {
                 mIncomingPacketHandlerThread.interrupt();
             }
             if(mResendQueueHandlerThread != null) {
                 mResendQueueHandlerThread.interrupt();
             }
-            removePacketListener(mPacketListener);
             mState = State.DISCONNECTED;
         }
     }
@@ -173,11 +161,6 @@ public class Crazyflie {
         return mState == State.SETUP_FINISHED;
     }
 
-    // TODO: should this be public?
-    public State getState() {
-        return mState;
-    }
-
     public void setConnectionData(ConnectionData connectionData) {
         this.mConnectionData = connectionData;
     }
@@ -185,7 +168,7 @@ public class Crazyflie {
     /**
      * Send a packet through the driver interface
      *
-     * @param packet
+     * @param packet packet to send to the Crazyflie
      */
     // def send_packet(self, pk, expected_reply=(), resend=False):
     public void sendPacket(CrtpPacket packet){
@@ -205,9 +188,9 @@ public class Crazyflie {
 
     /**
      * Callback called for every packet received to check if we are
-     * waiting for an packet like this. If so, then remove it from the queue.
+     * waiting for a packet like this. If so, then remove it from the queue.
      *
-     * @param packet
+     * @param packet received packet
      */
     private void checkReceivedPackets(CrtpPacket packet) {
         // compare received packet with expectedReplies in resend queue
@@ -256,19 +239,18 @@ public class Crazyflie {
      * Called when first packet arrives from Crazyflie.
      * This is used to determine if we are connected to something that is answering.
      *
-     * @param packet
+     * @param packet initial packet
      */
     private void checkForInitialPacketCallback(CrtpPacket packet) {
+        // mLogger.info("checkForInitialPacketCallback...");
         //TODO: should be made more reliable
         if (this.mState == State.INITIALIZED) {
             mLogger.info("Initial packet has been received! => State.CONNECTED");
             this.mState = State.CONNECTED;
             //self.link_established.call(self.link_uri)
-            //TODO: fix hacky-di-hack
-            if (this.mDriver instanceof RadioDriver) {
-                this.mDriver.notifyConnected();
-                startConnectionSetup();
-            }
+            //FIXME: Crazyflie should not call mDriver.notifyConnected()
+            this.mDriver.notifyConnected();
+            startConnectionSetup();
         }
         //self.packet_received.remove_callback(self._check_for_initial_packet_cb)
         // => IncomingPacketHandler
@@ -342,9 +324,13 @@ public class Crazyflie {
     /**
      * Add a data listener for data that comes on a specific port
      *
-     * @param dataListener
+     * @param dataListener datalistener that should be added
      */
     public void addDataListener(DataListener dataListener) {
+        if (dataListener == null) {
+            mLogger.debug("addDataListener: data listener is null");
+            return;
+        }
         mLogger.debug("Adding data listener for port [" + dataListener.getPort() + "]");
         this.mDataListeners.add(dataListener);
     }
@@ -352,9 +338,13 @@ public class Crazyflie {
     /**
      * Remove a data listener for data that comes on a specific port
      *
-     * @param dataListener
+     * @param dataListener datalistener that should be removed
      */
     public void removeDataListener(DataListener dataListener) {
+        if (dataListener == null) {
+            mLogger.debug("removeDataListener: data listener is null");
+            return;
+        }
         mLogger.debug("Removing data listener for port [" + dataListener.getPort() + "]");
         this.mDataListeners.remove(dataListener);
     }
@@ -362,7 +352,9 @@ public class Crazyflie {
     //public void removeDataListener(CrtpPort); ?
 
     /**
-     * @param packet
+     * Notify data listeners that a packet was received
+     *
+     * @param packet received packet
      */
     private void notifyDataReceived(CrtpPacket packet) {
         boolean found = false;
@@ -377,25 +369,6 @@ public class Crazyflie {
         }
     }
 
-    /* PACKET LISTENER */
-
-    private void addPacketListener(PacketListener listener) {
-        mLogger.debug("Adding packet listener...");
-        this.mPacketListeners.add(listener);
-    }
-
-    private void removePacketListener(PacketListener listener) {
-        mLogger.debug("Removing packet listener...");
-        this.mPacketListeners.remove(listener);
-    }
-
-    private void notifyPacketReceived(CrtpPacket inPacket) {
-        checkForInitialPacketCallback(inPacket);
-        for (PacketListener pl : this.mPacketListeners) {
-            pl.packetReceived(inPacket);
-        }
-    }
-
     /**
      * Handles incoming packets and sends the data to the correct listeners
      */
@@ -404,12 +377,16 @@ public class Crazyflie {
         final Logger mLogger = LoggerFactory.getLogger("IncomingPacketHandler");
 
         public void run() {
+            mLogger.debug("IncomingPacketHandlerThread was started.");
             while(!Thread.currentThread().isInterrupted()) {
                 CrtpPacket packet = getDriver().receivePacket(1);
                 if(packet != null) {
                     //All-packet callbacks
                     //self.cf.packet_received.call(pk)
-                    notifyPacketReceived(packet);
+
+                    checkForInitialPacketCallback(packet);
+                    checkReceivedPackets(packet);
+
                     notifyDataReceived(packet);
                 }
             }

@@ -100,14 +100,14 @@ public class TocCacheTest {
 //        crazyflie.clearTocCache();
 
         crazyflie.getDriver().addConnectionListener(new TestConnectionAdapter() {
-            
+
             @Override
-            public void connected(String connectionInfo) {
-                super.connected(connectionInfo);
+            public void connected() {
+                super.connected();
             }
 
             @Override
-            public void setupFinished(String connectionInfo) {
+            public void setupFinished() {
                 //TODO: force fetching it from copter
                 Toc fetchedToc = port == CrtpPort.PARAMETERS ? crazyflie.getParam().getToc() : crazyflie.getLogg().getToc();
                 if (fetchedToc != null) {

@@ -79,9 +79,9 @@ public class Crazyradio {
 
     protected final static byte[] NULL_PACKET = new byte[] { (byte) 0xff };
 
-    public Crazyradio() {
+    protected Crazyradio () {
     }
-
+    
     /**
      * Create object and scan for USB dongle if no device is supplied
      *
@@ -91,10 +91,7 @@ public class Crazyradio {
         this.mUsbInterface = usbInterface;
         try {
             this.mUsbInterface.initDevice(CRADIO_VID, CRADIO_PID);
-        } catch (SecurityException e) {
-            mLogger.error(e.getMessage());
-            return;
-        } catch (IOException e) {
+        } catch (SecurityException | IOException e) {
             mLogger.error(e.getMessage());
             return;
         }
@@ -112,11 +109,7 @@ public class Crazyradio {
 
         this.mVersion = mUsbInterface.getFirmwareVersion();
 
-        if (this.mVersion < 0.3) {
-            this.mLogger.error("This driver requires Crazyradio firmware V0.3+");
-        }
-
-        if (this.mVersion < 0.3) {
+        if (this.mVersion < 0.4) {
             this.mLogger.warn("You should update to Crazyradio firmware V0.4+");
         }
 
@@ -129,7 +122,7 @@ public class Crazyradio {
         this.mArc = -1;
         if (mVersion >= 0.4) {
             setContinuousCarrier(false);
-//            // self.set_address((0xE7,) * 5)
+            // self.set_address((0xE7,) * 5)
             setAddress(new byte[] {(byte) 0xE7, (byte) 0xE7, (byte) 0xE7, (byte) 0xE7, (byte) 0xE7});
             setPower(P_0DBM);
             setArc(3);
@@ -150,7 +143,7 @@ public class Crazyradio {
     /**
      * Set the radio channel to be used.
      *
-     * @param channel the new channel. Must be in range 0-125.
+     * @param channel new channel. Must be in range 0-125.
      */
     public void setChannel(int channel) {
         if (channel < 0 || channel > 125) {
@@ -163,7 +156,7 @@ public class Crazyradio {
      * Set the radio address to be used.
      * The same address must be configured in the receiver for the communication to work.
      *
-     * @param address the new address with a length of 5 byte.
+     * @param address new address with a length of 5 byte.
      * @throws IllegalArgumentException if the length of the address doesn't equal 5 bytes
      */
     public void setAddress(byte[] address) {
@@ -176,7 +169,7 @@ public class Crazyradio {
     /**
      * Set the radio data rate to be used.
      *
-     * @param rate new data rate. Possible values are in range 0-2.
+     * @param datarate new data rate. Possible values are in range 0-2.
      */
     public void setDatarate(int datarate) {
         if (datarate < 0 || datarate > 2) {
@@ -188,7 +181,7 @@ public class Crazyradio {
     /**
      * Set the radio power to be used
      *
-     * @param power
+     * @param power new radio power
      */
     public void setPower(int power) {
         //TODO: add argument check
@@ -200,7 +193,7 @@ public class Crazyradio {
      *
      * Set how often the radio will retry a transfer if the ACK has not been received.
      *
-     * @param arc the number of retries.
+     * @param arc number of retries.
      * @throws IllegalArgumentException if the number of retries is not in range 0-15.
      */
     public void setArc(int arc) {
@@ -261,7 +254,7 @@ public class Crazyradio {
         sendVendorSetup(SET_CONT_CARRIER, (active ? 1 : 0), 0, null);
     }
 
-    public boolean hasFwScan() {
+    protected boolean hasFwScan() {
         /*
           #return self.version >= 0.5
           return mUsbInterface.getFirmwareVersion() > 0.5;
@@ -353,9 +346,11 @@ public class Crazyradio {
         final byte[] rdata = new byte[64];
         mUsbInterface.sendControlTransfer(0x40, SCAN_CHANNELS, start, stop, NULL_PACKET);
         final int nfound = mUsbInterface.sendControlTransfer(0xc0, SCAN_CHANNELS, 0, 0, rdata);
-        for (int i = 0; i < nfound; i++) {
-            result.add((int) rdata[i]);
-            mLogger.debug("Found channel: %s", rdata[i]);
+        if (nfound != 64) {
+            for (int i = 0; i < nfound; i++) {
+                result.add((int) rdata[i]);
+                mLogger.debug("Found channel: " + rdata[i]);
+            }
         }
         return result;
     }
@@ -365,7 +360,7 @@ public class Crazyradio {
      * The ack contains information about the packet transmission
      * and a data payload if the ack packet contained any
      *
-     * @param dataOut
+     * @param dataOut bytes to send
      */
     public RadioAck sendPacket(byte[] dataOut) {
         RadioAck ackIn = null;

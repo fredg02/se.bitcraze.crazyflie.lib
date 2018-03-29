@@ -34,8 +34,9 @@ public class FlowSequenceExample {
              * This callback is called from the Crazyflie API when a Crazyflie
              + has been connected and the TOCs have been downloaded.
              */
-            public void connected(String connectionInfo) {
-                System.out.println("CONNECTED to " +  connectionInfo);
+            @Override
+            public void connected() {
+                System.out.println("CONNECTED");
 
                 // Start a separate thread to do the motor test.
                 // Do not hijack the calling thread!
@@ -43,7 +44,7 @@ public class FlowSequenceExample {
             }
 
             @Override
-            public void setupFinished(String connectionInfo) {
+            public void setupFinished() {
                 System.out.println("SETUP FINISHED");
                 try {
                     sendDirections();
@@ -55,15 +56,17 @@ public class FlowSequenceExample {
             /*
              * Callback when the Crazyflie is disconnected (called in all cases)
              */
-            public void disconnected(String connectionInfo) {
-                System.out.println("DISCONNECTED from " +  connectionInfo);
+            @Override
+            public void disconnected() {
+                System.out.println("DISCONNECTED");
             }
 
             /*
              * Callback when connection initial connection fails (i.e no Crazyflie at the specified address)
              */
-            public void connectionFailed(String connectionInfo, String msg) {
-                System.out.println("CONNECTION FAILED: " +  connectionInfo + " Msg: " + msg);
+            @Override
+            public void connectionFailed(String msg) {
+                System.out.println("CONNECTION FAILED: " + msg);
             }
 
             /**
@@ -71,8 +74,9 @@ public class FlowSequenceExample {
              *
              * @param connectionInfo
              */
-            public void connectionLost(String connectionInfo) {
-                System.out.println("CONNECTION LOST: " +  connectionInfo);
+            @Override
+            public void connectionLost(String msg) {
+                System.out.println("CONNECTION LOST: " + msg);
             }
 
         });

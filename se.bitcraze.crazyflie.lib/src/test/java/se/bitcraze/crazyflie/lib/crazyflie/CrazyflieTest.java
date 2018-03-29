@@ -101,26 +101,26 @@ public class CrazyflieTest {
         crazyflie.getDriver().addConnectionListener(new TestConnectionAdapter() {
 
             @Override
-            public void connectionRequested(String connectionInfo) {
-                super.connectionRequested(connectionInfo);
+            public void connectionRequested() {
+                super.connectionRequested();
                 connectionRequested = true;
             }
 
             @Override
-            public void connected(String connectionInfo) {
-                super.connected(connectionInfo);
+            public void connected() {
+                super.connected();
                 connected = true;
             }
 
             @Override
-            public void setupFinished(String connectionInfo) {
-                super.setupFinished(connectionInfo);
+            public void setupFinished() {
+                super.setupFinished();
                 setupFinished = true;
             }
 
             @Override
-            public void disconnected(String connectionInfo) {
-                super.disconnected(connectionInfo);
+            public void disconnected() {
+                super.disconnected();
                 disconnected = true;
             }
 

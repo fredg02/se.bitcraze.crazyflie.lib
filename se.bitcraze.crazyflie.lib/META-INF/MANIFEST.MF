@@ -26,7 +26,7 @@ Export-Package: se.bitcraze.crazyflie.lib,
  se.bitcraze.crazyflie.lib.toc;uses:="org.slf4j,se.bitcraze.crazyflie.lib.crazyflie,se.bitcraze.crazyflie.lib.crtp",
  se.bitcraze.crazyflie.lib.usb;uses:="javax.usb,org.slf4j"
 Bundle-Vendor: Bitcraze
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.slf4j.api;bundle-version="1.7.2",
  org.junit;bundle-version="4.12.0",
  com.fasterxml.jackson.core.jackson-annotations;bundle-version="2.9.0",

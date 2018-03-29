@@ -35,28 +35,34 @@ import se.bitcraze.crazyflie.lib.crazyflie.ConnectionListener;
  */
 public abstract class TestConnectionAdapter implements ConnectionListener {
 
-    public void connectionRequested(String connectionInfo) {
-        System.out.println("CONNECTION REQUESTED: " + connectionInfo);
+    @Override
+    public void connectionRequested() {
+        System.out.println("CONNECTION REQUESTED");
     }
 
-    public void connected(String connectionInfo) {
-        System.out.println("CONNECTED: " + connectionInfo);
+    @Override
+    public void connected() {
+        System.out.println("CONNECTED");
     }
 
-    public void setupFinished(String connectionInfo) {
-        System.out.println("SETUP FINISHED: " + connectionInfo);
+    @Override
+    public void setupFinished() {
+        System.out.println("SETUP FINISHED");
     }
 
-    public void connectionFailed(String connectionInfo, String msg) {
-        System.out.println("CONNECTION FAILED: " + connectionInfo);
+    @Override
+    public void connectionFailed(String msg) {
+        System.out.println("CONNECTION FAILED: " + msg);
     }
 
-    public void connectionLost(String connectionInfo, String msg) {
-        System.out.println("CONNECTION LOST: " + connectionInfo);
+    @Override
+    public void connectionLost(String msg) {
+        System.out.println("CONNECTION LOST: " + msg);
     }
 
-    public void disconnected(String connectionInfo) {
-        System.out.println("DISCONNECTED: " + connectionInfo);
+    @Override
+    public void disconnected() {
+        System.out.println("DISCONNECTED");
     }
 
     public void linkQualityUpdated(int percent) {
