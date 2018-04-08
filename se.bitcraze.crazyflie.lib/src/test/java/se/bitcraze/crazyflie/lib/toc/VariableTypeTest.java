@@ -40,66 +40,47 @@ import se.bitcraze.crazyflie.lib.OfflineTests;
 @Category(OfflineTests.class)
 public class VariableTypeTest {
 
-    private ByteBuffer mBuffer = ByteBuffer.allocate(8);
-
     @Test
     public void testVariableTypeByteToNumber() {
+        ByteBuffer mBuffer;
 
         // UINT8_T
-        mBuffer.put(new byte[] {32,0,0,0});
-        mBuffer.rewind();
+        mBuffer = ByteBuffer.wrap(new byte[] {32});
         assertEquals(32, VariableType.UINT8_T.parse(mBuffer));
-        mBuffer.clear();
 
-        mBuffer.put(new byte[] {-32,0,0,0});
-        mBuffer.rewind();
+        mBuffer = ByteBuffer.wrap(new byte[] {-32});
         assertEquals(224, VariableType.UINT8_T.parse(mBuffer));
-        mBuffer.clear();
 
         // UINT16_T
-        mBuffer.put(new byte[] {-8,-89,0,0});
-        mBuffer.rewind();
+        mBuffer = ByteBuffer.wrap(new byte[] {-8,-89});
         assertEquals(43000, VariableType.UINT16_T.parse(mBuffer));
-        mBuffer.clear();
 
         // UINT32_T
-        mBuffer.put(new byte[] {73,13,-35,2});
-        mBuffer.rewind();
+        mBuffer = ByteBuffer.wrap(new byte[] {73,13,-35,2});
         assertEquals(48041289L, VariableType.UINT32_T.parse(mBuffer));
-        mBuffer.clear();
 
         //TODO: UINT64_T
 
         // INT8_T
-        mBuffer.put(new byte[] {-32,0,0,0});
-        mBuffer.rewind();
+        mBuffer = ByteBuffer.wrap(new byte[] {-32});
         assertEquals(-32, VariableType.INT8_T.parse(mBuffer).byteValue());
-        mBuffer.clear();
 
         //TODO: INT16_T
 
         // INT32_T
-        mBuffer.put(new byte[] {-46,2,-106,73});
-        mBuffer.rewind();
+        mBuffer = ByteBuffer.wrap(new byte[] {-46,2,-106,73});
         assertEquals(1234567890, VariableType.INT32_T.parse(mBuffer).intValue());
-        mBuffer.clear();
 
         // INT64_T
-        mBuffer.put(new byte[] {-46,2,-106,73,0,0,0,0});
-        mBuffer.rewind();
+        mBuffer = ByteBuffer.wrap(new byte[] {-46,2,-106,73,0,0,0,0});
         assertEquals(1234567890L, VariableType.INT64_T.parse(mBuffer).longValue());
-        mBuffer.clear();
 
-        mBuffer.put(new byte[] {121,-33,13,-122,72,112,0,0});
-        mBuffer.rewind();
+        mBuffer = ByteBuffer.wrap(new byte[] {121,-33,13,-122,72,112,0,0});
         assertEquals(123456789012345L, VariableType.INT64_T.parse(mBuffer).longValue());
-        mBuffer.clear();
 
         // FLOAT
-        mBuffer.put(new byte[] {-20,81,56,62});
-        mBuffer.rewind();
+        mBuffer = ByteBuffer.wrap(new byte[] {-20,81,56,62});
         assertEquals(0.18f, VariableType.FLOAT.parse(mBuffer));
-        mBuffer.clear();
 
         //TODO: DOUBLE
     }
@@ -111,7 +92,6 @@ public class VariableTypeTest {
         //TODO: is this correct !?
         assertArrayEquals(new byte[] {32,0,0,0}, VariableType.UINT8_T.parse(32));
         assertArrayEquals(new byte[] {-32,0,0,0}, VariableType.UINT8_T.parse(-32));
-        //System.out.println(UsbLinkJava.getByteString(VariableType.UINT8_T.parse(200)));
         assertArrayEquals(new byte[] {-56,0,0,0}, VariableType.UINT8_T.parse(200));
         assertArrayEquals(new byte[] {56,0,0,0}, VariableType.UINT8_T.parse(-200));
 
@@ -155,41 +135,16 @@ public class VariableTypeTest {
         assertEquals(8, VariableType.DOUBLE.getSize());
     }
 
-    @Test
-    public void testParseVariableType4byte_negativeTest() {
-        // buffer capacity is smaller than 4, therefore the parse method should return -1
-        ByteBuffer testBuffer = ByteBuffer.allocate(3);
-        testBuffer.put(new byte[] {32,0,0});
-        testBuffer.rewind();
-        assertEquals(-1, VariableType.UINT8_T.parse(testBuffer));
-        testBuffer.clear();
-    }
-
-    @Test
-    public void testParseVariableType4byte_positiveTest() {
-        ByteBuffer testBuffer = ByteBuffer.allocate(4);
-        testBuffer.put(new byte[] {32,0,0,0});
-        testBuffer.rewind();
-        assertEquals(32, VariableType.UINT8_T.parse(testBuffer));
-        testBuffer.clear();
-    }
-
-    @Test
-    public void testParseVariableType8byte_negativeTest() {
-        // buffer capacity is smaller than 8, therefore the parse method should return -1
-        ByteBuffer testBuffer = ByteBuffer.allocate(7);
-        testBuffer.put(new byte[] {-46,2,-106,73,0,0,0});
-        testBuffer.rewind();
-        assertEquals(-1, VariableType.INT64_T.parse(testBuffer));
-        testBuffer.clear();
-    }
-
-    @Test
-    public void testParseVariableType8byte_positiveTest() {
-        ByteBuffer testBuffer = ByteBuffer.allocate(8);
-        testBuffer.put(new byte[] {-46,2,-106,73,0,0,0,0});
-        testBuffer.rewind();
+    @Test(expected = IllegalStateException.class)
+    public void testParseVariableType_bufferToSmall() {
+        // buffer capacity is smaller than 8, therefore the parse method should return an exception
+        ByteBuffer testBuffer = ByteBuffer.wrap(new byte[] {-46,2,-106,73,0,0,0});
         assertEquals(1234567890L, VariableType.INT64_T.parse(testBuffer));
-        testBuffer.clear();
+    }
+
+    @Test
+    public void testParseVariable_positiveTest1() {
+        ByteBuffer testBuffer = ByteBuffer.wrap(new byte[] {-46,2,-106,73,0,0,0,0});
+        assertEquals(1234567890L, VariableType.INT64_T.parse(testBuffer));
     }
 }
