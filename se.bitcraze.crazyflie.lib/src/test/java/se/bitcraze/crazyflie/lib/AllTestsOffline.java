@@ -8,6 +8,7 @@ import org.junit.runners.Suite;
 import se.bitcraze.crazyflie.lib.bootloader.BootloaderTest;
 import se.bitcraze.crazyflie.lib.bootloader.TargetTest;
 import se.bitcraze.crazyflie.lib.bootloader.UtilitiesTest;
+import se.bitcraze.crazyflie.lib.log.LogConfigTest;
 import se.bitcraze.crazyflie.lib.log.LogDataStaticTest;
 import se.bitcraze.crazyflie.lib.log.LogTocElementTest;
 import se.bitcraze.crazyflie.lib.param.ParamTocElementTest;
@@ -22,6 +23,7 @@ import se.bitcraze.crazyflie.lib.toc.VariableTypeTest;
     TocTest.class,
     VariableTypeTest.class,
     LogTocElementTest.class,
+    LogConfigTest.class,
     LogDataStaticTest.class,
     ParamTocElementTest.class,
     TargetTest.class,
