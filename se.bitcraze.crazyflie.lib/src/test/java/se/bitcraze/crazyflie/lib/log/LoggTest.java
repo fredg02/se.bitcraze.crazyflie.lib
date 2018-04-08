@@ -37,8 +37,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import se.bitcraze.crazyflie.lib.MockDriver;
+import se.bitcraze.crazyflie.lib.OfflineTests;
 import se.bitcraze.crazyflie.lib.TestConnectionAdapter;
 import se.bitcraze.crazyflie.lib.TestLogAdapter;
 import se.bitcraze.crazyflie.lib.TestUtilities;
@@ -60,6 +62,7 @@ public class LoggTest {
 
     ConnectionData mConnectionData = new ConnectionData(CrazyflieTest.channel, CrazyflieTest.datarate);
 
+    @Category(OfflineTests.class)
     @Test(expected = IllegalArgumentException.class) 
     public void testConstructorNPE() {
         new Logg(null);
@@ -173,7 +176,7 @@ public class LoggTest {
     /**
      * Trying to create a log config when TOC is null caused NPEs in Logg.create()
      */
-    // offline test
+    @Category(OfflineTests.class)
     @Test(expected = IllegalStateException.class)
     public void testCreateConfigWithNonExistentToc() {
         LogConfig testConfig = new LogConfig("testConfig");
@@ -190,7 +193,7 @@ public class LoggTest {
     /**
      * Trying to create a log config with an existing TOC, an existing TocElement, but without a VariableType caused NPEs in Logg.create()
      */
-    // offline test
+    @Category(OfflineTests.class)
     @Test
     public void testCreateConfigWithNonExistentVariableType() {
         LogConfig testConfig = new LogConfig("testConfig");
@@ -212,6 +215,7 @@ public class LoggTest {
         logg.create(testConfig);
     }
 
+    @Category(OfflineTests.class)
     @Test(expected = IllegalStateException.class)
     public void testLogCreateEmpyLogVariables() {
         Logg logg = new Logg(new Crazyflie(new MockDriver()));
@@ -219,6 +223,7 @@ public class LoggTest {
         logg.create(logConfig);
     }
 
+    @Category(OfflineTests.class)
     @Test(expected = IllegalStateException.class)
     public void testLogCreateBufferOverflowException() {
         int noOfVariables = 20;
@@ -238,8 +243,8 @@ public class LoggTest {
         LogConfig logConfig = new LogConfig("BigBuffer");
         for (int i = 1; i <= noOfVariables; i++) {
             logConfig.addVariable("Test.V"+i, VariableType.UINT8_T);
-            System.out.println(i + " log variables");
             logg.create(logConfig);
+            System.out.println(i + " log variables");
         }
     }
 

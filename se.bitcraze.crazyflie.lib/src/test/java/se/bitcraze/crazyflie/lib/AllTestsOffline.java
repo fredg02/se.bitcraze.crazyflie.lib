@@ -11,6 +11,7 @@ import se.bitcraze.crazyflie.lib.bootloader.UtilitiesTest;
 import se.bitcraze.crazyflie.lib.log.LogConfigTest;
 import se.bitcraze.crazyflie.lib.log.LogDataStaticTest;
 import se.bitcraze.crazyflie.lib.log.LogTocElementTest;
+import se.bitcraze.crazyflie.lib.log.LoggTest;
 import se.bitcraze.crazyflie.lib.param.ParamTocElementTest;
 import se.bitcraze.crazyflie.lib.toc.TocFetcherTest;
 import se.bitcraze.crazyflie.lib.toc.TocTest;
@@ -24,6 +25,7 @@ import se.bitcraze.crazyflie.lib.toc.VariableTypeTest;
     VariableTypeTest.class,
     LogTocElementTest.class,
     LogConfigTest.class,
+    LoggTest.class,
     LogDataStaticTest.class,
     ParamTocElementTest.class,
     TargetTest.class,
