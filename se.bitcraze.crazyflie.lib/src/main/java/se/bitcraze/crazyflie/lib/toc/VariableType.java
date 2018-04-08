@@ -62,6 +62,7 @@ public enum VariableType {
      */
     public Number parse(ByteBuffer buffer) {
         if (buffer.capacity() < 4) {
+            // TODO: throw exception
             return -1;
         }
         ByteBuffer tempBuffer = ByteBuffer.allocate(8).order(CrtpPacket.BYTE_ORDER);
@@ -72,6 +73,7 @@ public enum VariableType {
         tempBuffer.put(buffer.get());
         if(this == INT64_T || this == DOUBLE) {
             if (buffer.capacity() < 8) {
+                // TODO: throw exception
                 return -1;
             }
             tempBuffer.put(buffer.get());
@@ -88,6 +90,7 @@ public enum VariableType {
             case UINT32_T:
                 return ((long) tempBuffer.getInt()) & 0xffffffffL;
             case UINT64_T:
+                // TODO: throw exception
                 mLogger.warn("UINT64_T not yet implemented");
                 return -1;
             case INT8_T:
@@ -103,6 +106,7 @@ public enum VariableType {
             case DOUBLE:
                 return tempBuffer.getDouble();
             default:
+                // TODO: throw exception
                 mLogger.warn("Parsing " + this.name() + " is not yet implemented");
                 break;
         }
@@ -133,6 +137,7 @@ public enum VariableType {
                 //tempBuffer.putLong((long) (value.intValue() & 0xffffffffL)); //only works if ByteBuffer is 8 bytes long
                 break;
             case UINT64_T:
+                // TODO: throw exception
                 mLogger.warn("UINT64_T not yet implemented");
                 break;
             case INT8_T:
@@ -156,6 +161,7 @@ public enum VariableType {
                 tempBuffer8.rewind();
                 return tempBuffer8.array();
             default:
+                // TODO: throw exception
                 mLogger.warn("Parsing " + this.name() + " is not yet implemented");
                 break;
         }

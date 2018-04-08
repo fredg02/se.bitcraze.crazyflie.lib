@@ -155,4 +155,41 @@ public class VariableTypeTest {
         assertEquals(8, VariableType.DOUBLE.getSize());
     }
 
+    @Test
+    public void testParseVariableType4byte_negativeTest() {
+        // buffer capacity is smaller than 4, therefore the parse method should return -1
+        ByteBuffer testBuffer = ByteBuffer.allocate(3);
+        testBuffer.put(new byte[] {32,0,0});
+        testBuffer.rewind();
+        assertEquals(-1, VariableType.UINT8_T.parse(testBuffer));
+        testBuffer.clear();
+    }
+
+    @Test
+    public void testParseVariableType4byte_positiveTest() {
+        ByteBuffer testBuffer = ByteBuffer.allocate(4);
+        testBuffer.put(new byte[] {32,0,0,0});
+        testBuffer.rewind();
+        assertEquals(32, VariableType.UINT8_T.parse(testBuffer));
+        testBuffer.clear();
+    }
+
+    @Test
+    public void testParseVariableType8byte_negativeTest() {
+        // buffer capacity is smaller than 8, therefore the parse method should return -1
+        ByteBuffer testBuffer = ByteBuffer.allocate(7);
+        testBuffer.put(new byte[] {-46,2,-106,73,0,0,0});
+        testBuffer.rewind();
+        assertEquals(-1, VariableType.INT64_T.parse(testBuffer));
+        testBuffer.clear();
+    }
+
+    @Test
+    public void testParseVariableType8byte_positiveTest() {
+        ByteBuffer testBuffer = ByteBuffer.allocate(8);
+        testBuffer.put(new byte[] {-46,2,-106,73,0,0,0,0});
+        testBuffer.rewind();
+        assertEquals(1234567890L, VariableType.INT64_T.parse(testBuffer));
+        testBuffer.clear();
+    }
 }
