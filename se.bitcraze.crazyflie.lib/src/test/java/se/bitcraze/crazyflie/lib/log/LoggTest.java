@@ -27,6 +27,7 @@
 
 package se.bitcraze.crazyflie.lib.log;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -63,7 +64,7 @@ public class LoggTest {
     ConnectionData mConnectionData = new ConnectionData(CrazyflieTest.channel, CrazyflieTest.datarate);
 
     @Category(OfflineTests.class)
-    @Test(expected = IllegalArgumentException.class) 
+    @Test(expected = IllegalArgumentException.class)
     public void testConstructorNPE() {
         new Logg(null);
     }
@@ -105,7 +106,7 @@ public class LoggTest {
                     }
 
                 });
-                
+
                 // Add config
                 mLogg.addConfig(testConfig);
 
@@ -181,11 +182,11 @@ public class LoggTest {
     public void testCreateConfigWithNonExistentToc() {
         LogConfig testConfig = new LogConfig("testConfig");
         testConfig.addVariable("foo.bar");
-        
+
         Crazyflie cf = new Crazyflie(new MockDriver());
-        
+
         Logg logg = new Logg(cf);
-        
+
         // TOC is null, Exception expected
         logg.create(testConfig);
     }
@@ -194,24 +195,24 @@ public class LoggTest {
      * Trying to create a log config with an existing TOC, an existing TocElement, but without a VariableType caused NPEs in Logg.create()
      */
     @Category(OfflineTests.class)
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void testCreateConfigWithNonExistentVariableType() {
         LogConfig testConfig = new LogConfig("testConfig");
         testConfig.addVariable("foo.bar");
-        
+
         Crazyflie cf = new Crazyflie(new MockDriver());
-        
+
         Logg logg = new Logg(cf);
-        
+
         // TOC exists, TocElement exists, but no VariableType, Exception expected
         Toc loggToc = new Toc();
         TocElement fooBar = new TocElement();
         fooBar.setGroup("foo");
         fooBar.setName("bar");
         loggToc.addElement(fooBar);
-        
+
         logg.setToc(loggToc);
-        
+
         logg.create(testConfig);
     }
 
@@ -246,6 +247,47 @@ public class LoggTest {
             logg.create(logConfig);
             System.out.println(i + " log variables");
         }
+    }
+
+    @Test
+    public void testTotalSizeOfVariables() {
+        assertEquals(13, checkMaxNoOfLogVariablesInLogConfig(VariableType.UINT8_T));
+        assertEquals(13, checkMaxNoOfLogVariablesInLogConfig(VariableType.UINT16_T));
+        assertEquals(6, checkMaxNoOfLogVariablesInLogConfig(VariableType.UINT32_T));
+        assertEquals(13, checkMaxNoOfLogVariablesInLogConfig(VariableType.INT8_T));
+        assertEquals(13, checkMaxNoOfLogVariablesInLogConfig(VariableType.INT16_T));
+        assertEquals(6, checkMaxNoOfLogVariablesInLogConfig(VariableType.INT32_T));
+        assertEquals(6, checkMaxNoOfLogVariablesInLogConfig(VariableType.FLOAT));
+        assertEquals(3, checkMaxNoOfLogVariablesInLogConfig(VariableType.DOUBLE));
+    }
+
+    private int checkMaxNoOfLogVariablesInLogConfig(VariableType type) {
+        int noOfVariables = 50;
+        Logg logg = new Logg(new Crazyflie(new MockDriver()));
+        // fill TOC
+        Toc toc = new Toc();
+        for (int i = 1; i <= noOfVariables; i++) {
+            TocElement tocElement = new TocElement();
+            tocElement.setGroup("Test");
+            tocElement.setName("V"+i);
+            tocElement.setIdent(i);
+            tocElement.setCtype(type);
+            toc.addElement(tocElement);
+        }
+        logg.setToc(toc);
+
+        LogConfig logConfig = new LogConfig("BigBuffer");
+        int i = 0;
+        try {
+            for (i = 1; i <= noOfVariables; i++) {
+                logConfig.addVariable("Test.V"+i, type);
+                logg.create(logConfig);
+            }
+        } catch (IllegalStateException ise) {
+           //ise.printStackTrace();
+            i--;
+        }
+        return i;
     }
 
 }

@@ -64,14 +64,17 @@ public enum VariableType {
         if (buffer.capacity() < this.getSize()) {
             throw new IllegalStateException("Size of buffer (" + buffer.capacity() + ") must match the size of VariableType " + this.name() + " (" + this.getSize() +")");
         }
+        if (buffer.remaining() < this.getSize()) {
+            throw new IllegalStateException("Size of remaining buffer elements (" + buffer.remaining() + ") must match the size of VariableType " + this.name() + " (" + this.getSize() +")");
+        }
         buffer.order(CrtpPacket.BYTE_ORDER);
         switch (this) {
             case UINT8_T:
-                return ((short) buffer.get()) & 0xff;
+                return (buffer.get()) & 0xff;
             case UINT16_T:
-                return ((int) buffer.getShort()) & 0xffff;
+                return (buffer.getShort()) & 0xffff;
             case UINT32_T:
-                return ((long) buffer.getInt()) & 0xffffffffL;
+                return (buffer.getInt()) & 0xffffffffL;
             case UINT64_T:
                 // TODO: throw exception
                 mLogger.warn("UINT64_T not yet implemented");
@@ -113,10 +116,10 @@ public enum VariableType {
                 tempBuffer4.putShort((short) (value.byteValue() & 0xff));
                 break;
             case UINT16_T:
-                tempBuffer4.putInt((int) (value.shortValue() & 0xffff));
+                tempBuffer4.putInt(value.shortValue() & 0xffff);
                 break;
             case UINT32_T:
-                tempBuffer4.putInt((int) (((long) value.intValue()) & 0xffffffffL));
+                tempBuffer4.putInt((int) ((value.intValue()) & 0xffffffffL));
                 //tempBuffer.putLong((long) (value.intValue() & 0xffffffffL)); //only works if ByteBuffer is 8 bytes long
                 break;
             case UINT64_T:

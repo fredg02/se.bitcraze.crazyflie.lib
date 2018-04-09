@@ -108,7 +108,7 @@ public class LogDataStaticTest {
         ByteBuffer logVariablesRaw = ByteBuffer.wrap(originalByteArray, offset, originalByteArray.length-offset);
         
         Number parsedValue = lv_pmVbat.getVariableType().parse(logVariablesRaw);
-        System.out.println("ParsedValued: " + parsedValue);
+        System.out.println("ParsedValue: " + parsedValue);
         
         assertEquals(PM_VBAT_VALUE, parsedValue);
         
