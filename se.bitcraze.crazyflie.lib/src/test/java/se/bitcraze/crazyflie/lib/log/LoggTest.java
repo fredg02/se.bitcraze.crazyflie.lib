@@ -90,15 +90,17 @@ public class LoggTest {
 
         crazyflie.getDriver().addConnectionListener(new TestConnectionAdapter() {
 
-            public void setupFinished(String connectionInfo) {
-                System.out.println("SETUP FINISHED: " + connectionInfo);
+            @Override
+            public void setupFinished() {
+                System.out.println("SETUP FINISHED");
                 mLogg = crazyflie.getLogg();
                 System.out.println("Number of TOC elements: " + mLogg.getToc().getElements().size());
 
                 mLogg.addLogListener(new TestLogAdapter() {
 
-                    public void logDataReceived(LogConfig logConfig, Map<String, Number> data) {
-                        System.out.println("LogConfig '" + logConfig.getName()  + "', data : ");
+                    @Override
+                    public void logDataReceived(LogConfig logConfig, Map<String, Number> data, int timestamp) {
+                        System.out.println("LogConfig '" + logConfig.getName()  + "', timestamp: " + timestamp + ", data: ");
                         // TODO sort?
                         for (Entry<String, Number> entry : data.entrySet()) {
                             System.out.println("Name: " + entry.getKey() + ", data: " + entry.getValue());

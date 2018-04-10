@@ -34,7 +34,9 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -48,26 +50,38 @@ import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
 
 public class TocCacheTest {
 
-    private final static String CURRENT_CRC_LOGGING = "7508BC21";
-    private final static String CURRENT_CRC_PARAMETERS = "2DB36E98";
+    private final static Map<String, Integer> loggingMap = new HashMap<String, Integer>();
+    private final static Map<String, Integer> parameterMap = new HashMap<String, Integer>();
+
+    static {
+        // Firmware version ??
+        loggingMap.put("7508BC21", 180);
+        parameterMap.put("2DB36E98", 131);
+
+        // Firmware version 2018.01
+        loggingMap.put("22A2A8DA", 224);
+        parameterMap.put("355AE774", 141);
+    }
 
     private List<TocElement> fetchedElements = new ArrayList<TocElement>();
     private List<TocElement> cachedElements = new ArrayList<TocElement>();
 
     @Test
     public void testTocCache_LOGGING() throws FileNotFoundException {
-        testTocCache(CURRENT_CRC_LOGGING, 180, CrtpPort.LOGGING);
+        testTocCache("22A2A8DA", CrtpPort.LOGGING);
     }
 
     @Test
     public void testTocCache_PARAMETERS() throws FileNotFoundException {
-        testTocCache(CURRENT_CRC_PARAMETERS, 131, CrtpPort.PARAMETERS);
+        testTocCache("355AE774", CrtpPort.PARAMETERS);
     }
 
-    public void testTocCache(String crc, int tocSize, CrtpPort port) {
+    public void testTocCache(String crc, CrtpPort port) {
+        int tocSize = (port == CrtpPort.LOGGING) ? loggingMap.get(crc) : parameterMap.get(crc);
+
         TocCache tocCache = new TocCache(new File("src/test"));
         Toc fetchedToc = tocCache.fetch((int) Long.parseLong(crc, 16), port);
-        
+
         if (fetchedToc != null) {
             int fetchedTocSize = fetchedToc.getTocSize();
             assertEquals(tocSize, fetchedTocSize);
@@ -89,7 +103,7 @@ public class TocCacheTest {
         testTocCacheAgainstFetchedToc(CrtpPort.LOGGING);
     }
 
-    public void testTocCacheAgainstFetchedToc(final CrtpPort port) {
+    private void testTocCacheAgainstFetchedToc(final CrtpPort port) {
 
         if (!TestUtilities.isCrazyradioAvailable()) {
             fail("Crazyradio not connected");
@@ -112,7 +126,7 @@ public class TocCacheTest {
                 Toc fetchedToc = port == CrtpPort.PARAMETERS ? crazyflie.getParam().getToc() : crazyflie.getLogg().getToc();
                 if (fetchedToc != null) {
                     int fetchedCrc = fetchedToc.getCrc();
-                    System.out.println("Fetched CRC: " + String.format("%08X", fetchedCrc));
+                    System.out.println("Fetched " + port.name() + " CRC: " + String.format("%08X", fetchedCrc));
                     fetchedElements = fetchedToc.getElements();
                    System.out.println("Number of " + port.name() + " TOC elements (fetched): " + fetchedElements.size());
 
@@ -142,7 +156,7 @@ public class TocCacheTest {
             }
         }
         crazyflie.disconnect();
-        
+
         assertTrue("Number of cached elements must be bigger than zero.", cachedElements.size() > 0);
         assertTrue("Number of fetched elements must be bigger than zero.", fetchedElements.size() > 0);
         assertEquals(cachedElements.size(), fetchedElements.size());

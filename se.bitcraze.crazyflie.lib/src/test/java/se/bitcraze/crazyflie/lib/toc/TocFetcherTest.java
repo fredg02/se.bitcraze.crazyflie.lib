@@ -92,40 +92,44 @@ public class TocFetcherTest {
         Header tocInfoHeader = new Header(TocFetcher.TOC_CHANNEL, CrtpPort.PARAMETERS);
         CrtpPacket tocInfoPacket = new CrtpPacket(tocInfoHeader.getByte(), new byte[] {1,-68,-83,125,-68,-24,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0});
         tocFetcher.newPacketReceived(tocInfoPacket);
-        
+
         assertEquals(188, tocFetcher.getNoOfItems());
     }
 
     @Test
     public void testTocFetcher() {
-        
+
         if (!TestUtilities.isCrazyradioAvailable()) {
             fail("Crazyradio not connected");
         }
-        
+
         final Crazyflie crazyflie = new Crazyflie(CrazyflieTest.getConnectionImpl(), new File("src/test"));
 
         crazyflie.clearTocCache();
 
         crazyflie.getDriver().addConnectionListener(new TestConnectionAdapter() {
 
-            public void connectionRequested(String connectionInfo) {
-                System.out.println("CONNECTION REQUESTED: " + connectionInfo);
+            @Override
+            public void connectionRequested() {
+                System.out.println("CONNECTION REQUESTED");
                 mStateConnectionRequested = true;
             }
 
-            public void connected(String connectionInfo) {
-                System.out.println("CONNECTED: " + connectionInfo);
+            @Override
+            public void connected() {
+                System.out.println("CONNECTED");
                 mStateConnected = true;
             }
 
-            public void setupFinished(String connectionInfo) {
-                System.out.println("SETUP FINISHED: " + connectionInfo);
+            @Override
+            public void setupFinished() {
+                System.out.println("SETUP FINISHED");
                 mStateSetupFinished = true;
             }
 
-            public void disconnected(String connectionInfo) {
-                System.out.println("DISCONNECTED: " + connectionInfo);
+            @Override
+            public void disconnected() {
+                System.out.println("DISCONNECTED");
                 mStateDisconnected = true;
             }
 

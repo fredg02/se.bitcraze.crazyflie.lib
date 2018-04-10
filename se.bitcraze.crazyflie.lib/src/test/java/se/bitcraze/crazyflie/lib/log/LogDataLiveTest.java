@@ -69,13 +69,15 @@ public class LogDataLiveTest {
 
         crazyflie.getDriver().addConnectionListener(new TestConnectionAdapter() {
 
-            public void setupFinished(String connectionInfo) {
-                System.out.println("SETUP FINISHED: " + connectionInfo);
+            @Override
+            public void setupFinished() {
+                System.out.println("SETUP FINISHED");
                 mLogg = crazyflie.getLogg();
                 System.out.println("Number of TOC elements: " + mLogg.getToc().getElements().size());
 
                 mLogg.addLogListener(new TestLogAdapter() {
-                    
+
+                    @Override
                     public void logDataReceived(LogConfig logConfig, Map<String, Number> data, int timestamp) {
                         System.out.println("LogConfig '" + logConfig.getName()  + "', timestamp: " + timestamp + ", data : ");
                         // TODO sort?
@@ -86,7 +88,7 @@ public class LogDataLiveTest {
                         assertTrue("Value of pm.vbat should be between 3.0f and 4.5f, but was: " + pmVbatValue, 3.0f < pmVbatValue && 4.5f > pmVbatValue);
                     }
                 });
-                
+
                 // Add config
                 mLogg.addConfig(testConfig);
 

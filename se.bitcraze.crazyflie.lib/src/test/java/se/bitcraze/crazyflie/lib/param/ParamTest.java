@@ -68,8 +68,9 @@ public class ParamTest {
 
         crazyflie.getDriver().addConnectionListener(new TestConnectionAdapter() {
 
-            public void setupFinished(String connectionInfo) {
-                System.out.println("SETUP FINISHED: " + connectionInfo);
+            @Override
+            public void setupFinished() {
+                System.out.println("SETUP FINISHED");
                 mParam = crazyflie.getParam();
                 System.out.println("Number of TOC elements: " + mParam.getToc().getElements().size());
                 mParam.requestUpdateOfAllParams();
