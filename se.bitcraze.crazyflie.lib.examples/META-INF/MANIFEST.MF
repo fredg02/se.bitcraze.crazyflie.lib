@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Crazyflie Java library examples
 Bundle-SymbolicName: se.bitcraze.crazyflie.lib.examples
-Bundle-Version: 0.0.1.qualifier
+Bundle-Version: 0.0.1
 Export-Package: se.bitcraze.crazyflie.lib.examples
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: se.bitcraze.crazyflie.lib;bundle-version="0.0.1"
