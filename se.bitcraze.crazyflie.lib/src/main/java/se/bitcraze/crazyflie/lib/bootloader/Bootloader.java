@@ -202,8 +202,8 @@ public class Bootloader {
         return flash(file, "");
     }
 
-    // package private for Cfloader class
-    /* package private */ boolean flash(File file, String... targetNames) throws IOException {
+    // Method is used by ECT Bootloader!
+    public boolean flash(File file, String... targetNames) throws IOException {
         List<FlashTarget> filesToFlash = getFlashTargets(file, targetNames);
         if (filesToFlash.isEmpty()) {
             mLogger.error("Found no files to flash.");
