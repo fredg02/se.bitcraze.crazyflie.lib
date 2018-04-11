@@ -2,7 +2,7 @@
 <feature
       id="se.bitcraze.crazyflie.lib.feature"
       label="Crazyflie Java library feature"
-      version="0.0.1"
+      version="0.0.2.qualifier"
       provider-name="Bitcraze">
 
    <description url="https://github.com/fredg02/se.bitcraze.crazyflie.lib">
