@@ -181,6 +181,43 @@ public class LogConfigTest {
         assertEquals(27, logDataMap.get("range.zrange"));
     }
 
+    @Category(OfflineTests.class)
+    @Test
+    public void testDuplicateLogVariables() {
+        LogConfig lc = createTestLogConfig();
+        lc.addVariable("pm.vbat", VariableType.FLOAT);
+//        for (LogVariable lv : lc.getLogVariables()) {
+//            System.out.println("" + lv.getName());
+//            System.out.println("" + lv.getType());
+//            System.out.println("" + lv.getVariableType());
+//        }
+        assertEquals(1, lc.getLogVariables().size());
+    }
+
+    @Category(OfflineTests.class)
+    @Test
+    public void testDuplicateLogVariables2() {
+        LogConfig lc = new LogConfig("battery", 500);
+        lc.setId(1);
+        // 1st
+        lc.addVariable("pm.vbat");
+        // 2nd
+        lc.addVariable("pm.vbat");
+        assertEquals(1, lc.getLogVariables().size());
+    }
+
+    @Category(OfflineTests.class)
+    @Test
+    public void testDuplicateLogVariablesMemory() {
+        LogConfig lc = new LogConfig("battery", 500);
+        lc.setId(1);
+        // 1st
+        lc.addMemory("foobar", VariableType.FLOAT, 1234);
+        // 2nd
+        lc.addMemory("foobar", VariableType.FLOAT, 1234);
+        assertEquals(1, lc.getLogVariables().size());
+    }
+
     /* Utilities */
     private LogConfig createTestLogConfig() {
         LogConfig lc = new LogConfig("battery", 500);
