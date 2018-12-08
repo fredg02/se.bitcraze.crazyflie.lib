@@ -252,35 +252,35 @@ public class LoggTest {
     }
 
     @Category(OfflineTests.class)
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testAddConfigNullException() {
          Logg logg = new Logg(new Crazyflie(new MockDriver()));
          logg.addConfig(null);
     }
 
     @Category(OfflineTests.class)
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testCreateConfigNullException() {
         Logg logg = new Logg(new Crazyflie(new MockDriver()));
         logg.create(null);
     }
 
     @Category(OfflineTests.class)
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testStartConfigNullException() {
         Logg logg = new Logg(new Crazyflie(new MockDriver()));
         logg.start(null);
     }
 
     @Category(OfflineTests.class)
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testStopConfigNullException() {
         Logg logg = new Logg(new Crazyflie(new MockDriver()));
         logg.stop(null);
     }
 
     @Category(OfflineTests.class)
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testDeleteConfigNullException() {
         Logg logg = new Logg(new Crazyflie(new MockDriver()));
         logg.delete(null);
