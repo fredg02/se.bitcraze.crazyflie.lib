@@ -298,6 +298,12 @@ public class LoggTest {
         assertEquals(3, checkMaxNoOfLogVariablesInLogConfig(VariableType.DOUBLE));
     }
 
+    @Category(OfflineTests.class)
+    @Test
+    public void testErrorMessages() {
+        assertEquals("Log config already exists", Logg.getErrorMsg(17));
+    }
+
     private int checkMaxNoOfLogVariablesInLogConfig(VariableType type) {
         int noOfVariables = 50;
         Logg logg = new Logg(new Crazyflie(new MockDriver()));
