@@ -211,12 +211,19 @@ public class Logg {
             // logconf.cf = self.cf         -> not necessary in Java
 
             // set log config ID
-            logConfig.setId((mLogConfigIdCounter + 1) % 255);
-
-            mLogConfigs.add(logConfig);
+            if (mLogConfigs.size() < 255) {
+                logConfig.setId((mLogConfigIdCounter) % 255);
+                mLogConfigIdCounter++;
+                mLogConfigs.add(logConfig);
+            } else {
+                mLogger.error("Maximum number of logconfig (255) is reached.");
+                logConfig.setValid(false);
+                return;
+            }
             // TODO: self.block_added_cb.call(logconf)
         } else {
             logConfig.setValid(false);
+            mLogger.error("Logconfig {} is too large or has an invalid parameter (period).", logConfig.getName());
             return;
             // raise AttributeError("The log configuration is too large or has an invalid parameter")
         }
@@ -271,10 +278,6 @@ public class Logg {
                     if (errorStatus == 0x00) {
                         if (!logConfig.isAdded()) {
                             mLogger.debug("Successfully added log config ID=" + id);
-
-                            // TODO: call start(LogConfig) instead?
-                            // TODO: double check with start method (add & start vs just add)
-                            sendLoggPacket(new byte[] {CMD_START_LOGGING, (byte) id, (byte) logConfig.getPeriod()}, new byte[]{CMD_START_LOGGING, (byte) id});
                             logConfig.setAdded(true);
                             notifyLogAdded(logConfig);
                         } else {
@@ -345,6 +348,8 @@ public class Logg {
                         logConfig.setAdded(false);
 //                        notifyLogStarted(logConfig);
                         notifyLogAdded(logConfig);
+                        //TODO: what happens if the delete confirmation is never received?
+                        mLogConfigs.remove(logConfig);
                     }
                 } else {
                     mLogger.warn("Problem when deleting log config ID=" +id);
@@ -584,9 +589,6 @@ public class Logg {
                 sendLoggPacket(new byte[] {CMD_DELETE_LOGCONFIG, (byte) logConfig.getId()}, new byte[]{CMD_DELETE_LOGCONFIG, (byte) logConfig.getId()});
             }
         }
-        //hacky workarounds
-        logConfig.setAdded(false);
-        mLogConfigs.remove(logConfig);
     }
 
     public List<LogConfig> getLogConfigs() {
