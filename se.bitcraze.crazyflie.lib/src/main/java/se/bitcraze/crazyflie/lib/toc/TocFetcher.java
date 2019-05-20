@@ -84,7 +84,7 @@ public class TocFetcher {
      *
      */
     public void start() {
-        mLogger.debug("Starting to fetch TOC (Port: {})...", this.mPort);
+        mLogger.debug("[{}]: Starting to fetch TOC...", this.mPort);
 
         mDataListener = new DataListener(this.mPort) {
             @Override
@@ -103,7 +103,7 @@ public class TocFetcher {
     public void tocFetchFinished() {
         this.mCrazyflie.removeDataListener(mDataListener);
         long tocFetchDuration = System.currentTimeMillis() - tocFetchStartTime;
-        mLogger.debug("Fetching TOC (Port: {}) done in {}ms.", this.mPort, tocFetchDuration);
+        mLogger.debug("[{}]: Fetching TOC done in {}ms.", this.mPort, tocFetchDuration);
         this.mState = TocState.TOC_FETCH_FINISHED;
         // finishedCallback();
         notifyTocFetchFinished(this.mPort);
@@ -146,7 +146,7 @@ public class TocFetcher {
                         #       while 7 is lost then we will never resend for 7.
                         #       This is pretty hard to reproduce but happens...
                      */
-                    mLogger.warn("[" + this.mPort + "]: Was expecting " + this.mRequestedIndex + " but got " + actualIndex + ".");
+                    mLogger.warn("[{}]: Was expecting {} but got {}.", this.mPort, this.mRequestedIndex, actualIndex);
                     return;
                 }
                 handleCmdTocElement(payloadBuffer);
@@ -161,7 +161,7 @@ public class TocFetcher {
         this.mCrc = payloadBuffer.getInt();
         mToc.setCrc(mCrc);
 
-        mLogger.debug("[this.mPort]: Got TOC CRC, "+ this.mNoOfItems + " items and CRC=" + String.format("0x%08X", this.mCrc) + ".");
+        mLogger.debug("[{}]: Got TOC CRC={} and {} items.", this.mPort, String.format("0x%08X", this.mCrc), this.mNoOfItems);
 
         //Try to find toc in cache
         Toc cacheData = (mTocCache != null) ? mTocCache.fetch(mCrc, mPort) : null;
@@ -169,7 +169,7 @@ public class TocFetcher {
             // self.toc.toc = cache_data
             // assigning a toc to another toc directly does not work
             mToc.setTocElementMap(cacheData.getTocElementMap());
-            mLogger.info("TOC for port {} found in cache.", mPort);
+            mLogger.info("[{}]: TOC found in cache.", mPort);
             tocFetchFinished();
         } else {
             this.mState = TocState.GET_TOC_ELEMENT;
@@ -182,7 +182,7 @@ public class TocFetcher {
         TocElement tocElement = new TocElement(mPort, payloadBuffer.array());
         mToc.addElement(tocElement);
 
-        mLogger.debug("Added "+ tocElement.getClass().getSimpleName() + " [" + tocElement.getIdent() + "] to TOC");
+        mLogger.debug("Added {} [{}] to TOC", tocElement.getClass().getSimpleName(), tocElement.getIdent());
 
         if(mRequestedIndex < (mNoOfItems - 1)) {
             mLogger.debug("[{}]: More variables, requesting index {}", this.mPort, (this.mRequestedIndex + 1));
@@ -190,7 +190,7 @@ public class TocFetcher {
             requestTocElement(this.mRequestedIndex);
         } else {
             // No more variables in TOC
-            mLogger.info("No more variables in TOC.");
+            mLogger.info("[{}]: No more variables in TOC.", this.mPort);
             mTocCache.insert(mCrc, mPort, mToc);
             tocFetchFinished();
         }
@@ -200,7 +200,7 @@ public class TocFetcher {
         //# Request the TOC CRC
         this.mState = TocState.GET_TOC_INFO;
 
-        mLogger.debug("Requesting TOC info on port {}", this.mPort);
+        mLogger.debug("[{}]: Requesting TOC info...", this.mPort);
         Header header = new Header(TOC_CHANNEL, mPort);
         CrtpPacket packet = new CrtpPacket(header.getByte(), new byte[]{CMD_TOC_INFO});
         packet.setExpectedReply(new byte[]{CMD_TOC_INFO});
@@ -208,7 +208,7 @@ public class TocFetcher {
     }
 
     private void requestTocElement(int index) {
-        mLogger.debug("Requesting index {} on port {}", index, this.mPort);
+        mLogger.debug("[{}]: Requesting index {}...", index, this.mPort);
         Header header = new Header(TOC_CHANNEL, this.mPort);
         CrtpPacket packet = new CrtpPacket(header.getByte(), new byte[]{CMD_TOC_ELEMENT, (byte) index});
         packet.setExpectedReply(new byte[]{CMD_TOC_ELEMENT, (byte) index});
