@@ -56,7 +56,8 @@ import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
  */
 public class TocCache {
 
-    final Logger mLogger = LoggerFactory.getLogger("TocCache");
+    final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
+
     private List<File> mCacheFiles = new ArrayList<File>();
     private File mCacheDir = null;
     private static final String PARAM_CACHE_DIR = "paramCache";

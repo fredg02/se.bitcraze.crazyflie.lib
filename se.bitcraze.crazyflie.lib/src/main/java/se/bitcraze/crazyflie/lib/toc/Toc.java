@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Toc {
 
-    final Logger mLogger = LoggerFactory.getLogger("Toc");
+    final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
 
     private int mCrc;
 

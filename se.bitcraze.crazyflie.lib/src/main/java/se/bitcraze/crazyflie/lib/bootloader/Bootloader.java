@@ -69,7 +69,7 @@ import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
 //TODO: fix warmboot
 public class Bootloader {
 
-    final Logger mLogger = LoggerFactory.getLogger("Bootloader");
+    final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
 
     private static ObjectMapper mMapper = new ObjectMapper(); // can reuse, share globally
     private static final String MANIFEST_FILENAME = "manifest.json";

@@ -47,7 +47,7 @@ import se.bitcraze.crazyflie.lib.usb.CrazyUsbInterface;
  */
 public class RadioDriver extends CrtpDriver {
 
-    private final static Logger mLogger = LoggerFactory.getLogger("RadioDriver");
+    private final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
 
     protected Crazyradio mCradio;
     private Thread mRadioDriverThread;
@@ -206,11 +206,11 @@ public class RadioDriver extends CrtpDriver {
         if(crazyRadio == null) {
             crazyRadio = new Crazyradio(crazyUsbInterface);
         } else {
-            mLogger.error("Cannot scan for links while the link is open!");
+            LoggerFactory.getLogger("RadioDriver").error("Cannot scan for links while the link is open!");
             //TODO: throw exception?
         }
 
-        mLogger.info("Found Crazyradio with version " + crazyRadio.getVersion() + " and serial number " + crazyRadio.getSerialNumber());
+        LoggerFactory.getLogger("RadioDriver").info("Found Crazyradio with version " + crazyRadio.getVersion() + " and serial number " + crazyRadio.getSerialNumber());
 
         crazyRadio.setArc(1);
 

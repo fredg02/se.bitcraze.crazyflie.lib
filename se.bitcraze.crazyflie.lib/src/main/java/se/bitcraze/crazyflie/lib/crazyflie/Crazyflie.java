@@ -50,7 +50,7 @@ import se.bitcraze.crazyflie.lib.toc.TocFetchFinishedListener;
 
 public class Crazyflie {
 
-    private final Logger mLogger = LoggerFactory.getLogger("Crazyflie");
+    private final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
 
     private CrtpDriver mDriver;
     private Thread mIncomingPacketHandlerThread;
@@ -370,7 +370,7 @@ public class Crazyflie {
      */
     private class IncomingPacketHandler implements Runnable {
 
-        final Logger mLogger = LoggerFactory.getLogger("IncomingPacketHandler");
+        final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
 
         public void run() {
             mLogger.debug("IncomingPacketHandlerThread was started.");

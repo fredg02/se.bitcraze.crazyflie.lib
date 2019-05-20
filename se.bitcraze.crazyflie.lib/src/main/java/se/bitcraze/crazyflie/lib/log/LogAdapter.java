@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class LogAdapter implements LogListener {
 
-    final Logger mLogger = LoggerFactory.getLogger("LogAdapter");
+    final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
 
     @Override
     public void logConfigAdded(LogConfig logConfig) {

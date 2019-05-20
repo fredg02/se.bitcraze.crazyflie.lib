@@ -58,7 +58,7 @@ import se.bitcraze.crazyflie.lib.toc.VariableType;
 
 public class Logg {
 
-    final Logger mLogger = LoggerFactory.getLogger("Logging");
+    final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
 
     // The max size of a CRTP packet payload
     private final static int MAX_LOG_DATA_PACKET_SIZE = 30;
@@ -391,7 +391,7 @@ public class Logg {
         System.arraycopy(payload, offset, logData, 0, logData.length);
 
         logDataMap.putAll(logConfig.unpackLogData(logData));
-        LoggerFactory.getLogger("Logging").debug("Unpacked log data (ID: " + logConfig.getId() + ") with time stamp " + timestamp);
+        LoggerFactory.getLogger("Logg").debug("Unpacked log data (ID: " + logConfig.getId() + ") with time stamp " + timestamp);
         //TODO: what to do with the unpacked data?
         return timestamp;
     }

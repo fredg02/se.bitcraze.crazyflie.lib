@@ -60,7 +60,7 @@ import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
 //TODO: new Address
 public class Cloader {
 
-    final Logger mLogger = LoggerFactory.getLogger("Cloader");
+    final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
 
     private CrtpDriver mDriver;
     private List<ConnectionData> mAvailableBootConnections = new ArrayList<ConnectionData>();

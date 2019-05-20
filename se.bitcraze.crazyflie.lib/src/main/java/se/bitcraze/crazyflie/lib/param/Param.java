@@ -57,7 +57,7 @@ import se.bitcraze.crazyflie.lib.toc.TocFetcher;
  */
 public class Param {
 
-    final static Logger mLogger = LoggerFactory.getLogger("Param");
+    final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
 
     private Toc mToc;
     private Crazyflie mCrazyflie;

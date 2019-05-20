@@ -60,7 +60,7 @@ import se.bitcraze.crazyflie.lib.Utilities;
  */
 public class UsbLinkJava implements CrazyUsbInterface {
 
-    final static Logger mLogger = LoggerFactory.getLogger("UsbLinkJava");
+    final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
 
     private static final boolean FILTER_OUT_NULL_AND_ACK_PACKETS = true;
 
@@ -318,7 +318,7 @@ public class UsbLinkJava implements CrazyUsbInterface {
             usbDevice.syncSubmit(usbControlIrp);
             return true;
         } catch (UsbException uE) {
-            mLogger.error("DCP submission failed : " + uE.getMessage());
+            LoggerFactory.getLogger("UsbLinkJava").error("DCP submission failed : " + uE.getMessage());
             return false;
         }
     }
@@ -334,7 +334,7 @@ public class UsbLinkJava implements CrazyUsbInterface {
             for (UsbDevice device : (List<UsbDevice>) hub.getAttachedUsbDevices()) {
                 UsbDeviceDescriptor desc = device.getUsbDeviceDescriptor();
                 if (desc.idVendor() == vendorId && desc.idProduct() == productId){
-                    mLogger.debug("Found USB device!");
+                    LoggerFactory.getLogger("UsbLinkJava").debug("Found USB device!");
                     usbDeviceList.add(device);
                 }
                 if (device.isUsbHub()) {

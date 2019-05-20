@@ -47,7 +47,7 @@ import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
  */
 public class TocFetcher {
 
-    final Logger mLogger = LoggerFactory.getLogger("TocFetcher");
+    final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
 
     private Crazyflie mCrazyflie;
     private CrtpPort mPort;

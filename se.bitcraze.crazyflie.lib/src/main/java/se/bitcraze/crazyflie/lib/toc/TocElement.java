@@ -42,7 +42,7 @@ import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
  */
 public class TocElement implements Comparable<TocElement> {
 
-    final Logger mLogger = LoggerFactory.getLogger("TocElement");
+    final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
 
     public static final int RW_ACCESS = 1;
     public static final int RO_ACCESS = 0;
