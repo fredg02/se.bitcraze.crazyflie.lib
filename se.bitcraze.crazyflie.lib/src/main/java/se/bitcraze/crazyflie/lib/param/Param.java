@@ -156,7 +156,8 @@ public class Param {
      * Callback with data for an updated parameter
      */
     public void paramUpdated(CrtpPacket packet) {
-        int varId = packet.getPayload()[0];
+        // Fix for TOC > 128 items 
+        int varId = packet.getPayload()[0] & 0x00ff;
         TocElement tocElement = mToc.getElementById(varId);
         if (tocElement != null) {
             //s = struct.unpack(element.pytype, pk.data[1:])[0]
@@ -425,7 +426,7 @@ public class Param {
                         // self.cf.send_packet(pk, expected_reply=(pk.datat[0:2]))
                         packet.setExpectedReply(new byte[] {packet.getPayload()[0]});
                         if (packet.getHeader().getChannel() == READ_CHANNEL) {
-                            mLogger.debug("Requesting updated for param with ID {}", (mReqParam & 0x00ff));
+                            mLogger.debug("Requesting update for param with ID {}", (mReqParam & 0x00ff));
                         } else {
                             mLogger.debug("Setting param with ID {}", (mReqParam & 0x00ff));
                         }
