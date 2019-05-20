@@ -43,3 +43,4 @@ Require-Bundle: org.slf4j.api;bundle-version="1.7.2",
  org.usb4java.libusb4java.win32-x86-64;bundle-version="1.3.0",
  org.apache.commons.lang3;bundle-version="3.1.0"
 Bundle-ClassPath: .
+Automatic-Module-Name: se.bitcraze.crazyflie.lib
