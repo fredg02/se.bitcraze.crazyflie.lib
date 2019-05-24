@@ -1,6 +1,7 @@
 package se.bitcraze.crazyflie.lib.examples;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -8,14 +9,15 @@ import java.util.List;
 import se.bitcraze.crazyflie.lib.crazyflie.ConnectionAdapter;
 import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie;
 import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
+import se.bitcraze.crazyflie.lib.crazyradio.Crazyradio;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.param.ParamListener;
 import se.bitcraze.crazyflie.lib.toc.Toc;
 import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
 
 /**
- * Simple example that connects to the first Crazyflie found, triggers
- * reading of all the parameters and displays their values. It then modifies
+ * Simple example that connects to the Crazyflie on the given channel and data rate.
+ * It triggers reading of all the parameters and displays their values. It then modifies
  * one parameter and reads back it's value. Finally it disconnects.
  */
 public class ParamExample extends ConnectionAdapter{
@@ -63,63 +65,62 @@ public class ParamExample extends ConnectionAdapter{
     public void setupFinished() {
         System.out.println("Setup finished");
 
-        // Print the param TOC
-        Toc paramToc = this.mCrazyflie.getParam().getToc();
-        List<String> list = new ArrayList<String>(paramToc.getTocElementMap().keySet());
-        Collections.sort(list);
-        
-        for (String completeName : list) {
-            System.out.println(completeName);
+        readAllParameters();
+    }
+
+    private void readAllParameters() {
+        // You can register a callback for a specific group.name combo
+        this.mCrazyflie.getParam().addParamListener(new ParamListener("cpu", "flash") {
+            @Override
+            public void updated(String name, Number value) {
+                System.out.println("The connected Crazyflie has " + value + "kb of flash.\n");
+                mCrazyflie.getParam().removeParamListeners("cpu", "flash");
+            }
+        });
+        this.mCrazyflie.getParam().requestParamUpdate("cpu.flash");
+
+        //TODO: improve/simplify
+        final Toc paramToc = this.mCrazyflie.getParam().getToc();
+        List<String> keyList = new ArrayList<String>(paramToc.getTocElementMap().keySet());
+        Collections.sort(keyList);
+        System.out.println("Number of parameters: " + keyList.size());
+
+        // Print all parameters and their current values
+        for(String completeName : keyList) {
             mParamCheckList.add(completeName);
-            
+
             String[] split = completeName.split("\\.");
             String group = split[0];
-            
+
             mParamGroups.add(group);
 
-            // For every group, register the callback
             this.mCrazyflie.getParam().addParamListener(new ParamListener(group, null) {
                 @Override
                 public void updated(String name, Number value) {
-                    System.out.println(name + ": " + value);
-
+                    System.out.println(String.format("%-25s", name) + ": " + String.format("%10s", value.toString()) + " TOC id: " + paramToc.getElementId(name));
                     // Remove each parameter from the list and close the link when all are fetched
                     mParamCheckList.remove(name);
-                    if (mParamCheckList.size() == 0) {
-                        System.out.println("Have fetched all parameter values.");
-                        // First remove all the group callbacks
-
+                    
+                    if (mParamCheckList.isEmpty()) {
+                        System.out.println("All parameter values have been fetched.");
                         for (String group : mParamGroups) {
                             mCrazyflie.getParam().removeParamListeners(group, null);
                         }
-
                         setRandomValue();
                     }
                 }
             });
-        }
-
-        // You can also register a callback for a specific group.name combo
-        this.mCrazyflie.getParam().addParamListener(new ParamListener("cpu", "flash") {
-            @Override
-            public void updated(String name, Number value) {
-                System.out.println("The connected Crazyflie has " + value + "kb of flash.");
-            }
-        });
-
-        System.out.println("\nReading back all parameter values");
-        // Request update for all the parameters using the full name group.name
-        for (String p : mParamCheckList) {
-            this.mCrazyflie.getParam().requestParamUpdate(p);
+            this.mCrazyflie.getParam().requestParamUpdate(completeName);
         }
     }
 
     private void setRandomValue () {
         // Create a new random value [0.00,1.00] for pid_attitude.pitch_kd and set it
         double pkd = Math.random();
-        Double truncatedDouble = new BigDecimal(pkd).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        Double truncatedDouble = new BigDecimal(pkd).setScale(2, RoundingMode.HALF_UP).doubleValue();
 
         System.out.println("\nWrite: pid_attitude.pitch_kd=" + truncatedDouble);
+        System.out.println("Write: pid_attitude.pitch_kd=" + 0.00f);
 
         mCrazyflie.getParam().addParamListener(new ParamListener("pid_attitude", "pitch_kd") {
             @Override
@@ -155,6 +156,7 @@ public class ParamExample extends ConnectionAdapter{
     @Override
     public void connectionLost(String msg) {
         System.out.println("Connection lost: " + msg);
+        setConnected(false);
     }
 
     /*
@@ -166,43 +168,23 @@ public class ParamExample extends ConnectionAdapter{
         setConnected(false);
     }
 
-
     public static void main(String[] args) {
-        // Initialize the low-level drivers (don't list the debug drivers)
-        // cflib.crtp.init_drivers(enable_debug_driver=False)
+        int channel = 80;
+        int datarate = Crazyradio.DR_250KPS;
 
-        // Scan for Crazyflies and use the first one found
-//        System.out.println("Scanning interfaces for Crazyflies...");
-//
-//        RadioDriver radioDriver = new RadioDriver(new UsbLinkJava());
-//        List<ConnectionData> foundCrazyflies = radioDriver.scanInterface();
-//        radioDriver.disconnect();
-//
-//        System.out.println("Crazyflies found:");
-//        for (ConnectionData connectionData : foundCrazyflies) {
-//            System.out.println(connectionData);
-//        }
+        ParamExample paramExample = new ParamExample(new ConnectionData(channel, datarate));
 
-        List<ConnectionData> foundCrazyflies = new ArrayList<ConnectionData>();
-        foundCrazyflies.add(new ConnectionData(10, 0));
-
-        if (foundCrazyflies.size() > 0) {
-            ParamExample paramExample = new ParamExample(foundCrazyflies.get(0));
-
-            /**
-             * The Crazyflie lib doesn't contain anything to keep the application alive,
-             * so this is where your application should do something. In our case we
-             * are just waiting until we are disconnected.
-             */
-            while (paramExample.isConnected()) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        /**
+         * The Crazyflie lib doesn't contain anything to keep the application alive,
+         * so this is where your application should do something. In our case we
+         * are just waiting until we are disconnected.
+         */
+        while (paramExample.isConnected()) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-        } else {
-            System.out.println("No Crazyflies found, cannot run example");
         }
     }
 }

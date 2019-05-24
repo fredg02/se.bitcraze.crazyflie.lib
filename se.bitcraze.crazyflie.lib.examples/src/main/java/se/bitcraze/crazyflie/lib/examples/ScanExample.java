@@ -17,8 +17,10 @@ public class ScanExample {
         List<ConnectionData> foundCrazyflies = radioDriver.scanInterface();
         radioDriver.disconnect();
         System.out.println("Crazyflies found:");
+        int count = 0;
         for (ConnectionData connectionData : foundCrazyflies) {
-            System.out.println(connectionData);
+            count++;
+            System.out.println(count + ": " + connectionData);
         }
     }
 }

@@ -1,6 +1,7 @@
 package se.bitcraze.crazyflie.lib.examples;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -10,23 +11,25 @@ import java.util.TimerTask;
 import se.bitcraze.crazyflie.lib.crazyflie.ConnectionAdapter;
 import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie;
 import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
+import se.bitcraze.crazyflie.lib.crazyradio.Crazyradio;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.log.LogConfig;
 import se.bitcraze.crazyflie.lib.log.LogListener;
 import se.bitcraze.crazyflie.lib.log.Logg;
+import se.bitcraze.crazyflie.lib.toc.Toc;
 import se.bitcraze.crazyflie.lib.toc.VariableType;
 import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
 
-
 /**
- * Simple example that connects to the first Crazyflie found, logs the Stabilizer
- * and prints it to the console. After 10s the application disconnects and exits.
- *
+ * Simple example that connects to the Crazyflie on the given channel and data rate.
+ * It prints all elements of the Logg table of contents.
+ * Then it adds log configurations:
+ * * the battery voltage
+ * * the barometer temperature & pressue
+ * and prints the values to the console.
+ * After 10s the application disconnects and exits.
  */
 public class LoggingExample extends ConnectionAdapter{
-
-    //# Only output errors from the logging framework
-    //logging.basicConfig(level=logging.ERROR)
 
     //Variable used to keep main loop occupied until disconnect
     private boolean mConnected = true;
@@ -69,7 +72,26 @@ public class LoggingExample extends ConnectionAdapter{
     @Override
     public void setupFinished() {
         System.out.println("Setup finished");
+        
+        printLoggingTOC();
+        
+        addLogConfigs();
+    }
 
+    private void printLoggingTOC() {
+        final Toc logToc = this.mCrazyflie.getLogg().getToc();
+        List<String> keyList = new ArrayList<String>(logToc.getTocElementMap().keySet());
+        Collections.sort(keyList);
+        System.out.println("Number of logging elements: " + keyList.size());
+
+        // Print all logging elements
+        for(String completeName : keyList) {
+            System.out.println(completeName);
+        }
+        
+    }
+
+    private void addLogConfigs() {
         // The definition of the logconfig can be made before the setup is finished
         final LogConfig lcBattery = new LogConfig("Battery", 1000);
         lcBattery.addVariable("pm.vbat", VariableType.FLOAT);
@@ -91,14 +113,7 @@ public class LoggingExample extends ConnectionAdapter{
             logg.addConfig(lcBattery);
             logg.addConfig(lcBaro);
 
-            /*
-            # This callback will receive the data
-            self._lg_stab.data_received_cb.add_callback(self._stab_log_data)
-            # This callback will be called on errors
-            self._lg_stab.error_cb.add_callback(self._stab_log_error)
-            */
-
-            System.out.println("Logg size: " + logg.getLogConfigs().size());
+            System.out.println("\nNumber of logConfigs: " + logg.getLogConfigs().size());
 
             logg.addLogListener(new LogListener() {
 
@@ -110,7 +125,7 @@ public class LoggingExample extends ConnectionAdapter{
                     } else {
                         msg = "' deleted";
                     }
-                    System.out.println("LogConfig '" + logConfig.getName() + msg);
+                    System.out.println("LogConfig '" + logConfig.getName() + " (ID: " + logConfig.getId() + ")" + msg);
                 }
 
                 @Override
@@ -126,7 +141,7 @@ public class LoggingExample extends ConnectionAdapter{
                     } else {
                         msg = "' stopped";
                     }
-                    System.out.println("LogConfig '" + logConfig.getName() + msg);
+                    System.out.println("LogConfig '" + logConfig.getName() + " (ID: " + logConfig.getId() + ")" + msg);
                 }
 
                 @Override
@@ -143,16 +158,6 @@ public class LoggingExample extends ConnectionAdapter{
             // Start the logging
             logg.start(lcBattery);
             logg.start(lcBaro);
-
-            /*
-            try:
-                [...]
-            except KeyError as e:
-                print "Could not start log configuration," \
-                      "{} not found in TOC".format(str(e))
-            except AttributeError:
-                print "Could not add Stabilizer log config, bad configuration."
-             */
 
             // Start a timer to disconnect after 5s
             Timer timer = new Timer();
@@ -197,6 +202,7 @@ public class LoggingExample extends ConnectionAdapter{
     @Override
     public void connectionLost(String msg) {
         System.out.println("Connection lost: " + msg);
+        setConnected(false);
     }
 
     /*
@@ -209,42 +215,22 @@ public class LoggingExample extends ConnectionAdapter{
     }
 
     public static void main(String[] args) {
-        // Initialize the low-level drivers (don't list the debug drivers)
-        // cflib.crtp.init_drivers(enable_debug_driver=False)
+        int channel = 80;
+        int datarate = Crazyradio.DR_250KPS;;
 
-        // Scan for Crazyflies and use the first one found
-//        System.out.println("Scanning interfaces for Crazyflies...");
-//
-//        RadioDriver radioDriver = new RadioDriver(new UsbLinkJava());
-//        List<ConnectionData> foundCrazyflies = radioDriver.scanInterface();
-//        radioDriver.disconnect();
-//
-//        System.out.println("Crazyflies found:");
-//        for (ConnectionData connectionData : foundCrazyflies) {
-//            System.out.println(connectionData);
-//        }
+        LoggingExample loggingExample = new LoggingExample(new ConnectionData(channel, datarate));
 
-        List<ConnectionData> foundCrazyflies = new ArrayList<ConnectionData>();
-        foundCrazyflies.add(new ConnectionData(80, 0));
-
-        if (foundCrazyflies.size() > 0) {
-            LoggingExample loggingExample = new LoggingExample(foundCrazyflies.get(0));
-
-            /**
-             * The Crazyflie lib doesn't contain anything to keep the application alive,
-             * so this is where your application should do something. In our case we
-             * are just waiting until we are disconnected.
-             */
-            while (loggingExample.isConnected()) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        /**
+         * The Crazyflie lib doesn't contain anything to keep the application alive,
+         * so this is where your application should do something. In our case we
+         * are just waiting until we are disconnected.
+         */
+        while (loggingExample.isConnected()) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-            System.exit(0);
-        } else {
-            System.out.println("No Crazyflies found, cannot run example");
         }
     }
 

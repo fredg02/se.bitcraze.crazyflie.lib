@@ -138,7 +138,10 @@ public class FlowSequenceExample {
     }
 
     public static void main(String[] args) {
-        new FlowSequenceExample(new ConnectionData(80, Crazyradio.DR_250KPS));
+        int channel = 80;
+        int datarate = Crazyradio.DR_250KPS;
+
+        new FlowSequenceExample(new ConnectionData(channel, datarate));
     }
 
 }

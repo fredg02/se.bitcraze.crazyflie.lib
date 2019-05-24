@@ -14,6 +14,10 @@ import se.bitcraze.crazyflie.lib.log.LogConfig;
 import se.bitcraze.crazyflie.lib.param.Param;
 import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
 
+/**
+ * Work in progress of a Crazyflie wrapper, that tries to provide
+ * a simple API to use and control the Crazyflie.
+ */
 public class CrazyflieWrapper {
 
     private Crazyflie mCrazyflie;
@@ -33,8 +37,8 @@ public class CrazyflieWrapper {
 
         mCrazyflie.getDriver().addConnectionListener(new ConnectionAdapter() {
 
-            public void setupFinished(String connectionInfo) {
-                System.out.println("SETUP FINISHED: " + connectionInfo);
+            public void setupFinished() {
+                System.out.println("SETUP FINISHED");
                 mSetupFinished = true;
             }
 

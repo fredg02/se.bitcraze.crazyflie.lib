@@ -1,7 +1,5 @@
 package se.bitcraze.crazyflie.lib.examples;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Timer;
@@ -10,6 +8,7 @@ import java.util.TimerTask;
 import se.bitcraze.crazyflie.lib.crazyflie.ConnectionAdapter;
 import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie;
 import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
+import se.bitcraze.crazyflie.lib.crazyradio.Crazyradio;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.log.LogConfig;
 import se.bitcraze.crazyflie.lib.log.LogListener;
@@ -23,7 +22,7 @@ import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
  * and prints it to the console. After 10s the application disconnects and exits.
  *
  */
-public class LoggingOAExample extends ConnectionAdapter{
+public class LoggingMultirangerExample extends ConnectionAdapter{
 
     //# Only output errors from the logging framework
     //logging.basicConfig(level=logging.ERROR)
@@ -37,7 +36,7 @@ public class LoggingOAExample extends ConnectionAdapter{
      *
      * @param connectionData
      */
-    public LoggingOAExample(ConnectionData connectionData) {
+    public LoggingMultirangerExample(ConnectionData connectionData) {
         // Create a Crazyflie object without specifying any cache dirs
         mCrazyflie = new Crazyflie(new RadioDriver(new UsbLinkJava()));
         //TODO: do not use cache
@@ -73,11 +72,11 @@ public class LoggingOAExample extends ConnectionAdapter{
         // The definition of the logconfig can be made before the setup is finished
         final LogConfig lcOA = new LogConfig("OA", 500);
         lcOA.addVariable("pm.vbat", VariableType.FLOAT);
-        lcOA.addVariable("oa.up", VariableType.UINT16_T);
-        lcOA.addVariable("oa.front", VariableType.UINT16_T);
-        lcOA.addVariable("oa.back", VariableType.UINT16_T);
-        lcOA.addVariable("oa.left", VariableType.UINT16_T);
-        lcOA.addVariable("oa.right", VariableType.UINT16_T);
+        lcOA.addVariable("range.up", VariableType.UINT16_T);
+        lcOA.addVariable("range.front", VariableType.UINT16_T);
+        lcOA.addVariable("range.back", VariableType.UINT16_T);
+        lcOA.addVariable("range.left", VariableType.UINT16_T);
+        lcOA.addVariable("range.right", VariableType.UINT16_T);
 
         /**
          *  Adding the configuration cannot be done until a Crazyflie is connected and
@@ -91,15 +90,9 @@ public class LoggingOAExample extends ConnectionAdapter{
             //self._cf.log.add_config(self._lg_stab)
             logg.addConfig(lcOA);
 
-            /*
-            # This callback will receive the data
-            self._lg_stab.data_received_cb.add_callback(self._stab_log_data)
-            # This callback will be called on errors
-            self._lg_stab.error_cb.add_callback(self._stab_log_error)
-            */
-
             logg.addLogListener(new LogListener() {
 
+                @Override
                 public void logConfigAdded(LogConfig logConfig) {
                     String msg = "";
                     if(logConfig.isAdded()) {
@@ -107,13 +100,15 @@ public class LoggingOAExample extends ConnectionAdapter{
                     } else {
                         msg = "' deleted";
                     }
-                    System.out.println("LogConfig '" + logConfig.getName() + msg);
+                    System.out.println("LogConfig '" + logConfig.getName() + " (ID: " + logConfig.getId() + ")" + msg);
                 }
 
+                @Override
                 public void logConfigError(LogConfig logConfig) {
-                    System.err.println("Error when logging '" + logConfig.getName() + "': " + logConfig.getErrNo());
+                    System.err.println("Error when logging '" + logConfig.getName() + "': " + logConfig.getErrMsg());
                 }
 
+                @Override
                 public void logConfigStarted(LogConfig logConfig) {
                     String msg = "";
                     if(logConfig.isStarted()) {
@@ -121,7 +116,7 @@ public class LoggingOAExample extends ConnectionAdapter{
                     } else {
                         msg = "' stopped";
                     }
-                    System.out.println("LogConfig '" + logConfig.getName() + msg);
+                    System.out.println("LogConfig '" + logConfig.getName() + " (ID: " + logConfig.getId() + ")" + msg);
                 }
 
                 public void logDataReceived(LogConfig logConfig, Map<String, Number> data, int timestamp) {
@@ -136,16 +131,6 @@ public class LoggingOAExample extends ConnectionAdapter{
 
             // Start the logging
             logg.start(lcOA);
-
-            /*
-            try:
-                [...]
-            except KeyError as e:
-                print "Could not start log configuration," \
-                      "{} not found in TOC".format(str(e))
-            except AttributeError:
-                print "Could not add Stabilizer log config, bad configuration."
-             */
 
             // Start a timer to disconnect after 5s
             Timer timer = new Timer();
@@ -188,6 +173,7 @@ public class LoggingOAExample extends ConnectionAdapter{
     @Override
     public void connectionLost(String msg) {
         System.out.println("Connection lost: " + msg);
+        setConnected(false);
     }
 
     /*
@@ -200,44 +186,25 @@ public class LoggingOAExample extends ConnectionAdapter{
     }
 
     public static void main(String[] args) {
-        // Initialize the low-level drivers (don't list the debug drivers)
-        // cflib.crtp.init_drivers(enable_debug_driver=False)
+        int channel = 80;
+        int datarate = Crazyradio.DR_250KPS;
 
-        // Scan for Crazyflies and use the first one found
-//        System.out.println("Scanning interfaces for Crazyflies...");
-//
-//        RadioDriver radioDriver = new RadioDriver(new UsbLinkJava());
-//        List<ConnectionData> foundCrazyflies = radioDriver.scanInterface();
-//        radioDriver.disconnect();
-//
-//        System.out.println("Crazyflies found:");
-//        for (ConnectionData connectionData : foundCrazyflies) {
-//            System.out.println(connectionData);
-//        }
+        LoggingMultirangerExample loggingMultirangerExample = new LoggingMultirangerExample(new ConnectionData(channel, datarate));
 
-        List<ConnectionData> foundCrazyflies = new ArrayList<ConnectionData>();
-        foundCrazyflies.add(new ConnectionData(85, 0));
-
-        if (foundCrazyflies.size() > 0) {
-            LoggingOAExample loggingExample = new LoggingOAExample(foundCrazyflies.get(0));
-
-            /**
-             * The Crazyflie lib doesn't contain anything to keep the application alive,
-             * so this is where your application should do something. In our case we
-             * are just waiting until we are disconnected.
-             */
-            while (loggingExample.isConnected()) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        /**
+         * The Crazyflie lib doesn't contain anything to keep the application alive,
+         * so this is where your application should do something. In our case we
+         * are just waiting until we are disconnected.
+         */
+        while (loggingMultirangerExample.isConnected()) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-            System.out.println("loop is done");
-            System.exit(0);
-        } else {
-            System.out.println("No Crazyflies found, cannot run example");
         }
+        System.out.println("loop is done");
+
     }
 
 }

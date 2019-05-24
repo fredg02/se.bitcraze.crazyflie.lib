@@ -9,7 +9,7 @@ import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
 import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
 
 /**
- *  Simple example that connects to the first Crazyflie found,
+ *  Simple example that connects to a Crazyflie with the given channel and data rate,
  *  ramps up/down the motors and disconnects.
  *
  */
@@ -27,29 +27,36 @@ public class MotorRampExample {
 
             /**
              * This callback is called from the Crazyflie API when a Crazyflie
-             + has been connected and the TOCs have been downloaded.
+             * has been connected and the TOCs have been downloaded.
              */
-            public void connected(String connectionInfo) {
-                System.out.println("CONNECTED to " +  connectionInfo);
-
-                // Start a separate thread to do the motor test.
-                // Do not hijack the calling thread!
-//                Thread(target=self._ramp_motors).start()
+            @Override
+            public void connected() {
+                System.out.println("CONNECTED");
+            }
+            
+            /**
+             * Callback when the Crazyflie has finished it's setup
+             */
+            @Override
+            public void setupFinished() {
+            	System.out.println("SETUP FINISHED");
+            	
+            	// Start a separate thread to do the motor test.
                 rampMotors();
             }
 
             /*
              * Callback when the Crazyflie is disconnected (called in all cases)
              */
-            public void disconnected(String connectionInfo) {
-                System.out.println("DISCONNECTED from " +  connectionInfo);
+            public void disconnected() {
+                System.out.println("DISCONNECTED");
             }
 
             /*
              * Callback when connection initial connection fails (i.e no Crazyflie at the specified address)
              */
-            public void connectionFailed(String connectionInfo, String msg) {
-                System.out.println("CONNECTION FAILED: " +  connectionInfo + " Msg: " + msg);
+            public void connectionFailed(String msg) {
+                System.out.println("CONNECTION FAILED: " +  msg);
             }
 
             /**
@@ -57,8 +64,8 @@ public class MotorRampExample {
              *
              * @param connectionInfo
              */
-            public void connectionLost(String connectionInfo) {
-                System.out.println("CONNECTION LOST: " +  connectionInfo);
+            public void connectionLost(String msg) {
+                System.out.println("CONNECTION LOST: " +  msg);
             }
 
         });
@@ -66,7 +73,7 @@ public class MotorRampExample {
         mCrazyflie.setConnectionData(connectionData);
         mCrazyflie.connect();
 
-        System.out.println("Connection to " + connectionData);
+        System.out.println("Connected to " + connectionData);
     }
 
     public void rampMotors() {
@@ -80,10 +87,8 @@ public class MotorRampExample {
         // send packet with zero thrust to arm the copter
         this.mCrazyflie.sendPacket(new CommanderPacket(0, 0, 0, (char) 0));
         while (thrust >= 15000) {
-            // self._cf.commander.send_setpoint(roll, pitch, yawrate, thrust)
             System.out.println("sendPacket: " + thrust);
             this.mCrazyflie.sendPacket(new CommanderPacket(roll, pitch, yawrate, (char) thrust));
-            // time.sleep(0.1)
             try {
                 Thread.sleep(200);
             } catch (InterruptedException e) {
@@ -97,7 +102,6 @@ public class MotorRampExample {
         this.mCrazyflie.sendPacket(new CommanderPacket(0, 0, 0, (char) 0));
         // Make sure that the last packet leaves before the link is closed
         // since the message queue is not flushed before closing
-        // time.sleep(0.1)
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -107,21 +111,10 @@ public class MotorRampExample {
     }
 
     public static void main(String[] args) {
-        // Initialize the low-level drivers (don't list the debug drivers)
-//        cflib.crtp.init_drivers(enable_debug_driver=False)
-        // Scan for Crazyflies and use the first one found
-        System.out.println("Scanning interfaces for Crazyflies...");
-//        available = cflib.crtp.scan_interfaces()
-        System.out.println("Crazyflies found:");
-        /*
-        for i in available:
-            print i[0]
-        if len(available) > 0:
-            le = MotorRampExample(available[0][0])
-        else:
-            print "No Crazyflies found, cannot run example"
-        */
-        new MotorRampExample(new ConnectionData(10, Crazyradio.DR_250KPS));
+        int channel = 80;
+        int datarate = Crazyradio.DR_250KPS;
+
+        new MotorRampExample(new ConnectionData(channel, datarate));
     }
 
 }

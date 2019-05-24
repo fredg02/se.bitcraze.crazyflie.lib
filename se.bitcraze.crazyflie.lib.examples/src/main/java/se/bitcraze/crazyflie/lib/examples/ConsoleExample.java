@@ -1,7 +1,5 @@
 package se.bitcraze.crazyflie.lib.examples;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -9,11 +7,16 @@ import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie;
 import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie.State;
 import se.bitcraze.crazyflie.lib.crazyflie.DataListener;
 import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
+import se.bitcraze.crazyflie.lib.crazyradio.Crazyradio;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
 import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
 
+/**
+ * Simple example that connects to the Crazyflie on the given channel and data rate.
+ * It prints the contents of the console.
+ */
 public class ConsoleExample {
 
     private Crazyflie mCrazyflie;
@@ -63,12 +66,12 @@ public class ConsoleExample {
 
             @Override
             public void run() {
-                System.out.println("Disconnected after 5 seconds...");
+                System.out.println("Disconnected after 3 seconds...");
                 mCrazyflie.disconnect();
                 System.exit(0);
             }
 
-        }, 1000);
+        }, 3000);
     }
 
     private boolean contains0A(byte[] payload) {
@@ -94,42 +97,22 @@ public class ConsoleExample {
     }
 
     public static void main(String[] args) {
-        // Initialize the low-level drivers (don't list the debug drivers)
-        // cflib.crtp.init_drivers(enable_debug_driver=False)
+        int channel = 80;
+        int datarate = Crazyradio.DR_250KPS;
 
-        // Scan for Crazyflies and use the first one found
-//        System.out.println("Scanning interfaces for Crazyflies...");
-//
-//        RadioDriver radioDriver = new RadioDriver(new UsbLinkJava());
-//        List<ConnectionData> foundCrazyflies = radioDriver.scanInterface();
-//        radioDriver.disconnect();
-//
-//        System.out.println("Crazyflies found:");
-//        for (ConnectionData connectionData : foundCrazyflies) {
-//            System.out.println(connectionData);
-//        }
+        ConsoleExample consoleExample = new ConsoleExample(new ConnectionData(channel, datarate));
 
-        List<ConnectionData> foundCrazyflies = new ArrayList<ConnectionData>();
-        foundCrazyflies.add(new ConnectionData(80, 0));
-
-        if (foundCrazyflies.size() > 0) {
-            ConsoleExample consoleExample = new ConsoleExample(foundCrazyflies.get(0));
-
-            /**
-             * The Crazyflie lib doesn't contain anything to keep the application alive,
-             * so this is where your application should do something. In our case we
-             * are just waiting until we are disconnected.
-             */
-            while (!(consoleExample.getCrazyflie().getState() == State.DISCONNECTED)) {
-                try {
-                    Thread.sleep(1000);
-//                    consoleExample.getCrazyflie().sendPacket(new CrtpPacket());
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        /**
+         * The Crazyflie lib doesn't contain anything to keep the application alive,
+         * so this is where your application should do something. In our case we
+         * are just waiting until we are disconnected.
+         */
+        while (!(consoleExample.getCrazyflie().getState() == State.DISCONNECTED)) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-        } else {
-            System.out.println("No Crazyflies found, cannot run example");
         }
     }
 }
