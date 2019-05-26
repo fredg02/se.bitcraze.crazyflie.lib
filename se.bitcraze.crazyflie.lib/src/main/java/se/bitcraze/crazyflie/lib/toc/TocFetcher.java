@@ -47,7 +47,7 @@ import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
  */
 public class TocFetcher {
 
-    final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
+    private final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
 
     private Crazyflie mCrazyflie;
     private CrtpPort mPort;
@@ -68,6 +68,8 @@ public class TocFetcher {
     private DataListener mDataListener;
     private long tocFetchStartTime;
 
+    private Header mTocHeader;
+
     public enum TocState {
         IDLE, GET_TOC_INFO, GET_TOC_ELEMENT, TOC_FETCH_FINISHED;
     }
@@ -77,6 +79,7 @@ public class TocFetcher {
         this.mPort = port;
         this.mToc = tocHolder;
         this.mTocCache = tocCache;
+        this.mTocHeader = new Header(TOC_CHANNEL, this.mPort);
     }
 
     /**
@@ -100,7 +103,7 @@ public class TocFetcher {
     /**
      * Callback for when the TOC fetching is finished
      */
-    public void tocFetchFinished() {
+    private void tocFetchFinished() {
         this.mCrazyflie.removeDataListener(mDataListener);
         long tocFetchDuration = System.currentTimeMillis() - tocFetchStartTime;
         mLogger.debug("[{}]: Fetching TOC done in {}ms.", this.mPort, tocFetchDuration);
@@ -196,23 +199,36 @@ public class TocFetcher {
         }
     }
 
+    /**
+     * Request the TOC CRC
+     */
     private void requestTocInfo() {
-        //# Request the TOC CRC
         this.mState = TocState.GET_TOC_INFO;
-
         mLogger.debug("[{}]: Requesting TOC info...", this.mPort);
-        Header header = new Header(TOC_CHANNEL, mPort);
-        CrtpPacket packet = new CrtpPacket(header.getByte(), new byte[]{CMD_TOC_INFO});
-        packet.setExpectedReply(new byte[]{CMD_TOC_INFO});
-        this.mCrazyflie.sendPacket(packet);
+        sendTocPacket(new byte[]{CMD_TOC_INFO});
     }
 
+    /**
+     * Request a TOC element by index
+     *
+     * @param index of TOC element
+     */
     private void requestTocElement(int index) {
         mLogger.debug("[{}]: Requesting index {}...", index, this.mPort);
-        Header header = new Header(TOC_CHANNEL, this.mPort);
-        CrtpPacket packet = new CrtpPacket(header.getByte(), new byte[]{CMD_TOC_ELEMENT, (byte) index});
-        packet.setExpectedReply(new byte[]{CMD_TOC_ELEMENT, (byte) index});
-        this.mCrazyflie.sendPacket(packet);
+        sendTocPacket(new byte[]{CMD_TOC_ELEMENT, (byte) index});
+    }
+
+    /**
+     * Expected reply is the same as data, so no extra parameter necessary
+     *
+     * @param data that should be sent
+     */
+    private void sendTocPacket(byte[] data) {
+        if (mCrazyflie != null && mTocHeader != null) {
+            CrtpPacket packet = new CrtpPacket(mTocHeader.getByte(), data);
+            packet.setExpectedReply(data);
+            this.mCrazyflie.sendPacket(packet);
+        }
     }
 
     /* TOC FETCH FINISHED LISTENER */
