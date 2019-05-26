@@ -62,7 +62,8 @@ public class UsbLinkJava implements CrazyUsbInterface {
 
     final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
 
-    private static final boolean FILTER_OUT_NULL_AND_ACK_PACKETS = true;
+    protected static final boolean FILTER_OUT_NULL_AND_ACK_PACKETS = true;
+    protected static final boolean FILTER_OUT_SEND_CONTROL_TRANSFER = true;
 
     //USB Timeout is set in javax.usb.properties
 
@@ -203,7 +204,9 @@ public class UsbLinkJava implements CrazyUsbInterface {
     }
 
     private void debugControlTransfer(byte requestType, byte request, byte value, byte index, byte[] data) {
-        mLogger.debug("sendControlTransfer, requestType: {}, request: {}, value: {}, index: {}, data: {}", Utilities.getHexString(requestType), Utilities.getHexString(request), Utilities.getHexString(value), Utilities.getHexString(index), Utilities.getHexString(data));
+        if (!FILTER_OUT_SEND_CONTROL_TRANSFER) {
+            mLogger.debug("sendControlTransfer, requestType: {}, request: {}, value: {}, index: {}, data: {}", Utilities.getHexString(requestType), Utilities.getHexString(request), Utilities.getHexString(value), Utilities.getHexString(index), Utilities.getHexString(data));
+        }
     }
 
     /* (non-Javadoc)
@@ -288,14 +291,15 @@ public class UsbLinkJava implements CrazyUsbInterface {
         return returnCode;
     }
 
-    private void debugBulkTransfer(String direction, byte[] data) {
-        //TODO: show type of packet in debug log
+    protected void debugBulkTransfer(String direction, byte[] data) {
         if (FILTER_OUT_NULL_AND_ACK_PACKETS &&
            (("OUT".equalsIgnoreCase(direction) && "FF ".equalsIgnoreCase(Utilities.getHexString(data))) ||
            ("IN".equalsIgnoreCase(direction) && Utilities.getHexString(data).startsWith("01 00 00")))) {
            return;
         }
-        mLogger.debug("sendBulkTransfer - direction: {}, byteString: {}", direction, Utilities.getHexString(data));
+        // TODO: filter out ALL packets
+        direction = String.format("%3s", direction);
+        mLogger.debug("bulkTransfer - <->: {}, bytes: {}", direction, Utilities.getHexString(data));
     }
 
     /**
