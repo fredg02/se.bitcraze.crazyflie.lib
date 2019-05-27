@@ -304,6 +304,10 @@ public class Logg {
             if (errorStatus == 0x00) {
                 if (!logConfig.isAdded()) {
                     mLogger.debug("Successfully added log config ID=" + id);
+                    //TODO: test
+//                    if (logConfig.getId() == -1) {
+//                        logConfig.setId(id);
+//                    }
                     logConfig.setAdded(true);
                     notifyLogAdded(logConfig);
                 } else {
@@ -424,6 +428,21 @@ public class Logg {
         return buffer.getInt();
     }
 
+    /**
+     * Start logging config
+     */
+    public void startLogConfig(LogConfig logConfig) {
+        addConfig(logConfig);
+        start(logConfig);
+    }
+
+    /**
+     * Stop logging config
+     */
+    public void stopLogConfig(LogConfig logConfig) {
+        stop(logConfig);
+        delete(logConfig);
+    }
 
     /* Methods from LogConfig class */
 
@@ -637,14 +656,18 @@ public class Logg {
      * Add a log listener
      */
     public void addLogListener(LogListener logListener) {
-        mLogListeners.add(logListener);
+        if (logListener != null) {
+            mLogListeners.add(logListener);
+        }
     }
 
     /**
      * Remove the log listener
      */
     public void removeLogListener(LogListener logListener) {
-        mLogListeners.remove(logListener);
+        if (logListener != null) {
+            mLogListeners.remove(logListener);
+        }
     }
 
     private void notifyLogAdded(LogConfig logConfig) {
