@@ -274,98 +274,15 @@ public class Logg {
 
             //TODO: use switch instead of if?
             if (cmd == CMD_CREATE_LOGCONFIG) {
-                if (logConfig != null) {
-                    if (errorStatus == 0x00) {
-                        if (!logConfig.isAdded()) {
-                            mLogger.debug("Successfully added log config ID=" + id);
-                            logConfig.setAdded(true);
-                            notifyLogAdded(logConfig);
-                        } else {
-                            //TODO can this ever happen?
-                            mLogger.warn("Log config ID=" + id + " is already added. Flag error?");
-                        }
-                    } else {
-                        //TODO: logging is redundant if LogListener is set up correctly
-                        // msg = self._err_codes[error_status]
-                        String msg = getErrorMsg(errorStatus);
-                        mLogger.warn("Error " + errorStatus + " when adding ID=" + id + " (" + msg + ")");
-                        logConfig.setErrNo(errorStatus);
-                        /*
-                        TODO:
-                        block.added_cb.call(False)
-                        block.error_cb.call(block, msg)
-                        */
-                        notifyLogAdded(logConfig);
-                        notifyLogError(logConfig);
-                    }
-                } else {
-                    mLogger.warn("No LogEntry to assign log config to !!!");
-                }
+                createLogConfig(errorStatus, logConfig, id);
             } else if (cmd == CMD_START_LOGGING) {
-                if (errorStatus == 0x00) {
-                    mLogger.info("Successfully started logging for log config ID=" +id);
-                    if (logConfig != null) {
-                        logConfig.setStarted(true);
-                        notifyLogStarted(logConfig);
-                    }
-                } else {
-                    // msg = self._err_codes[error_status]
-                    String msg = getErrorMsg(errorStatus);
-                    mLogger.warn("Error " + errorStatus + " when starting ID=" + id + " (" + msg + ")");
-
-                    if (logConfig != null) {
-                        logConfig.setErrNo(errorStatus);
-                        /*
-                        block.started_cb.call(False)
-                        # This is a temporary fix, we are adding a new issue
-                        # for this. For some reason we get an error back after
-                        # the log config has been started and added. This will show
-                        # an error in the UI, but everything is still working.
-                        #block.error_cb.call(block, msg)
-                        */
-                        notifyLogError(logConfig);
-                    }
-                }
+                startLogging_reply(errorStatus, logConfig, id);
             } else if (cmd == CMD_STOP_LOGGING) {
-                if (errorStatus == 0x00) {
-                    mLogger.info("Successfully stopped logging for ID=" + id);
-                    if (logConfig != null) {
-                        logConfig.setStarted(false);
-                        notifyLogStarted(logConfig);
-                    }
-                } else {
-                    mLogger.warn("Problem when stopping logging for ID=" +id);
-                }
+                stopLogging_reply(errorStatus, logConfig, id);
             } else if (cmd == CMD_DELETE_LOGCONFIG) {
-                /*
-                 * Accept deletion of a log config that hasn't been added. This could
-                 * happen due to timing (i.e add/start/delete in fast sequence)
-                 */
-                if (errorStatus == 0x00) {
-                    mLogger.info("Successfully deleted log config ID=" + id);
-                    if (logConfig != null) {
-//                        logConfig.setStarted(false);
-                        logConfig.setAdded(false);
-//                        notifyLogStarted(logConfig);
-                        notifyLogAdded(logConfig);
-                        //TODO: what happens if the delete confirmation is never received?
-                        mLogConfigs.remove(logConfig);
-                    }
-                } else {
-                    mLogger.warn("Problem when deleting log config ID=" +id);
-                }
+                deleteLogging_reply(errorStatus, logConfig, id);
             } else if (cmd == CMD_RESET_LOGGING) {
-                // Guard against multiple responses due to re-sending
-                if (mToc == null) {
-                    mLogger.debug("Logging reset, continue with TOC download");
-                    mLogConfigs = new ArrayList<LogConfig>();
-
-                    mToc = new Toc();
-                    // toc_fetcher = TocFetcher(self.cf, LogTocElement, CRTPPort.LOGGING, self.toc, self._refresh_callback, self._toc_cache)
-                    TocFetcher tocFetcher = new TocFetcher(mCrazyflie, CrtpPort.LOGGING, mToc, mTocCache);
-                    tocFetcher.addTocFetchFinishedListener(mTocFetchFinishedListener);
-                    tocFetcher.start();
-                }
+                resetLogging_reply();
             }
         } else if (channel == CHAN_LOGDATA) {
             // TODO: fix payload offset
@@ -379,6 +296,109 @@ public class Logg {
             } else {
                 mLogger.warn("Error no LogEntry to handle id=" + id);
             }
+        }
+    }
+
+    private void createLogConfig(int errorStatus, LogConfig logConfig, int id) {
+        if (logConfig != null) {
+            if (errorStatus == 0x00) {
+                if (!logConfig.isAdded()) {
+                    mLogger.debug("Successfully added log config ID=" + id);
+                    logConfig.setAdded(true);
+                    notifyLogAdded(logConfig);
+                } else {
+                    //TODO can this ever happen?
+                    mLogger.warn("Log config ID=" + id + " is already added. Flag error?");
+                }
+            } else {
+                //TODO: logging is redundant if LogListener is set up correctly
+                // msg = self._err_codes[error_status]
+                String msg = getErrorMsg(errorStatus);
+                mLogger.warn("Error " + errorStatus + " when adding ID=" + id + " (" + msg + ")");
+                logConfig.setErrNo(errorStatus);
+                /*
+                TODO:
+                block.added_cb.call(False)
+                block.error_cb.call(block, msg)
+                */
+                notifyLogAdded(logConfig);
+                notifyLogError(logConfig);
+            }
+        } else {
+            mLogger.warn("No LogEntry to assign log config to !!!");
+        }
+    }
+
+    private void startLogging_reply(int errorStatus, LogConfig logConfig, int id) {
+        if (errorStatus == 0x00) {
+            mLogger.info("Successfully started logging for log config ID=" +id);
+            if (logConfig != null) {
+                logConfig.setStarted(true);
+                notifyLogStarted(logConfig);
+            }
+        } else {
+            // msg = self._err_codes[error_status]
+            String msg = getErrorMsg(errorStatus);
+            mLogger.warn("Error " + errorStatus + " when starting ID=" + id + " (" + msg + ")");
+
+            if (logConfig != null) {
+                logConfig.setErrNo(errorStatus);
+                /*
+                block.started_cb.call(False)
+                # This is a temporary fix, we are adding a new issue
+                # for this. For some reason we get an error back after
+                # the log config has been started and added. This will show
+                # an error in the UI, but everything is still working.
+                #block.error_cb.call(block, msg)
+                */
+                notifyLogError(logConfig);
+            }
+        }
+    }
+
+    private void stopLogging_reply(int errorStatus, LogConfig logConfig, int id) {
+        if (errorStatus == 0x00) {
+            mLogger.info("Successfully stopped logging for ID=" + id);
+            if (logConfig != null) {
+                logConfig.setStarted(false);
+                notifyLogStarted(logConfig);
+            }
+        } else {
+            mLogger.warn("Problem when stopping logging for ID=" + id);
+        }
+    }
+
+    private void deleteLogging_reply(int errorStatus, LogConfig logConfig, int id) {
+        /*
+         * Accept deletion of a log config that hasn't been added. This could
+         * happen due to timing (i.e add/start/delete in fast sequence)
+         */
+        if (errorStatus == 0x00) {
+            mLogger.info("Successfully deleted log config ID=" + id);
+            if (logConfig != null) {
+//                logConfig.setStarted(false);
+                logConfig.setAdded(false);
+//                notifyLogStarted(logConfig);
+                notifyLogAdded(logConfig);
+                //TODO: what happens if the delete confirmation is never received?
+                mLogConfigs.remove(logConfig);
+            }
+        } else {
+            mLogger.warn("Problem when deleting log config ID=" +id);
+        }
+    }
+
+    private void resetLogging_reply() {
+        // Guard against multiple responses due to re-sending
+        if (mToc == null) {
+            mLogger.debug("Logging reset, continue with TOC download");
+            mLogConfigs = new ArrayList<LogConfig>();
+
+            mToc = new Toc();
+            // toc_fetcher = TocFetcher(self.cf, LogTocElement, CRTPPort.LOGGING, self.toc, self._refresh_callback, self._toc_cache)
+            TocFetcher tocFetcher = new TocFetcher(mCrazyflie, CrtpPort.LOGGING, mToc, mTocCache);
+            tocFetcher.addTocFetchFinishedListener(mTocFetchFinishedListener);
+            tocFetcher.start();
         }
     }
 
