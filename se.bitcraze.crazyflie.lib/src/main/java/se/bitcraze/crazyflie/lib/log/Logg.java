@@ -238,7 +238,7 @@ public class Logg {
         this.mTocCache = tocCache;
         // self._refresh_callback = refresh_done_callback
         this.mTocFetchFinishedListener = listener;
-        sendLoggPacket(new byte[] {CMD_RESET_LOGGING}, new byte[]{CMD_RESET_LOGGING});
+        sendLoggPacket(new byte[] {CMD_RESET_LOGGING});
     }
 
     private LogConfig findLogConfig (int id) {
@@ -567,7 +567,7 @@ public class Logg {
                 mLogger.warn("Stopping log config, but no log config registered");
             } else {
                 mLogger.debug("Sending stop logging for ID=" + logConfig.getId());
-                sendLoggPacket(new byte[] {CMD_STOP_LOGGING, (byte) logConfig.getId()}, new byte[]{CMD_STOP_LOGGING, (byte) logConfig.getId()});
+                sendLoggPacket(new byte[]{CMD_STOP_LOGGING, (byte) logConfig.getId()});
             }
         }
     }
@@ -586,7 +586,7 @@ public class Logg {
                 mLogger.warn("Delete log config, but no log config registered");
             } else {
                 mLogger.debug("Sending delete logging for ID=" + logConfig.getId());
-                sendLoggPacket(new byte[] {CMD_DELETE_LOGCONFIG, (byte) logConfig.getId()}, new byte[]{CMD_DELETE_LOGCONFIG, (byte) logConfig.getId()});
+                sendLoggPacket(new byte[]{CMD_DELETE_LOGCONFIG, (byte) logConfig.getId()});
             }
         }
     }
@@ -599,6 +599,15 @@ public class Logg {
         CrtpPacket packet = new CrtpPacket(loggHeader.getByte(), data);
         packet.setExpectedReply(expectedReply);
         mCrazyflie.sendPacket(packet);
+    }
+
+    /**
+     * When data == expectedReply
+     *
+     * @param data
+     */
+    private void sendLoggPacket(byte[] data) {
+        sendLoggPacket(data, data);
     }
 
     /* Log listener methods*/
