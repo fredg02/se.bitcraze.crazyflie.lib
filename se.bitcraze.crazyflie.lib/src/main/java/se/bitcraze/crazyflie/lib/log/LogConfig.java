@@ -63,8 +63,8 @@ public class LogConfig {
     /**
      * Create a log configuration
      *
-     * @param name
-     * @param periodInMs
+     * @param name Name of the log configuration
+     * @param periodInMs Refresh period in ms
      */
     public LogConfig(String name, int periodInMs) {
         this.mName = name;
@@ -74,50 +74,55 @@ public class LogConfig {
     /**
      * Create a log configuration with the default period of 100ms
      *
-     * @param name
+     * @param name Name of the log configuration
      */
     public LogConfig(String name) {
         this(name, 100);
     }
 
     /**
-     * Add a log variable to the log configuration (if it does not exist already)
+     * Add a log variable to the log configuration
+     *
+     * @param name Complete name of the variable in the form group.name
+     */
+    public void addVariable(String name){
+        addLogVariable(new LogVariable(name));
+    }
+
+    /**
+     * Add a log variable to the log configuratio
      *
      * @param name Complete name of the variable in the form group.name
      * @param type Type of the variable
      */
     public void addVariable(String name, VariableType type){
-        LogVariable newLogVariable = new LogVariable(name, type);
-        if (!logVariables.contains(newLogVariable)) {
-            logVariables.add(newLogVariable);
-        }
+        addLogVariable(new LogVariable(name, type));
     }
 
     /**
-     * Add a log variable to the log configuration (if it does not exist already)
-     *
-     * @param name Complete name of the variable in the form group.name
-     */
-    public void addVariable(String name){
-        LogVariable newLogVariable = new LogVariable(name);
-        if (!logVariables.contains(newLogVariable)) {
-            logVariables.add(newLogVariable);
-        }
-    }
-
-    /**
-     * Add a raw memory position to the log configuration (if it does not exist already)
+     * Add a raw memory position to the log configuration
      *
      * @param name Arbitrary name of the variable
      * @param type Type of the variable
      * @param address The address of the data
      */
     public void addMemory(String name, VariableType type, int address) {
-        LogVariable newLogVariable = new LogVariable(name, type, LogVariable.MEM_TYPE, address);
-        if (!logVariables.contains(newLogVariable)) {
-            logVariables.add(newLogVariable);
+        addLogVariable(new LogVariable(name, type, LogVariable.MEM_TYPE, address));
+    }
+
+
+    /**
+     * Add a log variable to the log configuration (if it does not exist already)
+     *
+     * @param logVariable log variable
+     */
+    private void addLogVariable(LogVariable logVariable) {
+        if (!logVariables.contains(logVariable)) {
+            logVariables.add(logVariable);
         }
     }
+
+    // TODO: remove LogVariable?
 
     /**
      * Returns all log variables of the log configuration as list
