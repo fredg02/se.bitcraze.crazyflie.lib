@@ -194,8 +194,12 @@ public class TocFetcher {
         } else {
             // No more variables in TOC
             mLogger.info("[{}]: No more variables in TOC.", this.mPort);
-            mTocCache.insert(mCrc, mPort, mToc);
-            tocFetchFinished();
+            if (mTocCache != null) {
+                mTocCache.insert(mCrc, mPort, mToc);
+                tocFetchFinished();
+            } else {
+                mLogger.error("TOCCache is null!.");
+            }
         }
     }
 
