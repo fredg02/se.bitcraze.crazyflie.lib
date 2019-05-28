@@ -5,7 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+import se.bitcraze.crazyflie.lib.OfflineTests;
+
+@Category(OfflineTests.class)
 public class ConsoleTest {
 
     private static List<String> byteStrings = new ArrayList<String>();
@@ -53,7 +57,7 @@ public class ConsoleTest {
 //            System.out.println();
         }
 //        System.out.println("PacketByteBuffer capacity: " + packetByteBuffer.capacity());
-        
+
         ByteBuffer tempDecodeBuffer = ByteBuffer.allocate(packetByteBuffer.capacity());
         int n;
         for (n=0; n < packetByteBuffer.capacity(); n++) {
