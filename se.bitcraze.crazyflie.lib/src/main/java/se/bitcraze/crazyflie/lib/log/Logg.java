@@ -50,10 +50,8 @@ import se.bitcraze.crazyflie.lib.toc.TocFetchFinishedListener;
 import se.bitcraze.crazyflie.lib.toc.TocFetcher;
 import se.bitcraze.crazyflie.lib.toc.VariableType;
 
-//TODO: find better name
 //TODO: add remaining callbacks/listeners
 //TODO: dataReceived callback in Logg or LogConfig?
-
 //TODO: save/load config to/from file (JSON?)
 
 public class Logg {
@@ -100,11 +98,6 @@ public class Logg {
             throw new IllegalArgumentException("crazyflie can not be null");
         }
         this.mCrazyflie = crazyflie;
-
-        /*
-        # Called with newly created blocks
-        self.block_added_cb = Caller()
-         */
 
         // TODO: there are two dataListeners active on CrtpPort.LOGGING (one in Logg and one in TocFetcher)
         // self.cf.add_port_callback(CRTPPort.LOGGING, self._new_packet_cb)
@@ -225,7 +218,7 @@ public class Logg {
             logConfig.setValid(false);
             mLogger.error("Logconfig {} is too large or has an invalid parameter (period).", logConfig.getName());
             return;
-            // raise AttributeError("The log configuration is too large or has an invalid parameter")
+            // throw exception?
         }
     }
 
@@ -316,7 +309,6 @@ public class Logg {
                 }
             } else {
                 //TODO: logging is redundant if LogListener is set up correctly
-                // msg = self._err_codes[error_status]
                 String msg = getErrorMsg(errorStatus);
                 mLogger.warn("Error " + errorStatus + " when adding ID=" + id + " (" + msg + ")");
                 logConfig.setErrNo(errorStatus);
@@ -347,14 +339,6 @@ public class Logg {
 
             if (logConfig != null) {
                 logConfig.setErrNo(errorStatus);
-                /*
-                block.started_cb.call(False)
-                # This is a temporary fix, we are adding a new issue
-                # for this. For some reason we get an error back after
-                # the log config has been started and added. This will show
-                # an error in the UI, but everything is still working.
-                #block.error_cb.call(block, msg)
-                */
                 notifyLogError(logConfig);
             }
         }
@@ -460,8 +444,7 @@ public class Logg {
     private final static int CHAN_SETTINGS = 1;
     private final static int CHAN_LOGDATA = 2;
 
-
-    //TODO: callbacks
+    //TODO: callbacks?
 
     /**
      * Save the log configuration in the Crazyflie
