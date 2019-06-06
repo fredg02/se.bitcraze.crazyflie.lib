@@ -87,6 +87,9 @@ public class TocFetcher {
      *
      */
     public void start() {
+        if (mPort == null) {
+            throw new IllegalArgumentException("Port must be set.");
+        }
         mLogger.debug("[{}]: Starting to fetch TOC...", this.mPort);
 
         mDataListener = new DataListener(this.mPort) {

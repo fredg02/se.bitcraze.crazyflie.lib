@@ -44,7 +44,7 @@ import se.bitcraze.crazyflie.lib.toc.VariableType;
  * <br/>
  * NOTE: LogConfig is a pure data structure that can not interact directly with the crazyflie,
  * that's why it does not contain the following methods: create(), start(), stop(), delete().
- * These methods are contained in the Logg class instead.<br/>
+ * These methods are contained in the {@link Logg} class instead.<br/>
  *
  */
 public class LogConfig {
