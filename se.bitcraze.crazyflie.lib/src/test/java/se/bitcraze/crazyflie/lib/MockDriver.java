@@ -26,6 +26,8 @@ public class MockDriver extends RadioDriver {
     public void connect() {
         mLogger.debug("MockDriver connect()");
 
+        notifyConnectionRequested();
+        
         // Launch the comm thread
         startSendReceiveThread();
     }

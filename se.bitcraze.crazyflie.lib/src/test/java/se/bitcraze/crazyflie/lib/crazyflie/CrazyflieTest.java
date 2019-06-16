@@ -34,7 +34,9 @@ import java.util.ArrayList;
 
 import org.junit.Test;
 
+import se.bitcraze.crazyflie.lib.MockDriver;
 import se.bitcraze.crazyflie.lib.TestConnectionAdapter;
+import se.bitcraze.crazyflie.lib.TestUtilities;
 import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
@@ -43,7 +45,6 @@ import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
 import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
 
-//TODO: use MockDriver if no real Crazyflie is available
 public class CrazyflieTest {
 
     public static int channel = 80;
@@ -58,11 +59,18 @@ public class CrazyflieTest {
     private boolean linkQuality = false;
 
     public static CrtpDriver getConnectionImpl() {
-        return new RadioDriver(new UsbLinkJava());
+        CrtpDriver mDriver = null;
+        if (TestUtilities.isCrazyradioAvailable()) {
+            mDriver = new RadioDriver(new UsbLinkJava());
+        } else {
+            mDriver = new MockDriver();
+        }
+        return mDriver;
     }
 
     @Test
     public void testDataListener() {
+        System.out.println("=== TEST START - testDataListener() ===");
         Crazyflie crazyflie = new Crazyflie(getConnectionImpl());
 
         final ArrayList<CrtpPacket> packetList = new ArrayList<CrtpPacket>();
@@ -81,7 +89,7 @@ public class CrazyflieTest {
         crazyflie.setConnectionData(new ConnectionData(channel, datarate));
         crazyflie.connect();
 
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 15; i++) {
             crazyflie.sendPacket(new CommanderPacket(0, 0, 0, (char) 0));
             try {
                 Thread.sleep(50, 0);
@@ -92,10 +100,12 @@ public class CrazyflieTest {
         crazyflie.disconnect();
         
         assertFalse("PacketList should not be empty", packetList.isEmpty());
+        System.out.println("=== TEST END - testDataListener() ===\n");
     }
 
     @Test
     public void testConnectionListener() {
+        System.out.println("=== TEST START - testConnectionListener() ===");
         final Crazyflie crazyflie = new Crazyflie(getConnectionImpl());
 
         crazyflie.getDriver().addConnectionListener(new TestConnectionAdapter() {
@@ -125,7 +135,7 @@ public class CrazyflieTest {
             }
 
             public void linkQualityUpdated(int percent) {
-                System.out.println("LINK QUALITY: " + percent);
+//                System.out.println("LINK QUALITY: " + percent);
                 linkQuality = true;
             }
 
@@ -134,7 +144,7 @@ public class CrazyflieTest {
         crazyflie.setConnectionData(new ConnectionData(channel, datarate));
         crazyflie.connect();
 
-        int timeout = 5000;
+        int timeout = 1000;
         
         while (!setupFinished && timeout > 0) {
             try {
@@ -152,5 +162,6 @@ public class CrazyflieTest {
         assertTrue(setupFinished);
         assertTrue(disconnected);
         assertTrue(linkQuality);
+        System.out.println("=== TEST END - testConnectionListener() ===\n");
     }
 }

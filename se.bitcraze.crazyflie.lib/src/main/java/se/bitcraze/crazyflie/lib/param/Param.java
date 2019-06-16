@@ -78,14 +78,15 @@ public class Param {
     private int WAIT_READ = 2;
     private int WAIT_WRITE = 3;
 
-    private int TOC_CHANNEL = 0;
-    private int READ_CHANNEL = 1;
-    private int WRITE_CHANNEL = 2;
+    // Param channels, public for MockDriver
+    public final static int TOC_CHANNEL = 0;
+    public final static int READ_CHANNEL = 1;
+    public final static int WRITE_CHANNEL = 2;
 
-    // TOC access command
-    private int TOC_RESET = 0;
-    private int TOC_GETNEXT = 1;
-    private int TOC_GETCRC32 = 2;
+    // TOC access command, public for MockDriver
+    public final static int TOC_RESET = 0;
+    public final static int TOC_GETNEXT = 1;
+    public final static int TOC_GETCRC32 = 2;
 
 
     public Param(Crazyflie crazyflie) {

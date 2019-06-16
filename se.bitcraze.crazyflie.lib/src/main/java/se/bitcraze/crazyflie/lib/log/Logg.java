@@ -439,10 +439,10 @@ public class Logg {
     public final static int CMD_RESET_LOGGING = 5;
 
 
-    // Channels used for the logging port
-    private final static int CHAN_TOC = 0;
-    private final static int CHAN_SETTINGS = 1;
-    private final static int CHAN_LOGDATA = 2;
+    // Channels used for the logging port, public for MockDriver
+    public final static int CHAN_TOC = 0;
+    public final static int CHAN_SETTINGS = 1;
+    public final static int CHAN_LOGDATA = 2;
 
     //TODO: callbacks?
 

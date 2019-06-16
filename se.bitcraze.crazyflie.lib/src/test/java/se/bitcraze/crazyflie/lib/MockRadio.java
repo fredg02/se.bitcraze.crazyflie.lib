@@ -1,6 +1,7 @@
 package se.bitcraze.crazyflie.lib;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,6 +16,7 @@ import se.bitcraze.crazyflie.lib.crazyradio.RadioAck;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket.Header;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
 import se.bitcraze.crazyflie.lib.log.Logg;
+import se.bitcraze.crazyflie.lib.param.Param;
 import se.bitcraze.crazyflie.lib.toc.TocFetcher;
 
 /**
@@ -117,8 +119,12 @@ public class MockRadio extends Crazyradio {
     public RadioAck sendPacket(byte[] dataOut) {
         byte headerByte = dataOut[0];
         if (headerByte != (byte) 0xFF) {
-            mLogger.debug("MockDriver sendPacket: " + Utilities.getHexString(dataOut));
+            mLogger.debug("MockDriver sendPacket:    " + Utilities.getHexString(dataOut));
         }
+        
+        Header header = new Header(headerByte);
+        CrtpPort port = header.getPort();
+        
         byte[] payload = Arrays.copyOfRange(dataOut, 1, dataOut.length);
 
         RadioAck ackIn = null;
@@ -127,29 +133,26 @@ public class MockRadio extends Crazyradio {
         // fill data with default data (empty packet)
         data = defaultData;
 
-        // Console (answers to null packets)
-        if (headerByte == (byte) 0xFF && dataOut.length == 1) {
+        if (headerByte == (byte) 0xFF && dataOut.length == 1) { // Console (answers to null packets)
             if (consoleTextCounter < consoleByteStrings.size()-1) {
                 data = byteStringToPacket(consoleByteStrings.get(consoleTextCounter));
                 consoleTextCounter++;
             }
-        }
-        // Bootloader
-        else if (headerByte == (byte) 0xFF) {
+        } else if (headerByte == (byte) 0xFF) {                 // Bootloader
             data = bootloader(payload);
-        }
+        } else {
+            if (port == CrtpPort.LOGGING) {                     // Logging
+                data = logging(header, payload);
+            } else if (port == CrtpPort.PARAMETERS) {           // Parameters
+                data = parameters(header, payload);
+            }
 
-        // TOC
-        else if (headerByte == new Header(TocFetcher.TOC_CHANNEL, CrtpPort.LOGGING).getByte()) {
-            data = toc(payload);
-        }
-
-        // Logging
-//        else if (headerByte == new Header(Logg.CHAN_SETTINGS, CrtpPort.LOGGING).getByte()) {
-        else if (headerByte == (byte) 0x51) {;
-            data = logging(payload);
         }
         
+        if (headerByte != (byte) 0xFF) {
+            mLogger.debug("MockDriver receivePacket: " + Utilities.getHexString(data));
+        }
+                
         // if data is not None:
         ackIn = new RadioAck();
         if (data[0] != 0) {
@@ -163,16 +166,31 @@ public class MockRadio extends Crazyradio {
         return ackIn;
     }
 
-    private byte[] toc(byte[] payload) {
+    private byte[] toc(Header header, byte[] payload) {
         byte[] data = defaultData;
 
-        int tocLength = 127; //??
-        int tocCRC = 0xBDB60123;
-        int maxPacket = 10; //??
-        int maxOps = 20; //??
+        int command = payload[0];
+        CrtpPort port = header.getPort();
+        mLogger.debug("TOC - port: " + port.name());
+        
+        int tocCRC;
+        if (port == CrtpPort.LOGGING) {
+            tocCRC = 0xFA47F936;
+        } else {
+            // Parameters
+            tocCRC = 0x3E16885D;
+        }
+        byte[] tocCRCBytes = new byte[4];
+        ByteBuffer.wrap(tocCRCBytes).order(ByteOrder.BIG_ENDIAN).putInt(tocCRC);
+        
+//        tocCRC = 0xBDB60123;
+        
+        int tocLength = 255; //??
+        int maxPacket = 16; //??
+        int maxOps = 128; //??
 
-        if (payload[1] == (byte) TocFetcher.CMD_TOC_INFO) {
-            data = new byte[]{(byte) TocFetcher.CMD_TOC_INFO, (byte) tocLength, (byte) tocCRC, (byte) maxPacket, (byte) maxOps};
+        if (command == (byte) TocFetcher.CMD_TOC_INFO) {
+            data = new byte[]{1, header.getByte(), (byte) command, (byte) tocLength, tocCRCBytes[0], tocCRCBytes[1], tocCRCBytes[2], tocCRCBytes[3], (byte) maxPacket, (byte) maxOps};
         }
         return data;
     }
@@ -243,33 +261,45 @@ public class MockRadio extends Crazyradio {
         return data;
     }
 
-    private byte[] logging(byte[] payload) {
+    private byte[] logging(Header header, byte[] payload) {
         byte[] data = defaultData;
+        int channel = header.getChannel();
+        int command = payload[0];
 
-        if (payload.length < 2 || payload[1] != 0x00) {
-            return defaultData;
-        }
-        
-        if (payload[1] == (byte) Logg.CMD_RESET_LOGGING) {
-            mLogger.debug("Logging - Command: CMD_RESET_LOGGING");
-            data = new byte[]{Logg.CMD_RESET_LOGGING};
-        } else {
-            byte expectedReplyCommand = payload[1]; //reply is the same as payload[1]
-            byte id = payload[2];
-            if (payload[1] == (byte) Logg.CMD_START_LOGGING) {
-                mLogger.debug("Logging - Command: CMD_START_LOGGING - id: " + id);
-            } else if (payload[1] == (byte) Logg.CMD_STOP_LOGGING) {
-                mLogger.debug("Logging - Command: CMD_STOP_LOGGING - id: " + id);
-            } else if (payload[1] == (byte) Logg.CMD_CREATE_LOGCONFIG) {
-                mLogger.debug("Logging - Command: CMD_CREATE_LOGCONFIG - id: " + id);
-            } else if (payload[1] == (byte) Logg.CMD_DELETE_LOGCONFIG) {
-                mLogger.debug("Logging - Command: CMD_DELETE_LOGCONFIG - id: " + id);
+        if (channel == Logg.CHAN_TOC) {
+            data = toc(header, payload);
+        } else if (channel == Logg.CHAN_SETTINGS) {
+            int expectedReplyCommand = command; //reply is the same as payload[1]
+            int id = 0;
+            if (command == Logg.CMD_RESET_LOGGING) {
+                mLogger.debug("Logging - Command: CMD_RESET_LOGGING");
+            } else {
+                id = payload[1];
+                if (command == Logg.CMD_START_LOGGING) {
+                    mLogger.debug("Logging - Command: CMD_START_LOGGING - id: " + id);
+                } else if (command == Logg.CMD_STOP_LOGGING) {
+                    mLogger.debug("Logging - Command: CMD_STOP_LOGGING - id: " + id);
+                } else if (command == Logg.CMD_CREATE_LOGCONFIG) {
+                    mLogger.debug("Logging - Command: CMD_CREATE_LOGCONFIG - id: " + id);
+                } else if (command == Logg.CMD_DELETE_LOGCONFIG) {
+                    mLogger.debug("Logging - Command: CMD_DELETE_LOGCONFIG - id: " + id);
+                }
             }
-            data = new byte[]{expectedReplyCommand, id};
+            data = new byte[]{1, header.getByte(), (byte) expectedReplyCommand, (byte) id, 0};
         }
         return data;
     }
-    
+
+    private byte[] parameters(Header header, byte[] payload) {
+        byte[] data = defaultData;
+        int channel = header.getChannel();
+
+        if (channel == Param.TOC_CHANNEL) {
+            data = toc(header, payload);
+        }
+        return data;
+    }
+
     @Override
     protected void sendVendorSetup(int request, int value, int index, byte[] data) {
         //TODO: decode request
