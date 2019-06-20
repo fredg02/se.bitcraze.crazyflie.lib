@@ -40,6 +40,11 @@
                 <artifact>
                   <id>com.fasterxml.jackson.core:jackson-databind:${jackson.version}</id>
                   <source>true</source>
+                  <override>true</override>
+                  <instructions>
+                    <Import-Package>javax.xml.*;resolution:=optional</Import-Package>
+                    <Export-Package>*</Export-Package>
+                  </instructions>
                 </artifact>
                 <artifact>
                   <id>com.fasterxml.jackson.core:jackson-annotations:${jackson.version}</id>
