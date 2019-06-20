@@ -86,7 +86,7 @@ public class Param {
     // TOC access command, public for MockDriver
     public final static int TOC_RESET = 0;
     public final static int TOC_GETNEXT = 1;
-    public final static int TOC_GETCRC32 = 2;
+    public final static int TOC_GETCRC32 = 2; //TODO: should be 3 according to documentation
 
 
     public Param(Crazyflie crazyflie) {

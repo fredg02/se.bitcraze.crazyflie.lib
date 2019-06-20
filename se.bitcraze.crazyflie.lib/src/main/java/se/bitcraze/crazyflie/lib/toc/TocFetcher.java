@@ -134,12 +134,14 @@ public class TocFetcher {
         System.arraycopy(packet.getPayload(), offset, payload, 0, payload.length);
         ByteBuffer payloadBuffer = ByteBuffer.wrap(payload);
 
+        int command = packet.getPayload()[0];
+        
         if (mState == TocState.GET_TOC_INFO) {
-            if (packet.getPayload()[0] == CMD_TOC_INFO) {
+            if (command == CMD_TOC_INFO) {
                 handleCmdTocInfo(payloadBuffer);
             }
         } else if (mState == TocState.GET_TOC_ELEMENT) {
-            if (packet.getPayload()[0] == CMD_TOC_ELEMENT) {
+            if (command == CMD_TOC_ELEMENT) {
                 // Always add new element, but only request new if it's not the last one.
                 // if self.requested_index != ord(payload[0]):
                 // Fix for TOC > 128 items (fixed by Arnaud)
@@ -221,7 +223,7 @@ public class TocFetcher {
      * @param index of TOC element
      */
     private void requestTocElement(int index) {
-        mLogger.debug("[{}]: Requesting index {}...", index, this.mPort);
+        mLogger.debug("[{}]: Requesting index {}...", this.mPort, index);
         sendTocPacket(new byte[]{CMD_TOC_ELEMENT, (byte) index});
     }
 
