@@ -70,8 +70,11 @@ public class MockRadio extends Crazyradio {
     }
 
     public MockRadio() {
-        TocCache tocCache = new TocCache(new File("src/test"));
+        TocCache tocCache = new TocCache(new File("src/test/mock"));
         mParamToc = tocCache.fetch(TOC_CRC_PARAM, CrtpPort.PARAMETERS);
+        if (mParamToc == null) {
+            System.err.println("mParamToc is null!");
+        }
     }
 
     @Override

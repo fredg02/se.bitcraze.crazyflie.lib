@@ -1,0 +1,1787 @@
+{
+  "sensfusion6.gravityY" : {
+    "ident" : 66,
+    "access" : 1,
+    "group" : "sensfusion6",
+    "ctype" : "FLOAT",
+    "name" : "gravityY"
+  },
+  "sensfusion6.gravityZ" : {
+    "ident" : 67,
+    "access" : 1,
+    "group" : "sensfusion6",
+    "ctype" : "FLOAT",
+    "name" : "gravityZ"
+  },
+  "sensfusion6.isInit" : {
+    "ident" : 69,
+    "access" : 1,
+    "group" : "sensfusion6",
+    "ctype" : "UINT8_T",
+    "name" : "isInit"
+  },
+  "sensfusion6.gravityX" : {
+    "ident" : 65,
+    "access" : 1,
+    "group" : "sensfusion6",
+    "ctype" : "FLOAT",
+    "name" : "gravityX"
+  },
+  "pwm.m2_pwm" : {
+    "ident" : 7,
+    "access" : 1,
+    "group" : "pwm",
+    "ctype" : "UINT32_T",
+    "name" : "m2_pwm"
+  },
+  "extrx.pitch" : {
+    "ident" : 32,
+    "access" : 1,
+    "group" : "extrx",
+    "ctype" : "FLOAT",
+    "name" : "pitch"
+  },
+  "twr.rangingSuccessRate1" : {
+    "ident" : 196,
+    "access" : 1,
+    "group" : "twr",
+    "ctype" : "UINT8_T",
+    "name" : "rangingSuccessRate1"
+  },
+  "ranging.distance0" : {
+    "ident" : 178,
+    "access" : 1,
+    "group" : "ranging",
+    "ctype" : "FLOAT",
+    "name" : "distance0"
+  },
+  "twr.rangingSuccessRate0" : {
+    "ident" : 194,
+    "access" : 1,
+    "group" : "twr",
+    "ctype" : "UINT8_T",
+    "name" : "rangingSuccessRate0"
+  },
+  "twr.rangingSuccessRate3" : {
+    "ident" : 200,
+    "access" : 1,
+    "group" : "twr",
+    "ctype" : "UINT8_T",
+    "name" : "rangingSuccessRate3"
+  },
+  "twr.rangingSuccessRate2" : {
+    "ident" : 198,
+    "access" : 1,
+    "group" : "twr",
+    "ctype" : "UINT8_T",
+    "name" : "rangingSuccessRate2"
+  },
+  "twr.rangingSuccessRate5" : {
+    "ident" : 204,
+    "access" : 1,
+    "group" : "twr",
+    "ctype" : "UINT8_T",
+    "name" : "rangingSuccessRate5"
+  },
+  "tdoa.d0-1" : {
+    "ident" : 207,
+    "access" : 1,
+    "group" : "tdoa",
+    "ctype" : "FLOAT",
+    "name" : "d0-1"
+  },
+  "twr.rangingSuccessRate4" : {
+    "ident" : 202,
+    "access" : 1,
+    "group" : "twr",
+    "ctype" : "UINT8_T",
+    "name" : "rangingSuccessRate4"
+  },
+  "ranging.distance7" : {
+    "ident" : 185,
+    "access" : 1,
+    "group" : "ranging",
+    "ctype" : "FLOAT",
+    "name" : "distance7"
+  },
+  "ranging.distance5" : {
+    "ident" : 183,
+    "access" : 1,
+    "group" : "ranging",
+    "ctype" : "FLOAT",
+    "name" : "distance5"
+  },
+  "ranging.distance6" : {
+    "ident" : 184,
+    "access" : 1,
+    "group" : "ranging",
+    "ctype" : "FLOAT",
+    "name" : "distance6"
+  },
+  "ranging.distance3" : {
+    "ident" : 181,
+    "access" : 1,
+    "group" : "ranging",
+    "ctype" : "FLOAT",
+    "name" : "distance3"
+  },
+  "ranging.distance4" : {
+    "ident" : 182,
+    "access" : 1,
+    "group" : "ranging",
+    "ctype" : "FLOAT",
+    "name" : "distance4"
+  },
+  "ranging.distance1" : {
+    "ident" : 179,
+    "access" : 1,
+    "group" : "ranging",
+    "ctype" : "FLOAT",
+    "name" : "distance1"
+  },
+  "ranging.distance2" : {
+    "ident" : 180,
+    "access" : 1,
+    "group" : "ranging",
+    "ctype" : "FLOAT",
+    "name" : "distance2"
+  },
+  "crtp.rxDrpRte" : {
+    "ident" : 11,
+    "access" : 1,
+    "group" : "crtp",
+    "ctype" : "UINT16_T",
+    "name" : "rxDrpRte"
+  },
+  "kalman_pred.predNY" : {
+    "ident" : 162,
+    "access" : 1,
+    "group" : "kalman_pred",
+    "ctype" : "FLOAT",
+    "name" : "predNY"
+  },
+  "kalman_pred.predNX" : {
+    "ident" : 161,
+    "access" : 1,
+    "group" : "kalman_pred",
+    "ctype" : "FLOAT",
+    "name" : "predNX"
+  },
+  "twr.rangingPerSec5" : {
+    "ident" : 205,
+    "access" : 1,
+    "group" : "twr",
+    "ctype" : "UINT8_T",
+    "name" : "rangingPerSec5"
+  },
+  "twr.rangingPerSec3" : {
+    "ident" : 201,
+    "access" : 1,
+    "group" : "twr",
+    "ctype" : "UINT8_T",
+    "name" : "rangingPerSec3"
+  },
+  "twr.rangingPerSec4" : {
+    "ident" : 203,
+    "access" : 1,
+    "group" : "twr",
+    "ctype" : "UINT8_T",
+    "name" : "rangingPerSec4"
+  },
+  "gps.lon" : {
+    "ident" : 171,
+    "access" : 1,
+    "group" : "gps",
+    "ctype" : "INT32_T",
+    "name" : "lon"
+  },
+  "twr.rangingPerSec1" : {
+    "ident" : 197,
+    "access" : 1,
+    "group" : "twr",
+    "ctype" : "UINT8_T",
+    "name" : "rangingPerSec1"
+  },
+  "twr.rangingPerSec2" : {
+    "ident" : 199,
+    "access" : 1,
+    "group" : "twr",
+    "ctype" : "UINT8_T",
+    "name" : "rangingPerSec2"
+  },
+  "twr.rangingPerSec0" : {
+    "ident" : 195,
+    "access" : 1,
+    "group" : "twr",
+    "ctype" : "UINT8_T",
+    "name" : "rangingPerSec0"
+  },
+  "gps.nsat" : {
+    "ident" : 174,
+    "access" : 1,
+    "group" : "gps",
+    "ctype" : "INT32_T",
+    "name" : "nsat"
+  },
+  "extrx.yaw" : {
+    "ident" : 33,
+    "access" : 1,
+    "group" : "extrx",
+    "ctype" : "FLOAT",
+    "name" : "yaw"
+  },
+  "posEstAlt.estVZ" : {
+    "ident" : 96,
+    "access" : 1,
+    "group" : "posEstAlt",
+    "ctype" : "FLOAT",
+    "name" : "estVZ"
+  },
+  "tdoa.dist5-6" : {
+    "ident" : 228,
+    "access" : 1,
+    "group" : "tdoa",
+    "ctype" : "UINT16_T",
+    "name" : "dist5-6"
+  },
+  "extrx.ch1" : {
+    "ident" : 27,
+    "access" : 1,
+    "group" : "extrx",
+    "ctype" : "UINT16_T",
+    "name" : "ch1"
+  },
+  "extrx.ch0" : {
+    "ident" : 26,
+    "access" : 1,
+    "group" : "extrx",
+    "ctype" : "UINT16_T",
+    "name" : "ch0"
+  },
+  "extrx.ch3" : {
+    "ident" : 29,
+    "access" : 1,
+    "group" : "extrx",
+    "ctype" : "UINT16_T",
+    "name" : "ch3"
+  },
+  "extrx.ch2" : {
+    "ident" : 28,
+    "access" : 1,
+    "group" : "extrx",
+    "ctype" : "UINT16_T",
+    "name" : "ch2"
+  },
+  "tdoa3.stHit" : {
+    "ident" : 239,
+    "access" : 1,
+    "group" : "tdoa3",
+    "ctype" : "UINT16_T",
+    "name" : "stHit"
+  },
+  "sitAw.FFAccWZDetected" : {
+    "ident" : 23,
+    "access" : 1,
+    "group" : "sitAw",
+    "ctype" : "UINT8_T",
+    "name" : "FFAccWZDetected"
+  },
+  "ctrlMel.i_err_x" : {
+    "ident" : 129,
+    "access" : 1,
+    "group" : "ctrlMel",
+    "ctype" : "FLOAT",
+    "name" : "i_err_x"
+  },
+  "pm.vbat" : {
+    "ident" : 13,
+    "access" : 1,
+    "group" : "pm",
+    "ctype" : "FLOAT",
+    "name" : "vbat"
+  },
+  "posCtl.targetX" : {
+    "ident" : 101,
+    "access" : 1,
+    "group" : "posCtl",
+    "ctype" : "FLOAT",
+    "name" : "targetX"
+  },
+  "posCtl.targetY" : {
+    "ident" : 102,
+    "access" : 1,
+    "group" : "posCtl",
+    "ctype" : "FLOAT",
+    "name" : "targetY"
+  },
+  "posCtl.targetZ" : {
+    "ident" : 103,
+    "access" : 1,
+    "group" : "posCtl",
+    "ctype" : "FLOAT",
+    "name" : "targetZ"
+  },
+  "ctrlMel.i_err_z" : {
+    "ident" : 131,
+    "access" : 1,
+    "group" : "ctrlMel",
+    "ctype" : "FLOAT",
+    "name" : "i_err_z"
+  },
+  "ctrlMel.i_err_y" : {
+    "ident" : 130,
+    "access" : 1,
+    "group" : "ctrlMel",
+    "ctype" : "FLOAT",
+    "name" : "i_err_y"
+  },
+  "range.right" : {
+    "ident" : 38,
+    "access" : 1,
+    "group" : "range",
+    "ctype" : "UINT16_T",
+    "name" : "right"
+  },
+  "tdoa.stEst" : {
+    "ident" : 233,
+    "access" : 1,
+    "group" : "tdoa",
+    "ctype" : "UINT16_T",
+    "name" : "stEst"
+  },
+  "gyro.x" : {
+    "ident" : 81,
+    "access" : 1,
+    "group" : "gyro",
+    "ctype" : "FLOAT",
+    "name" : "x"
+  },
+  "stateEstimate.y" : {
+    "ident" : 93,
+    "access" : 1,
+    "group" : "stateEstimate",
+    "ctype" : "FLOAT",
+    "name" : "y"
+  },
+  "ctrlMel.zdy" : {
+    "ident" : 127,
+    "access" : 1,
+    "group" : "ctrlMel",
+    "ctype" : "FLOAT",
+    "name" : "zdy"
+  },
+  "stateEstimate.z" : {
+    "ident" : 94,
+    "access" : 1,
+    "group" : "stateEstimate",
+    "ctype" : "FLOAT",
+    "name" : "z"
+  },
+  "ctrlMel.zdz" : {
+    "ident" : 128,
+    "access" : 1,
+    "group" : "ctrlMel",
+    "ctype" : "FLOAT",
+    "name" : "zdz"
+  },
+  "gyro.z" : {
+    "ident" : 83,
+    "access" : 1,
+    "group" : "gyro",
+    "ctype" : "FLOAT",
+    "name" : "z"
+  },
+  "gyro.y" : {
+    "ident" : 82,
+    "access" : 1,
+    "group" : "gyro",
+    "ctype" : "FLOAT",
+    "name" : "y"
+  },
+  "ctrlMel.zdx" : {
+    "ident" : 126,
+    "access" : 1,
+    "group" : "ctrlMel",
+    "ctype" : "FLOAT",
+    "name" : "zdx"
+  },
+  "tdoa3.stEst" : {
+    "ident" : 235,
+    "access" : 1,
+    "group" : "tdoa3",
+    "ctype" : "UINT16_T",
+    "name" : "stEst"
+  },
+  "stateEstimate.x" : {
+    "ident" : 92,
+    "access" : 1,
+    "group" : "stateEstimate",
+    "ctype" : "FLOAT",
+    "name" : "x"
+  },
+  "baro.asl" : {
+    "ident" : 74,
+    "access" : 1,
+    "group" : "baro",
+    "ctype" : "FLOAT",
+    "name" : "asl"
+  },
+  "range.zrange" : {
+    "ident" : 39,
+    "access" : 1,
+    "group" : "range",
+    "ctype" : "UINT16_T",
+    "name" : "zrange"
+  },
+  "kalman.statePX" : {
+    "ident" : 140,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "statePX"
+  },
+  "tdoa.d7-0" : {
+    "ident" : 206,
+    "access" : 1,
+    "group" : "tdoa",
+    "ctype" : "FLOAT",
+    "name" : "d7-0"
+  },
+  "kalman_states.vy" : {
+    "ident" : 168,
+    "access" : 1,
+    "group" : "kalman_states",
+    "ctype" : "FLOAT",
+    "name" : "vy"
+  },
+  "gps.lat" : {
+    "ident" : 170,
+    "access" : 1,
+    "group" : "gps",
+    "ctype" : "INT32_T",
+    "name" : "lat"
+  },
+  "stabilizer.roll" : {
+    "ident" : 88,
+    "access" : 1,
+    "group" : "stabilizer",
+    "ctype" : "FLOAT",
+    "name" : "roll"
+  },
+  "kalman_states.vx" : {
+    "ident" : 167,
+    "access" : 1,
+    "group" : "kalman_states",
+    "ctype" : "FLOAT",
+    "name" : "vx"
+  },
+  "kalman.statePY" : {
+    "ident" : 141,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "statePY"
+  },
+  "tdoa3.tdoa" : {
+    "ident" : 243,
+    "access" : 1,
+    "group" : "tdoa3",
+    "ctype" : "FLOAT",
+    "name" : "tdoa"
+  },
+  "kalman.statePZ" : {
+    "ident" : 142,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "statePZ"
+  },
+  "motion.shutter" : {
+    "ident" : 254,
+    "access" : 1,
+    "group" : "motion",
+    "ctype" : "UINT16_T",
+    "name" : "shutter"
+  },
+  "controller.ctr_yaw" : {
+    "ident" : 77,
+    "access" : 1,
+    "group" : "controller",
+    "ctype" : "INT16_T",
+    "name" : "ctr_yaw"
+  },
+  "tdoa.dist4-5" : {
+    "ident" : 227,
+    "access" : 1,
+    "group" : "tdoa",
+    "ctype" : "UINT16_T",
+    "name" : "dist4-5"
+  },
+  "gyro.zRaw" : {
+    "ident" : 2,
+    "access" : 1,
+    "group" : "gyro",
+    "ctype" : "INT16_T",
+    "name" : "zRaw"
+  },
+  "outlierf.bucket1" : {
+    "ident" : 245,
+    "access" : 1,
+    "group" : "outlierf",
+    "ctype" : "INT32_T",
+    "name" : "bucket1"
+  },
+  "outlierf.bucket0" : {
+    "ident" : 244,
+    "access" : 1,
+    "group" : "outlierf",
+    "ctype" : "INT32_T",
+    "name" : "bucket0"
+  },
+  "outlierf.bucket3" : {
+    "ident" : 247,
+    "access" : 1,
+    "group" : "outlierf",
+    "ctype" : "INT32_T",
+    "name" : "bucket3"
+  },
+  "outlierf.bucket2" : {
+    "ident" : 246,
+    "access" : 1,
+    "group" : "outlierf",
+    "ctype" : "INT32_T",
+    "name" : "bucket2"
+  },
+  "outlierf.bucket4" : {
+    "ident" : 248,
+    "access" : 1,
+    "group" : "outlierf",
+    "ctype" : "INT32_T",
+    "name" : "bucket4"
+  },
+  "posCtl.VXi" : {
+    "ident" : 114,
+    "access" : 1,
+    "group" : "posCtl",
+    "ctype" : "FLOAT",
+    "name" : "VXi"
+  },
+  "sitAw.ARDetected" : {
+    "ident" : 24,
+    "access" : 1,
+    "group" : "sitAw",
+    "ctype" : "UINT8_T",
+    "name" : "ARDetected"
+  },
+  "posCtl.VXp" : {
+    "ident" : 113,
+    "access" : 1,
+    "group" : "posCtl",
+    "ctype" : "FLOAT",
+    "name" : "VXp"
+  },
+  "pwm.m1_pwm" : {
+    "ident" : 6,
+    "access" : 1,
+    "group" : "pwm",
+    "ctype" : "UINT32_T",
+    "name" : "m1_pwm"
+  },
+  "tdoa.d6-7" : {
+    "ident" : 213,
+    "access" : 1,
+    "group" : "tdoa",
+    "ctype" : "FLOAT",
+    "name" : "d6-7"
+  },
+  "stabilizer.yaw" : {
+    "ident" : 90,
+    "access" : 1,
+    "group" : "stabilizer",
+    "ctype" : "FLOAT",
+    "name" : "yaw"
+  },
+  "ranging.state" : {
+    "ident" : 177,
+    "access" : 1,
+    "group" : "ranging",
+    "ctype" : "UINT16_T",
+    "name" : "state"
+  },
+  "posCtl.VXd" : {
+    "ident" : 115,
+    "access" : 1,
+    "group" : "posCtl",
+    "ctype" : "FLOAT",
+    "name" : "VXd"
+  },
+  "mag.x" : {
+    "ident" : 85,
+    "access" : 1,
+    "group" : "mag",
+    "ctype" : "FLOAT",
+    "name" : "x"
+  },
+  "posEstAlt.velocityZ" : {
+    "ident" : 97,
+    "access" : 1,
+    "group" : "posEstAlt",
+    "ctype" : "FLOAT",
+    "name" : "velocityZ"
+  },
+  "mag.z" : {
+    "ident" : 87,
+    "access" : 1,
+    "group" : "mag",
+    "ctype" : "FLOAT",
+    "name" : "z"
+  },
+  "mag.y" : {
+    "ident" : 86,
+    "access" : 1,
+    "group" : "mag",
+    "ctype" : "FLOAT",
+    "name" : "y"
+  },
+  "kalman.varPX" : {
+    "ident" : 150,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "varPX"
+  },
+  "kalman.varPZ" : {
+    "ident" : 152,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "varPZ"
+  },
+  "tdoa3.stTime" : {
+    "ident" : 236,
+    "access" : 1,
+    "group" : "tdoa3",
+    "ctype" : "UINT16_T",
+    "name" : "stTime"
+  },
+  "kalman.varPY" : {
+    "ident" : 151,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "varPY"
+  },
+  "tdoa.stData" : {
+    "ident" : 232,
+    "access" : 1,
+    "group" : "tdoa",
+    "ctype" : "UINT16_T",
+    "name" : "stData"
+  },
+  "tdoa.dist7-0" : {
+    "ident" : 222,
+    "access" : 1,
+    "group" : "tdoa",
+    "ctype" : "UINT16_T",
+    "name" : "dist7-0"
+  },
+  "tdoa3.stMiss" : {
+    "ident" : 240,
+    "access" : 1,
+    "group" : "tdoa3",
+    "ctype" : "UINT16_T",
+    "name" : "stMiss"
+  },
+  "pid_rate.yaw_outD" : {
+    "ident" : 60,
+    "access" : 1,
+    "group" : "pid_rate",
+    "ctype" : "FLOAT",
+    "name" : "yaw_outD"
+  },
+  "pid_rate.yaw_outI" : {
+    "ident" : 59,
+    "access" : 1,
+    "group" : "pid_rate",
+    "ctype" : "FLOAT",
+    "name" : "yaw_outI"
+  },
+  "ring.fadeTime" : {
+    "ident" : 169,
+    "access" : 1,
+    "group" : "ring",
+    "ctype" : "FLOAT",
+    "name" : "fadeTime"
+  },
+  "pid_rate.yaw_outP" : {
+    "ident" : 58,
+    "access" : 1,
+    "group" : "pid_rate",
+    "ctype" : "FLOAT",
+    "name" : "yaw_outP"
+  },
+  "gyro.yVariance" : {
+    "ident" : 4,
+    "access" : 1,
+    "group" : "gyro",
+    "ctype" : "FLOAT",
+    "name" : "yVariance"
+  },
+  "posCtl.VZp" : {
+    "ident" : 116,
+    "access" : 1,
+    "group" : "posCtl",
+    "ctype" : "FLOAT",
+    "name" : "VZp"
+  },
+  "kalman.inFlight" : {
+    "ident" : 136,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "UINT8_T",
+    "name" : "inFlight"
+  },
+  "pm.extCurr" : {
+    "ident" : 17,
+    "access" : 1,
+    "group" : "pm",
+    "ctype" : "FLOAT",
+    "name" : "extCurr"
+  },
+  "kalman.stateD0" : {
+    "ident" : 143,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "stateD0"
+  },
+  "kalman.stateD1" : {
+    "ident" : 144,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "stateD1"
+  },
+  "kalman.stateD2" : {
+    "ident" : 145,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "stateD2"
+  },
+  "stabilizer.pitch" : {
+    "ident" : 89,
+    "access" : 1,
+    "group" : "stabilizer",
+    "ctype" : "FLOAT",
+    "name" : "pitch"
+  },
+  "tdoa.cc6" : {
+    "ident" : 220,
+    "access" : 1,
+    "group" : "tdoa",
+    "ctype" : "FLOAT",
+    "name" : "cc6"
+  },
+  "tdoa.cc7" : {
+    "ident" : 221,
+    "access" : 1,
+    "group" : "tdoa",
+    "ctype" : "FLOAT",
+    "name" : "cc7"
+  },
+  "tdoa.cc4" : {
+    "ident" : 218,
+    "access" : 1,
+    "group" : "tdoa",
+    "ctype" : "FLOAT",
+    "name" : "cc4"
+  },
+  "tdoa.cc5" : {
+    "ident" : 219,
+    "access" : 1,
+    "group" : "tdoa",
+    "ctype" : "FLOAT",
+    "name" : "cc5"
+  },
+  "posCtl.targetVZ" : {
+    "ident" : 100,
+    "access" : 1,
+    "group" : "posCtl",
+    "ctype" : "FLOAT",
+    "name" : "targetVZ"
+  },
+  "tdoa.cc2" : {
+    "ident" : 216,
+    "access" : 1,
+    "group" : "tdoa",
+    "ctype" : "FLOAT",
+    "name" : "cc2"
+  },
+  "pm.batteryLevel" : {
+    "ident" : 20,
+    "access" : 1,
+    "group" : "pm",
+    "ctype" : "UINT8_T",
+    "name" : "batteryLevel"
+  },
+  "posCtl.VZd" : {
+    "ident" : 118,
+    "access" : 1,
+    "group" : "posCtl",
+    "ctype" : "FLOAT",
+    "name" : "VZd"
+  },
+  "tdoa.cc3" : {
+    "ident" : 217,
+    "access" : 1,
+    "group" : "tdoa",
+    "ctype" : "FLOAT",
+    "name" : "cc3"
+  },
+  "tdoa.cc0" : {
+    "ident" : 214,
+    "access" : 1,
+    "group" : "tdoa",
+    "ctype" : "FLOAT",
+    "name" : "cc0"
+  },
+  "tdoa.cc1" : {
+    "ident" : 215,
+    "access" : 1,
+    "group" : "tdoa",
+    "ctype" : "FLOAT",
+    "name" : "cc1"
+  },
+  "posEstAlt.estimatedZ" : {
+    "ident" : 95,
+    "access" : 1,
+    "group" : "posEstAlt",
+    "ctype" : "FLOAT",
+    "name" : "estimatedZ"
+  },
+  "posCtl.targetVX" : {
+    "ident" : 98,
+    "access" : 1,
+    "group" : "posCtl",
+    "ctype" : "FLOAT",
+    "name" : "targetVX"
+  },
+  "posCtl.VZi" : {
+    "ident" : 117,
+    "access" : 1,
+    "group" : "posCtl",
+    "ctype" : "FLOAT",
+    "name" : "VZi"
+  },
+  "tdoa.d5-6" : {
+    "ident" : 212,
+    "access" : 1,
+    "group" : "tdoa",
+    "ctype" : "FLOAT",
+    "name" : "d5-6"
+  },
+  "posCtl.targetVY" : {
+    "ident" : 99,
+    "access" : 1,
+    "group" : "posCtl",
+    "ctype" : "FLOAT",
+    "name" : "targetVY"
+  },
+  "controller.pitchRate" : {
+    "ident" : 124,
+    "access" : 1,
+    "group" : "controller",
+    "ctype" : "FLOAT",
+    "name" : "pitchRate"
+  },
+  "pm.state" : {
+    "ident" : 19,
+    "access" : 1,
+    "group" : "pm",
+    "ctype" : "INT8_T",
+    "name" : "state"
+  },
+  "baro.temp" : {
+    "ident" : 75,
+    "access" : 1,
+    "group" : "baro",
+    "ctype" : "FLOAT",
+    "name" : "temp"
+  },
+  "gps.hAcc" : {
+    "ident" : 173,
+    "access" : 1,
+    "group" : "gps",
+    "ctype" : "FLOAT",
+    "name" : "hAcc"
+  },
+  "controller.roll" : {
+    "ident" : 120,
+    "access" : 1,
+    "group" : "controller",
+    "ctype" : "FLOAT",
+    "name" : "roll"
+  },
+  "ext_pos.Z" : {
+    "ident" : 42,
+    "access" : 1,
+    "group" : "ext_pos",
+    "ctype" : "FLOAT",
+    "name" : "Z"
+  },
+  "tdoa.dist6-7" : {
+    "ident" : 229,
+    "access" : 1,
+    "group" : "tdoa",
+    "ctype" : "UINT16_T",
+    "name" : "dist6-7"
+  },
+  "ext_pos.X" : {
+    "ident" : 40,
+    "access" : 1,
+    "group" : "ext_pos",
+    "ctype" : "FLOAT",
+    "name" : "X"
+  },
+  "gps.fix" : {
+    "ident" : 175,
+    "access" : 1,
+    "group" : "gps",
+    "ctype" : "INT32_T",
+    "name" : "fix"
+  },
+  "extrx.roll" : {
+    "ident" : 31,
+    "access" : 1,
+    "group" : "extrx",
+    "ctype" : "FLOAT",
+    "name" : "roll"
+  },
+  "ext_pos.Y" : {
+    "ident" : 41,
+    "access" : 1,
+    "group" : "ext_pos",
+    "ctype" : "FLOAT",
+    "name" : "Y"
+  },
+  "kalman.stateZ" : {
+    "ident" : 139,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "stateZ"
+  },
+  "kalman.stateY" : {
+    "ident" : 138,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "stateY"
+  },
+  "kalman.stateX" : {
+    "ident" : 137,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "stateX"
+  },
+  "range.left" : {
+    "ident" : 37,
+    "access" : 1,
+    "group" : "range",
+    "ctype" : "UINT16_T",
+    "name" : "left"
+  },
+  "pid_attitude.roll_outP" : {
+    "ident" : 43,
+    "access" : 1,
+    "group" : "pid_attitude",
+    "ctype" : "FLOAT",
+    "name" : "roll_outP"
+  },
+  "controller.rollRate" : {
+    "ident" : 123,
+    "access" : 1,
+    "group" : "controller",
+    "ctype" : "FLOAT",
+    "name" : "rollRate"
+  },
+  "gyro.zVariance" : {
+    "ident" : 5,
+    "access" : 1,
+    "group" : "gyro",
+    "ctype" : "FLOAT",
+    "name" : "zVariance"
+  },
+  "sitAw.TuDetected" : {
+    "ident" : 25,
+    "access" : 1,
+    "group" : "sitAw",
+    "ctype" : "UINT8_T",
+    "name" : "TuDetected"
+  },
+  "pid_attitude.roll_outD" : {
+    "ident" : 45,
+    "access" : 1,
+    "group" : "pid_attitude",
+    "ctype" : "FLOAT",
+    "name" : "roll_outD"
+  },
+  "crtp.txRate" : {
+    "ident" : 12,
+    "access" : 1,
+    "group" : "crtp",
+    "ctype" : "UINT16_T",
+    "name" : "txRate"
+  },
+  "motion.deltaY" : {
+    "ident" : 253,
+    "access" : 1,
+    "group" : "motion",
+    "ctype" : "INT16_T",
+    "name" : "deltaY"
+  },
+  "motion.deltaX" : {
+    "ident" : 252,
+    "access" : 1,
+    "group" : "motion",
+    "ctype" : "INT16_T",
+    "name" : "deltaX"
+  },
+  "pid_attitude.roll_outI" : {
+    "ident" : 44,
+    "access" : 1,
+    "group" : "pid_attitude",
+    "ctype" : "FLOAT",
+    "name" : "roll_outI"
+  },
+  "controller.actuatorThrust" : {
+    "ident" : 119,
+    "access" : 1,
+    "group" : "controller",
+    "ctype" : "FLOAT",
+    "name" : "actuatorThrust"
+  },
+  "kalman.varX" : {
+    "ident" : 147,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "varX"
+  },
+  "kalman.varY" : {
+    "ident" : 148,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "varY"
+  },
+  "pid_rate.pitch_outI" : {
+    "ident" : 56,
+    "access" : 1,
+    "group" : "pid_rate",
+    "ctype" : "FLOAT",
+    "name" : "pitch_outI"
+  },
+  "kalman.varZ" : {
+    "ident" : 149,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "varZ"
+  },
+  "extrx.thrust" : {
+    "ident" : 30,
+    "access" : 1,
+    "group" : "extrx",
+    "ctype" : "UINT16_T",
+    "name" : "thrust"
+  },
+  "pid_rate.pitch_outP" : {
+    "ident" : 55,
+    "access" : 1,
+    "group" : "pid_rate",
+    "ctype" : "FLOAT",
+    "name" : "pitch_outP"
+  },
+  "tdoa.d4-5" : {
+    "ident" : 211,
+    "access" : 1,
+    "group" : "tdoa",
+    "ctype" : "FLOAT",
+    "name" : "d4-5"
+  },
+  "pwm.m4_pwm" : {
+    "ident" : 9,
+    "access" : 1,
+    "group" : "pwm",
+    "ctype" : "UINT32_T",
+    "name" : "m4_pwm"
+  },
+  "tdoa.dist1-2" : {
+    "ident" : 224,
+    "access" : 1,
+    "group" : "tdoa",
+    "ctype" : "UINT16_T",
+    "name" : "dist1-2"
+  },
+  "tdoa3.tof" : {
+    "ident" : 242,
+    "access" : 1,
+    "group" : "tdoa3",
+    "ctype" : "UINT16_T",
+    "name" : "tof"
+  },
+  "pid_rate.pitch_outD" : {
+    "ident" : 57,
+    "access" : 1,
+    "group" : "pid_rate",
+    "ctype" : "FLOAT",
+    "name" : "pitch_outD"
+  },
+  "crtp.rxRate" : {
+    "ident" : 10,
+    "access" : 1,
+    "group" : "crtp",
+    "ctype" : "UINT16_T",
+    "name" : "rxRate"
+  },
+  "motion.motion" : {
+    "ident" : 251,
+    "access" : 1,
+    "group" : "motion",
+    "ctype" : "UINT8_T",
+    "name" : "motion"
+  },
+  "radio.rssi" : {
+    "ident" : 21,
+    "access" : 1,
+    "group" : "radio",
+    "ctype" : "UINT8_T",
+    "name" : "rssi"
+  },
+  "pid_attitude.pitch_outD" : {
+    "ident" : 48,
+    "access" : 1,
+    "group" : "pid_attitude",
+    "ctype" : "FLOAT",
+    "name" : "pitch_outD"
+  },
+  "pid_attitude.pitch_outI" : {
+    "ident" : 47,
+    "access" : 1,
+    "group" : "pid_attitude",
+    "ctype" : "FLOAT",
+    "name" : "pitch_outI"
+  },
+  "pm.extVbat" : {
+    "ident" : 15,
+    "access" : 1,
+    "group" : "pm",
+    "ctype" : "FLOAT",
+    "name" : "extVbat"
+  },
+  "pid_attitude.pitch_outP" : {
+    "ident" : 46,
+    "access" : 1,
+    "group" : "pid_attitude",
+    "ctype" : "FLOAT",
+    "name" : "pitch_outP"
+  },
+  "baro.pressure" : {
+    "ident" : 76,
+    "access" : 1,
+    "group" : "baro",
+    "ctype" : "FLOAT",
+    "name" : "pressure"
+  },
+  "kalman.varD0" : {
+    "ident" : 153,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "varD0"
+  },
+  "kalman.varD2" : {
+    "ident" : 155,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "varD2"
+  },
+  "kalman.varD1" : {
+    "ident" : 154,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "varD1"
+  },
+  "gyro.yRaw" : {
+    "ident" : 1,
+    "access" : 1,
+    "group" : "gyro",
+    "ctype" : "INT16_T",
+    "name" : "yRaw"
+  },
+  "tdoa.d3-4" : {
+    "ident" : 210,
+    "access" : 1,
+    "group" : "tdoa",
+    "ctype" : "FLOAT",
+    "name" : "d3-4"
+  },
+  "tdoa.dist0-1" : {
+    "ident" : 223,
+    "access" : 1,
+    "group" : "tdoa",
+    "ctype" : "UINT16_T",
+    "name" : "dist0-1"
+  },
+  "motor.m4" : {
+    "ident" : 132,
+    "access" : 1,
+    "group" : "motor",
+    "ctype" : "INT32_T",
+    "name" : "m4"
+  },
+  "kalman.stateSkew" : {
+    "ident" : 146,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "stateSkew"
+  },
+  "tdoa.stSeq" : {
+    "ident" : 231,
+    "access" : 1,
+    "group" : "tdoa",
+    "ctype" : "UINT16_T",
+    "name" : "stSeq"
+  },
+  "tdoa3.stRx" : {
+    "ident" : 234,
+    "access" : 1,
+    "group" : "tdoa3",
+    "ctype" : "UINT16_T",
+    "name" : "stRx"
+  },
+  "motor.m2" : {
+    "ident" : 134,
+    "access" : 1,
+    "group" : "motor",
+    "ctype" : "INT32_T",
+    "name" : "m2"
+  },
+  "motor.m3" : {
+    "ident" : 135,
+    "access" : 1,
+    "group" : "motor",
+    "ctype" : "INT32_T",
+    "name" : "m3"
+  },
+  "gps.hMSL" : {
+    "ident" : 172,
+    "access" : 1,
+    "group" : "gps",
+    "ctype" : "FLOAT",
+    "name" : "hMSL"
+  },
+  "motor.m1" : {
+    "ident" : 133,
+    "access" : 1,
+    "group" : "motor",
+    "ctype" : "INT32_T",
+    "name" : "m1"
+  },
+  "pid_attitude.yaw_outP" : {
+    "ident" : 49,
+    "access" : 1,
+    "group" : "pid_attitude",
+    "ctype" : "FLOAT",
+    "name" : "yaw_outP"
+  },
+  "posCtl.Zp" : {
+    "ident" : 110,
+    "access" : 1,
+    "group" : "posCtl",
+    "ctype" : "FLOAT",
+    "name" : "Zp"
+  },
+  "ctrltarget.yaw" : {
+    "ident" : 80,
+    "access" : 1,
+    "group" : "ctrltarget",
+    "ctype" : "FLOAT",
+    "name" : "yaw"
+  },
+  "tdoa3.stCc" : {
+    "ident" : 238,
+    "access" : 1,
+    "group" : "tdoa3",
+    "ctype" : "UINT16_T",
+    "name" : "stCc"
+  },
+  "posCtl.Zd" : {
+    "ident" : 112,
+    "access" : 1,
+    "group" : "posCtl",
+    "ctype" : "FLOAT",
+    "name" : "Zd"
+  },
+  "posCtl.Zi" : {
+    "ident" : 111,
+    "access" : 1,
+    "group" : "posCtl",
+    "ctype" : "FLOAT",
+    "name" : "Zi"
+  },
+  "kalman_states.ox" : {
+    "ident" : 165,
+    "access" : 1,
+    "group" : "kalman_states",
+    "ctype" : "FLOAT",
+    "name" : "ox"
+  },
+  "gyro.xVariance" : {
+    "ident" : 3,
+    "access" : 1,
+    "group" : "gyro",
+    "ctype" : "FLOAT",
+    "name" : "xVariance"
+  },
+  "kalman_states.oy" : {
+    "ident" : 166,
+    "access" : 1,
+    "group" : "kalman_states",
+    "ctype" : "FLOAT",
+    "name" : "oy"
+  },
+  "latency.intToOut" : {
+    "ident" : 84,
+    "access" : 1,
+    "group" : "latency",
+    "ctype" : "UINT32_T",
+    "name" : "intToOut"
+  },
+  "tdoa3.stFound" : {
+    "ident" : 237,
+    "access" : 1,
+    "group" : "tdoa3",
+    "ctype" : "UINT16_T",
+    "name" : "stFound"
+  },
+  "tdoa.d2-3" : {
+    "ident" : 209,
+    "access" : 1,
+    "group" : "tdoa",
+    "ctype" : "FLOAT",
+    "name" : "d2-3"
+  },
+  "sensfusion6.qz" : {
+    "ident" : 64,
+    "access" : 1,
+    "group" : "sensfusion6",
+    "ctype" : "FLOAT",
+    "name" : "qz"
+  },
+  "sensfusion6.qw" : {
+    "ident" : 61,
+    "access" : 1,
+    "group" : "sensfusion6",
+    "ctype" : "FLOAT",
+    "name" : "qw"
+  },
+  "sensfusion6.accZbase" : {
+    "ident" : 68,
+    "access" : 1,
+    "group" : "sensfusion6",
+    "ctype" : "FLOAT",
+    "name" : "accZbase"
+  },
+  "sensfusion6.isCalibrated" : {
+    "ident" : 70,
+    "access" : 1,
+    "group" : "sensfusion6",
+    "ctype" : "UINT8_T",
+    "name" : "isCalibrated"
+  },
+  "loco.mode" : {
+    "ident" : 176,
+    "access" : 1,
+    "group" : "loco",
+    "ctype" : "UINT8_T",
+    "name" : "mode"
+  },
+  "sensfusion6.qy" : {
+    "ident" : 63,
+    "access" : 1,
+    "group" : "sensfusion6",
+    "ctype" : "FLOAT",
+    "name" : "qy"
+  },
+  "sensfusion6.qx" : {
+    "ident" : 62,
+    "access" : 1,
+    "group" : "sensfusion6",
+    "ctype" : "FLOAT",
+    "name" : "qx"
+  },
+  "sys.canfly" : {
+    "ident" : 22,
+    "access" : 1,
+    "group" : "sys",
+    "ctype" : "INT8_T",
+    "name" : "canfly"
+  },
+  "posCtl.Yp" : {
+    "ident" : 107,
+    "access" : 1,
+    "group" : "posCtl",
+    "ctype" : "FLOAT",
+    "name" : "Yp"
+  },
+  "pid_attitude.yaw_outI" : {
+    "ident" : 50,
+    "access" : 1,
+    "group" : "pid_attitude",
+    "ctype" : "FLOAT",
+    "name" : "yaw_outI"
+  },
+  "pid_attitude.yaw_outD" : {
+    "ident" : 51,
+    "access" : 1,
+    "group" : "pid_attitude",
+    "ctype" : "FLOAT",
+    "name" : "yaw_outD"
+  },
+  "posCtl.Yd" : {
+    "ident" : 109,
+    "access" : 1,
+    "group" : "posCtl",
+    "ctype" : "FLOAT",
+    "name" : "Yd"
+  },
+  "tdoa.stRx" : {
+    "ident" : 230,
+    "access" : 1,
+    "group" : "tdoa",
+    "ctype" : "UINT16_T",
+    "name" : "stRx"
+  },
+  "controller.yawRate" : {
+    "ident" : 125,
+    "access" : 1,
+    "group" : "controller",
+    "ctype" : "FLOAT",
+    "name" : "yawRate"
+  },
+  "pwm.m3_pwm" : {
+    "ident" : 8,
+    "access" : 1,
+    "group" : "pwm",
+    "ctype" : "UINT32_T",
+    "name" : "m3_pwm"
+  },
+  "tdoa.dist3-4" : {
+    "ident" : 226,
+    "access" : 1,
+    "group" : "tdoa",
+    "ctype" : "UINT16_T",
+    "name" : "dist3-4"
+  },
+  "posCtl.Yi" : {
+    "ident" : 108,
+    "access" : 1,
+    "group" : "posCtl",
+    "ctype" : "FLOAT",
+    "name" : "Yi"
+  },
+  "pm.vbatMV" : {
+    "ident" : 14,
+    "access" : 1,
+    "group" : "pm",
+    "ctype" : "UINT16_T",
+    "name" : "vbatMV"
+  },
+  "gyro.xRaw" : {
+    "ident" : 0,
+    "access" : 1,
+    "group" : "gyro",
+    "ctype" : "INT16_T",
+    "name" : "xRaw"
+  },
+  "acc.z" : {
+    "ident" : 73,
+    "access" : 1,
+    "group" : "acc",
+    "ctype" : "FLOAT",
+    "name" : "z"
+  },
+  "kalman.varSkew" : {
+    "ident" : 156,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "varSkew"
+  },
+  "acc.y" : {
+    "ident" : 72,
+    "access" : 1,
+    "group" : "acc",
+    "ctype" : "FLOAT",
+    "name" : "y"
+  },
+  "ctrltarget.pitch" : {
+    "ident" : 79,
+    "access" : 1,
+    "group" : "ctrltarget",
+    "ctype" : "FLOAT",
+    "name" : "pitch"
+  },
+  "acc.x" : {
+    "ident" : 71,
+    "access" : 1,
+    "group" : "acc",
+    "ctype" : "FLOAT",
+    "name" : "x"
+  },
+  "posCtl.Xi" : {
+    "ident" : 105,
+    "access" : 1,
+    "group" : "posCtl",
+    "ctype" : "FLOAT",
+    "name" : "Xi"
+  },
+  "ranging.pressure4" : {
+    "ident" : 190,
+    "access" : 1,
+    "group" : "ranging",
+    "ctype" : "FLOAT",
+    "name" : "pressure4"
+  },
+  "pid_rate.roll_outI" : {
+    "ident" : 53,
+    "access" : 1,
+    "group" : "pid_rate",
+    "ctype" : "FLOAT",
+    "name" : "roll_outI"
+  },
+  "ranging.pressure3" : {
+    "ident" : 189,
+    "access" : 1,
+    "group" : "ranging",
+    "ctype" : "FLOAT",
+    "name" : "pressure3"
+  },
+  "ranging.pressure2" : {
+    "ident" : 188,
+    "access" : 1,
+    "group" : "ranging",
+    "ctype" : "FLOAT",
+    "name" : "pressure2"
+  },
+  "ranging.pressure1" : {
+    "ident" : 187,
+    "access" : 1,
+    "group" : "ranging",
+    "ctype" : "FLOAT",
+    "name" : "pressure1"
+  },
+  "outlierf.accLev" : {
+    "ident" : 249,
+    "access" : 1,
+    "group" : "outlierf",
+    "ctype" : "FLOAT",
+    "name" : "accLev"
+  },
+  "ranging.pressure7" : {
+    "ident" : 193,
+    "access" : 1,
+    "group" : "ranging",
+    "ctype" : "FLOAT",
+    "name" : "pressure7"
+  },
+  "ranging.pressure6" : {
+    "ident" : 192,
+    "access" : 1,
+    "group" : "ranging",
+    "ctype" : "FLOAT",
+    "name" : "pressure6"
+  },
+  "tdoa.d1-2" : {
+    "ident" : 208,
+    "access" : 1,
+    "group" : "tdoa",
+    "ctype" : "FLOAT",
+    "name" : "d1-2"
+  },
+  "stabilizer.thrust" : {
+    "ident" : 91,
+    "access" : 1,
+    "group" : "stabilizer",
+    "ctype" : "UINT16_T",
+    "name" : "thrust"
+  },
+  "posCtl.Xp" : {
+    "ident" : 104,
+    "access" : 1,
+    "group" : "posCtl",
+    "ctype" : "FLOAT",
+    "name" : "Xp"
+  },
+  "ranging.pressure5" : {
+    "ident" : 191,
+    "access" : 1,
+    "group" : "ranging",
+    "ctype" : "FLOAT",
+    "name" : "pressure5"
+  },
+  "pid_rate.roll_outP" : {
+    "ident" : 52,
+    "access" : 1,
+    "group" : "pid_rate",
+    "ctype" : "FLOAT",
+    "name" : "roll_outP"
+  },
+  "posCtl.Xd" : {
+    "ident" : 106,
+    "access" : 1,
+    "group" : "posCtl",
+    "ctype" : "FLOAT",
+    "name" : "Xd"
+  },
+  "kalman.q3" : {
+    "ident" : 160,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "q3"
+  },
+  "controller.yaw" : {
+    "ident" : 122,
+    "access" : 1,
+    "group" : "controller",
+    "ctype" : "FLOAT",
+    "name" : "yaw"
+  },
+  "kalman.q2" : {
+    "ident" : 159,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "q2"
+  },
+  "ranging.pressure0" : {
+    "ident" : 186,
+    "access" : 1,
+    "group" : "ranging",
+    "ctype" : "FLOAT",
+    "name" : "pressure0"
+  },
+  "kalman.q1" : {
+    "ident" : 158,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "q1"
+  },
+  "kalman.q0" : {
+    "ident" : 157,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "q0"
+  },
+  "ctrltarget.roll" : {
+    "ident" : 78,
+    "access" : 1,
+    "group" : "ctrltarget",
+    "ctype" : "FLOAT",
+    "name" : "roll"
+  },
+  "controller.pitch" : {
+    "ident" : 121,
+    "access" : 1,
+    "group" : "controller",
+    "ctype" : "FLOAT",
+    "name" : "pitch"
+  },
+  "kalman_pred.measNX" : {
+    "ident" : 163,
+    "access" : 1,
+    "group" : "kalman_pred",
+    "ctype" : "FLOAT",
+    "name" : "measNX"
+  },
+  "kalman_pred.measNY" : {
+    "ident" : 164,
+    "access" : 1,
+    "group" : "kalman_pred",
+    "ctype" : "FLOAT",
+    "name" : "measNY"
+  },
+  "pm.extVbatMV" : {
+    "ident" : 16,
+    "access" : 1,
+    "group" : "pm",
+    "ctype" : "UINT16_T",
+    "name" : "extVbatMV"
+  },
+  "range.front" : {
+    "ident" : 34,
+    "access" : 1,
+    "group" : "range",
+    "ctype" : "UINT16_T",
+    "name" : "front"
+  },
+  "pid_rate.roll_outD" : {
+    "ident" : 54,
+    "access" : 1,
+    "group" : "pid_rate",
+    "ctype" : "FLOAT",
+    "name" : "roll_outD"
+  },
+  "range.back" : {
+    "ident" : 35,
+    "access" : 1,
+    "group" : "range",
+    "ctype" : "UINT16_T",
+    "name" : "back"
+  },
+  "tdoa3.cc" : {
+    "ident" : 241,
+    "access" : 1,
+    "group" : "tdoa3",
+    "ctype" : "FLOAT",
+    "name" : "cc"
+  },
+  "outlierf.errD" : {
+    "ident" : 250,
+    "access" : 1,
+    "group" : "outlierf",
+    "ctype" : "FLOAT",
+    "name" : "errD"
+  },
+  "tdoa.dist2-3" : {
+    "ident" : 225,
+    "access" : 1,
+    "group" : "tdoa",
+    "ctype" : "UINT16_T",
+    "name" : "dist2-3"
+  },
+  "pm.chargeCurrent" : {
+    "ident" : 18,
+    "access" : 1,
+    "group" : "pm",
+    "ctype" : "FLOAT",
+    "name" : "chargeCurrent"
+  },
+  "range.up" : {
+    "ident" : 36,
+    "access" : 1,
+    "group" : "range",
+    "ctype" : "UINT16_T",
+    "name" : "up"
+  }
+}

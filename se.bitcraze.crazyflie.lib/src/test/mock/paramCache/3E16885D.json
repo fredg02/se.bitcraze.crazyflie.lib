@@ -1,0 +1,1073 @@
+{
+  "kalman.pNSkew" : {
+    "ident" : 115,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "pNSkew"
+  },
+  "ctrlMel.kd_z" : {
+    "ident" : 89,
+    "access" : 1,
+    "group" : "ctrlMel",
+    "ctype" : "FLOAT",
+    "name" : "kd_z"
+  },
+  "cmdrCPPM.ratePitch" : {
+    "ident" : 26,
+    "access" : 1,
+    "group" : "cmdrCPPM",
+    "ctype" : "FLOAT",
+    "name" : "ratePitch"
+  },
+  "kalman.mNBaro" : {
+    "ident" : 116,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "mNBaro"
+  },
+  "ctrlMel.i_range_xy" : {
+    "ident" : 87,
+    "access" : 1,
+    "group" : "ctrlMel",
+    "ctype" : "FLOAT",
+    "name" : "i_range_xy"
+  },
+  "velCtlPid.vzKd" : {
+    "ident" : 82,
+    "access" : 1,
+    "group" : "velCtlPid",
+    "ctype" : "FLOAT",
+    "name" : "vzKd"
+  },
+  "deck.bcUSD" : {
+    "ident" : 138,
+    "access" : 0,
+    "group" : "deck",
+    "ctype" : "UINT8_T",
+    "name" : "bcUSD"
+  },
+  "sound.ratio" : {
+    "ident" : 14,
+    "access" : 1,
+    "group" : "sound",
+    "ctype" : "UINT8_T",
+    "name" : "ratio"
+  },
+  "system.selftestPassed" : {
+    "ident" : 10,
+    "access" : 1,
+    "group" : "system",
+    "ctype" : "INT8_T",
+    "name" : "selftestPassed"
+  },
+  "flightmode.stabModeRoll" : {
+    "ident" : 22,
+    "access" : 1,
+    "group" : "flightmode",
+    "ctype" : "UINT8_T",
+    "name" : "stabModeRoll"
+  },
+  "deck.bcZRanger" : {
+    "ident" : 139,
+    "access" : 0,
+    "group" : "deck",
+    "ctype" : "UINT8_T",
+    "name" : "bcZRanger"
+  },
+  "posCtlPid.zVelMax" : {
+    "ident" : 73,
+    "access" : 1,
+    "group" : "posCtlPid",
+    "ctype" : "FLOAT",
+    "name" : "zVelMax"
+  },
+  "deck.bcDWM1000" : {
+    "ident" : 141,
+    "access" : 0,
+    "group" : "deck",
+    "ctype" : "UINT8_T",
+    "name" : "bcDWM1000"
+  },
+  "deck.bcOA" : {
+    "ident" : 148,
+    "access" : 0,
+    "group" : "deck",
+    "ctype" : "UINT8_T",
+    "name" : "bcOA"
+  },
+  "ctrlMel.kR_xy" : {
+    "ident" : 94,
+    "access" : 1,
+    "group" : "ctrlMel",
+    "ctype" : "FLOAT",
+    "name" : "kR_xy"
+  },
+  "pid_rate.roll_ki" : {
+    "ident" : 41,
+    "access" : 1,
+    "group" : "pid_rate",
+    "ctype" : "FLOAT",
+    "name" : "roll_ki"
+  },
+  "kalman.pNVel" : {
+    "ident" : 112,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "pNVel"
+  },
+  "locSrv.enRangeStreamFP32" : {
+    "ident" : 30,
+    "access" : 1,
+    "group" : "locSrv",
+    "ctype" : "UINT8_T",
+    "name" : "enRangeStreamFP32"
+  },
+  "ctrlMel.mass" : {
+    "ident" : 92,
+    "access" : 1,
+    "group" : "ctrlMel",
+    "ctype" : "FLOAT",
+    "name" : "mass"
+  },
+  "velCtlPid.vzKp" : {
+    "ident" : 80,
+    "access" : 1,
+    "group" : "velCtlPid",
+    "ctype" : "FLOAT",
+    "name" : "vzKp"
+  },
+  "pid_rate.roll_kd" : {
+    "ident" : 42,
+    "access" : 1,
+    "group" : "pid_rate",
+    "ctype" : "FLOAT",
+    "name" : "roll_kd"
+  },
+  "kalman.pNAcc_z" : {
+    "ident" : 111,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "pNAcc_z"
+  },
+  "deck.bcLedRing" : {
+    "ident" : 123,
+    "access" : 0,
+    "group" : "deck",
+    "ctype" : "UINT8_T",
+    "name" : "bcLedRing"
+  },
+  "sound.freq" : {
+    "ident" : 13,
+    "access" : 1,
+    "group" : "sound",
+    "ctype" : "UINT16_T",
+    "name" : "freq"
+  },
+  "pid_rate.roll_kp" : {
+    "ident" : 40,
+    "access" : 1,
+    "group" : "pid_rate",
+    "ctype" : "FLOAT",
+    "name" : "roll_kp"
+  },
+  "kalman.pNAtt" : {
+    "ident" : 114,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "pNAtt"
+  },
+  "velCtlPid.vzKi" : {
+    "ident" : 81,
+    "access" : 1,
+    "group" : "velCtlPid",
+    "ctype" : "FLOAT",
+    "name" : "vzKi"
+  },
+  "flightmode.stabModeYaw" : {
+    "ident" : 24,
+    "access" : 1,
+    "group" : "flightmode",
+    "ctype" : "UINT8_T",
+    "name" : "stabModeYaw"
+  },
+  "sound.effect" : {
+    "ident" : 11,
+    "access" : 1,
+    "group" : "sound",
+    "ctype" : "UINT8_T",
+    "name" : "effect"
+  },
+  "ring.solidBlue" : {
+    "ident" : 128,
+    "access" : 1,
+    "group" : "ring",
+    "ctype" : "UINT8_T",
+    "name" : "solidBlue"
+  },
+  "deck.bcBuzzer" : {
+    "ident" : 135,
+    "access" : 0,
+    "group" : "deck",
+    "ctype" : "UINT8_T",
+    "name" : "bcBuzzer"
+  },
+  "pid_attitude.pitch_kd" : {
+    "ident" : 36,
+    "access" : 1,
+    "group" : "pid_attitude",
+    "ctype" : "FLOAT",
+    "name" : "pitch_kd"
+  },
+  "ctrlMel.ki_z" : {
+    "ident" : 90,
+    "access" : 1,
+    "group" : "ctrlMel",
+    "ctype" : "FLOAT",
+    "name" : "ki_z"
+  },
+  "pid_attitude.pitch_ki" : {
+    "ident" : 35,
+    "access" : 1,
+    "group" : "pid_attitude",
+    "ctype" : "FLOAT",
+    "name" : "pitch_ki"
+  },
+  "cmdrCPPM.rateYaw" : {
+    "ident" : 27,
+    "access" : 1,
+    "group" : "cmdrCPPM",
+    "ctype" : "FLOAT",
+    "name" : "rateYaw"
+  },
+  "kalman.initialX" : {
+    "ident" : 119,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "initialX"
+  },
+  "kalman.initialY" : {
+    "ident" : 120,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "initialY"
+  },
+  "ring.neffect" : {
+    "ident" : 125,
+    "access" : 0,
+    "group" : "ring",
+    "ctype" : "UINT32_T",
+    "name" : "neffect"
+  },
+  "cmdrCPPM.rateRoll" : {
+    "ident" : 25,
+    "access" : 1,
+    "group" : "cmdrCPPM",
+    "ctype" : "FLOAT",
+    "name" : "rateRoll"
+  },
+  "health.startPropTest" : {
+    "ident" : 52,
+    "access" : 1,
+    "group" : "health",
+    "ctype" : "UINT8_T",
+    "name" : "startPropTest"
+  },
+  "posEstAlt.estAlphaAsl" : {
+    "ident" : 55,
+    "access" : 1,
+    "group" : "posEstAlt",
+    "ctype" : "FLOAT",
+    "name" : "estAlphaAsl"
+  },
+  "velCtlPid.vyKd" : {
+    "ident" : 79,
+    "access" : 1,
+    "group" : "velCtlPid",
+    "ctype" : "FLOAT",
+    "name" : "vyKd"
+  },
+  "ring.headlightEnable" : {
+    "ident" : 129,
+    "access" : 1,
+    "group" : "ring",
+    "ctype" : "UINT8_T",
+    "name" : "headlightEnable"
+  },
+  "tdoa3.logId" : {
+    "ident" : 143,
+    "access" : 1,
+    "group" : "tdoa3",
+    "ctype" : "UINT8_T",
+    "name" : "logId"
+  },
+  "ctrlMel.ki_m_z" : {
+    "ident" : 99,
+    "access" : 1,
+    "group" : "ctrlMel",
+    "ctype" : "FLOAT",
+    "name" : "ki_m_z"
+  },
+  "kalman.quadIsFlying" : {
+    "ident" : 109,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "UINT8_T",
+    "name" : "quadIsFlying"
+  },
+  "posCtlPid.rpLimit" : {
+    "ident" : 71,
+    "access" : 1,
+    "group" : "posCtlPid",
+    "ctype" : "FLOAT",
+    "name" : "rpLimit"
+  },
+  "stabilizer.controller" : {
+    "ident" : 54,
+    "access" : 1,
+    "group" : "stabilizer",
+    "ctype" : "UINT8_T",
+    "name" : "controller"
+  },
+  "pid_attitude.pitch_kp" : {
+    "ident" : 34,
+    "access" : 1,
+    "group" : "pid_attitude",
+    "ctype" : "FLOAT",
+    "name" : "pitch_kp"
+  },
+  "ctrlMel.ki_m_xy" : {
+    "ident" : 98,
+    "access" : 1,
+    "group" : "ctrlMel",
+    "ctype" : "FLOAT",
+    "name" : "ki_m_xy"
+  },
+  "deck.bcMultiranger" : {
+    "ident" : 149,
+    "access" : 0,
+    "group" : "deck",
+    "ctype" : "UINT8_T",
+    "name" : "bcMultiranger"
+  },
+  "imu_sensors.MS5611" : {
+    "ident" : 2,
+    "access" : 0,
+    "group" : "imu_sensors",
+    "ctype" : "UINT8_T",
+    "name" : "MS5611"
+  },
+  "flightmode.althold" : {
+    "ident" : 17,
+    "access" : 1,
+    "group" : "flightmode",
+    "ctype" : "UINT8_T",
+    "name" : "althold"
+  },
+  "pid_rate.pitch_kp" : {
+    "ident" : 43,
+    "access" : 1,
+    "group" : "pid_rate",
+    "ctype" : "FLOAT",
+    "name" : "pitch_kp"
+  },
+  "tdoa3.logOthrId" : {
+    "ident" : 144,
+    "access" : 1,
+    "group" : "tdoa3",
+    "ctype" : "UINT8_T",
+    "name" : "logOthrId"
+  },
+  "velCtlPid.vyKp" : {
+    "ident" : 77,
+    "access" : 1,
+    "group" : "velCtlPid",
+    "ctype" : "FLOAT",
+    "name" : "vyKp"
+  },
+  "kalman.mNGyro_yaw" : {
+    "ident" : 118,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "mNGyro_yaw"
+  },
+  "pid_rate.pitch_ki" : {
+    "ident" : 44,
+    "access" : 1,
+    "group" : "pid_rate",
+    "ctype" : "FLOAT",
+    "name" : "pitch_ki"
+  },
+  "posCtlPid.zKi" : {
+    "ident" : 67,
+    "access" : 1,
+    "group" : "posCtlPid",
+    "ctype" : "FLOAT",
+    "name" : "zKi"
+  },
+  "ring.solidRed" : {
+    "ident" : 126,
+    "access" : 1,
+    "group" : "ring",
+    "ctype" : "UINT8_T",
+    "name" : "solidRed"
+  },
+  "flightmode.posSet" : {
+    "ident" : 19,
+    "access" : 1,
+    "group" : "flightmode",
+    "ctype" : "UINT8_T",
+    "name" : "posSet"
+  },
+  "pid_rate.pitch_kd" : {
+    "ident" : 45,
+    "access" : 1,
+    "group" : "pid_rate",
+    "ctype" : "FLOAT",
+    "name" : "pitch_kd"
+  },
+  "velCtlPid.vyKi" : {
+    "ident" : 78,
+    "access" : 1,
+    "group" : "velCtlPid",
+    "ctype" : "FLOAT",
+    "name" : "vyKi"
+  },
+  "motion.disable" : {
+    "ident" : 147,
+    "access" : 1,
+    "group" : "motion",
+    "ctype" : "UINT8_T",
+    "name" : "disable"
+  },
+  "posCtlPid.zKd" : {
+    "ident" : 68,
+    "access" : 1,
+    "group" : "posCtlPid",
+    "ctype" : "FLOAT",
+    "name" : "zKd"
+  },
+  "ring.effect" : {
+    "ident" : 124,
+    "access" : 1,
+    "group" : "ring",
+    "ctype" : "UINT8_T",
+    "name" : "effect"
+  },
+  "posCtlPid.zKp" : {
+    "ident" : 66,
+    "access" : 1,
+    "group" : "posCtlPid",
+    "ctype" : "FLOAT",
+    "name" : "zKp"
+  },
+  "kalman.mNGyro_rollpitch" : {
+    "ident" : 117,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "mNGyro_rollpitch"
+  },
+  "ctrlMel.kp_xy" : {
+    "ident" : 84,
+    "access" : 1,
+    "group" : "ctrlMel",
+    "ctype" : "FLOAT",
+    "name" : "kp_xy"
+  },
+  "ctrlMel.massThrust" : {
+    "ident" : 93,
+    "access" : 1,
+    "group" : "ctrlMel",
+    "ctype" : "FLOAT",
+    "name" : "massThrust"
+  },
+  "imu_tests.HMC5883L" : {
+    "ident" : 4,
+    "access" : 0,
+    "group" : "imu_tests",
+    "ctype" : "UINT8_T",
+    "name" : "HMC5883L"
+  },
+  "posCtlPid.thrustMin" : {
+    "ident" : 70,
+    "access" : 1,
+    "group" : "posCtlPid",
+    "ctype" : "UINT16_T",
+    "name" : "thrustMin"
+  },
+  "cpu.id0" : {
+    "ident" : 7,
+    "access" : 0,
+    "group" : "cpu",
+    "ctype" : "UINT32_T",
+    "name" : "id0"
+  },
+  "kalman.pNAcc_xy" : {
+    "ident" : 110,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "pNAcc_xy"
+  },
+  "deck.bcFlow2" : {
+    "ident" : 146,
+    "access" : 0,
+    "group" : "deck",
+    "ctype" : "UINT8_T",
+    "name" : "bcFlow2"
+  },
+  "flightmode.yawMode" : {
+    "ident" : 20,
+    "access" : 1,
+    "group" : "flightmode",
+    "ctype" : "UINT8_T",
+    "name" : "yawMode"
+  },
+  "deck.bcZRanger2" : {
+    "ident" : 140,
+    "access" : 0,
+    "group" : "deck",
+    "ctype" : "UINT8_T",
+    "name" : "bcZRanger2"
+  },
+  "velCtlPid.vxKd" : {
+    "ident" : 76,
+    "access" : 1,
+    "group" : "velCtlPid",
+    "ctype" : "FLOAT",
+    "name" : "vxKd"
+  },
+  "ctrlMel.kR_z" : {
+    "ident" : 95,
+    "access" : 1,
+    "group" : "ctrlMel",
+    "ctype" : "FLOAT",
+    "name" : "kR_z"
+  },
+  "ctrlMel.kd_omega_rp" : {
+    "ident" : 100,
+    "access" : 1,
+    "group" : "ctrlMel",
+    "ctype" : "FLOAT",
+    "name" : "kd_omega_rp"
+  },
+  "sound.neffect" : {
+    "ident" : 12,
+    "access" : 0,
+    "group" : "sound",
+    "ctype" : "UINT32_T",
+    "name" : "neffect"
+  },
+  "posEstAlt.estAlphaZr" : {
+    "ident" : 56,
+    "access" : 1,
+    "group" : "posEstAlt",
+    "ctype" : "FLOAT",
+    "name" : "estAlphaZr"
+  },
+  "cpu.id1" : {
+    "ident" : 8,
+    "access" : 0,
+    "group" : "cpu",
+    "ctype" : "UINT32_T",
+    "name" : "id1"
+  },
+  "cpu.id2" : {
+    "ident" : 9,
+    "access" : 0,
+    "group" : "cpu",
+    "ctype" : "UINT32_T",
+    "name" : "id2"
+  },
+  "sensfusion6.baseZacc" : {
+    "ident" : 51,
+    "access" : 1,
+    "group" : "sensfusion6",
+    "ctype" : "FLOAT",
+    "name" : "baseZacc"
+  },
+  "cmdrCPPM.angRoll" : {
+    "ident" : 28,
+    "access" : 1,
+    "group" : "cmdrCPPM",
+    "ctype" : "FLOAT",
+    "name" : "angRoll"
+  },
+  "stabilizer.estimator" : {
+    "ident" : 53,
+    "access" : 1,
+    "group" : "stabilizer",
+    "ctype" : "UINT8_T",
+    "name" : "estimator"
+  },
+  "posCtlPid.thrustBase" : {
+    "ident" : 69,
+    "access" : 1,
+    "group" : "posCtlPid",
+    "ctype" : "UINT16_T",
+    "name" : "thrustBase"
+  },
+  "pid_attitude.yaw_kp" : {
+    "ident" : 37,
+    "access" : 1,
+    "group" : "pid_attitude",
+    "ctype" : "FLOAT",
+    "name" : "yaw_kp"
+  },
+  "ctrlMel.ki_xy" : {
+    "ident" : 86,
+    "access" : 1,
+    "group" : "ctrlMel",
+    "ctype" : "FLOAT",
+    "name" : "ki_xy"
+  },
+  "velCtlPid.vxKp" : {
+    "ident" : 74,
+    "access" : 1,
+    "group" : "velCtlPid",
+    "ctype" : "FLOAT",
+    "name" : "vxKp"
+  },
+  "cpu.flash" : {
+    "ident" : 6,
+    "access" : 0,
+    "group" : "cpu",
+    "ctype" : "UINT16_T",
+    "name" : "flash"
+  },
+  "pid_attitude.roll_kd" : {
+    "ident" : 33,
+    "access" : 1,
+    "group" : "pid_attitude",
+    "ctype" : "FLOAT",
+    "name" : "roll_kd"
+  },
+  "posCtlPid.yKi" : {
+    "ident" : 64,
+    "access" : 1,
+    "group" : "posCtlPid",
+    "ctype" : "FLOAT",
+    "name" : "yKi"
+  },
+  "controller.tiltComp" : {
+    "ident" : 83,
+    "access" : 1,
+    "group" : "controller",
+    "ctype" : "UINT8_T",
+    "name" : "tiltComp"
+  },
+  "motorPowerSet.m1" : {
+    "ident" : 104,
+    "access" : 1,
+    "group" : "motorPowerSet",
+    "ctype" : "UINT16_T",
+    "name" : "m1"
+  },
+  "motorPowerSet.m2" : {
+    "ident" : 105,
+    "access" : 1,
+    "group" : "motorPowerSet",
+    "ctype" : "UINT16_T",
+    "name" : "m2"
+  },
+  "loco.mode" : {
+    "ident" : 142,
+    "access" : 1,
+    "group" : "loco",
+    "ctype" : "UINT8_T",
+    "name" : "mode"
+  },
+  "posCtlPid.yKd" : {
+    "ident" : 65,
+    "access" : 1,
+    "group" : "posCtlPid",
+    "ctype" : "FLOAT",
+    "name" : "yKd"
+  },
+  "velCtlPid.vxKi" : {
+    "ident" : 75,
+    "access" : 1,
+    "group" : "velCtlPid",
+    "ctype" : "FLOAT",
+    "name" : "vxKi"
+  },
+  "motorPowerSet.m3" : {
+    "ident" : 106,
+    "access" : 1,
+    "group" : "motorPowerSet",
+    "ctype" : "UINT16_T",
+    "name" : "m3"
+  },
+  "ctrlMel.i_range_m_xy" : {
+    "ident" : 101,
+    "access" : 1,
+    "group" : "ctrlMel",
+    "ctype" : "FLOAT",
+    "name" : "i_range_m_xy"
+  },
+  "motorPowerSet.m4" : {
+    "ident" : 107,
+    "access" : 1,
+    "group" : "motorPowerSet",
+    "ctype" : "UINT16_T",
+    "name" : "m4"
+  },
+  "deck.bcGTGPS" : {
+    "ident" : 136,
+    "access" : 0,
+    "group" : "deck",
+    "ctype" : "UINT8_T",
+    "name" : "bcGTGPS"
+  },
+  "ctrlMel.kw_z" : {
+    "ident" : 97,
+    "access" : 1,
+    "group" : "ctrlMel",
+    "ctype" : "FLOAT",
+    "name" : "kw_z"
+  },
+  "pid_rate.yaw_kp" : {
+    "ident" : 46,
+    "access" : 1,
+    "group" : "pid_rate",
+    "ctype" : "FLOAT",
+    "name" : "yaw_kp"
+  },
+  "posCtlPid.yKp" : {
+    "ident" : 63,
+    "access" : 1,
+    "group" : "posCtlPid",
+    "ctype" : "FLOAT",
+    "name" : "yKp"
+  },
+  "pid_attitude.roll_ki" : {
+    "ident" : 32,
+    "access" : 1,
+    "group" : "pid_attitude",
+    "ctype" : "FLOAT",
+    "name" : "roll_ki"
+  },
+  "pid_attitude.roll_kp" : {
+    "ident" : 31,
+    "access" : 1,
+    "group" : "pid_attitude",
+    "ctype" : "FLOAT",
+    "name" : "roll_kp"
+  },
+  "kalman.initialZ" : {
+    "ident" : 121,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "initialZ"
+  },
+  "pid_rate.yaw_ki" : {
+    "ident" : 47,
+    "access" : 1,
+    "group" : "pid_rate",
+    "ctype" : "FLOAT",
+    "name" : "yaw_ki"
+  },
+  "deck.bcRZR" : {
+    "ident" : 122,
+    "access" : 0,
+    "group" : "deck",
+    "ctype" : "UINT8_T",
+    "name" : "bcRZR"
+  },
+  "pid_rate.yaw_kd" : {
+    "ident" : 48,
+    "access" : 1,
+    "group" : "pid_rate",
+    "ctype" : "FLOAT",
+    "name" : "yaw_kd"
+  },
+  "deck.bcCPPM" : {
+    "ident" : 137,
+    "access" : 0,
+    "group" : "deck",
+    "ctype" : "UINT8_T",
+    "name" : "bcCPPM"
+  },
+  "imu_tests.MPU6500" : {
+    "ident" : 3,
+    "access" : 0,
+    "group" : "imu_tests",
+    "ctype" : "UINT8_T",
+    "name" : "MPU6500"
+  },
+  "flightmode.poshold" : {
+    "ident" : 18,
+    "access" : 1,
+    "group" : "flightmode",
+    "ctype" : "UINT8_T",
+    "name" : "poshold"
+  },
+  "flightmode.yawRst" : {
+    "ident" : 21,
+    "access" : 1,
+    "group" : "flightmode",
+    "ctype" : "UINT8_T",
+    "name" : "yawRst"
+  },
+  "ring.fadeTime" : {
+    "ident" : 134,
+    "access" : 1,
+    "group" : "ring",
+    "ctype" : "FLOAT",
+    "name" : "fadeTime"
+  },
+  "ring.fadeColor" : {
+    "ident" : 133,
+    "access" : 1,
+    "group" : "ring",
+    "ctype" : "UINT32_T",
+    "name" : "fadeColor"
+  },
+  "imu_tests.MS5611" : {
+    "ident" : 5,
+    "access" : 0,
+    "group" : "imu_tests",
+    "ctype" : "UINT8_T",
+    "name" : "MS5611"
+  },
+  "ctrlMel.kw_xy" : {
+    "ident" : 96,
+    "access" : 1,
+    "group" : "ctrlMel",
+    "ctype" : "FLOAT",
+    "name" : "kw_xy"
+  },
+  "ring.emptyCharge" : {
+    "ident" : 131,
+    "access" : 1,
+    "group" : "ring",
+    "ctype" : "FLOAT",
+    "name" : "emptyCharge"
+  },
+  "imu_sensors.BMP388" : {
+    "ident" : 0,
+    "access" : 0,
+    "group" : "imu_sensors",
+    "ctype" : "UINT8_T",
+    "name" : "BMP388"
+  },
+  "posCtlPid.xyVelMax" : {
+    "ident" : 72,
+    "access" : 1,
+    "group" : "posCtlPid",
+    "ctype" : "FLOAT",
+    "name" : "xyVelMax"
+  },
+  "ring.fullCharge" : {
+    "ident" : 132,
+    "access" : 1,
+    "group" : "ring",
+    "ctype" : "FLOAT",
+    "name" : "fullCharge"
+  },
+  "firmware.revision0" : {
+    "ident" : 150,
+    "access" : 0,
+    "group" : "firmware",
+    "ctype" : "UINT32_T",
+    "name" : "revision0"
+  },
+  "posEstAlt.velFactor" : {
+    "ident" : 57,
+    "access" : 1,
+    "group" : "posEstAlt",
+    "ctype" : "FLOAT",
+    "name" : "velFactor"
+  },
+  "firmware.revision1" : {
+    "ident" : 151,
+    "access" : 0,
+    "group" : "firmware",
+    "ctype" : "UINT16_T",
+    "name" : "revision1"
+  },
+  "firmware.modified" : {
+    "ident" : 152,
+    "access" : 0,
+    "group" : "firmware",
+    "ctype" : "UINT8_T",
+    "name" : "modified"
+  },
+  "cmdrCPPM.angPitch" : {
+    "ident" : 29,
+    "access" : 1,
+    "group" : "cmdrCPPM",
+    "ctype" : "FLOAT",
+    "name" : "angPitch"
+  },
+  "pid_attitude.yaw_ki" : {
+    "ident" : 38,
+    "access" : 1,
+    "group" : "pid_attitude",
+    "ctype" : "FLOAT",
+    "name" : "yaw_ki"
+  },
+  "pid_attitude.yaw_kd" : {
+    "ident" : 39,
+    "access" : 1,
+    "group" : "pid_attitude",
+    "ctype" : "FLOAT",
+    "name" : "yaw_kd"
+  },
+  "posCtlPid.xKd" : {
+    "ident" : 62,
+    "access" : 1,
+    "group" : "posCtlPid",
+    "ctype" : "FLOAT",
+    "name" : "xKd"
+  },
+  "motorPowerSet.enable" : {
+    "ident" : 103,
+    "access" : 1,
+    "group" : "motorPowerSet",
+    "ctype" : "UINT8_T",
+    "name" : "enable"
+  },
+  "sensfusion6.ki" : {
+    "ident" : 50,
+    "access" : 1,
+    "group" : "sensfusion6",
+    "ctype" : "FLOAT",
+    "name" : "ki"
+  },
+  "flightmode.stabModePitch" : {
+    "ident" : 23,
+    "access" : 1,
+    "group" : "flightmode",
+    "ctype" : "UINT8_T",
+    "name" : "stabModePitch"
+  },
+  "deck.bcFlow" : {
+    "ident" : 145,
+    "access" : 0,
+    "group" : "deck",
+    "ctype" : "UINT8_T",
+    "name" : "bcFlow"
+  },
+  "posEstAlt.velZAlpha" : {
+    "ident" : 58,
+    "access" : 1,
+    "group" : "posEstAlt",
+    "ctype" : "FLOAT",
+    "name" : "velZAlpha"
+  },
+  "system.taskDump" : {
+    "ident" : 15,
+    "access" : 1,
+    "group" : "system",
+    "ctype" : "UINT8_T",
+    "name" : "taskDump"
+  },
+  "posCtlPid.xKi" : {
+    "ident" : 61,
+    "access" : 1,
+    "group" : "posCtlPid",
+    "ctype" : "FLOAT",
+    "name" : "xKi"
+  },
+  "imu_sensors.HMC5883L" : {
+    "ident" : 1,
+    "access" : 0,
+    "group" : "imu_sensors",
+    "ctype" : "UINT8_T",
+    "name" : "HMC5883L"
+  },
+  "kalman.resetEstimation" : {
+    "ident" : 108,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "UINT8_T",
+    "name" : "resetEstimation"
+  },
+  "sensfusion6.kp" : {
+    "ident" : 49,
+    "access" : 1,
+    "group" : "sensfusion6",
+    "ctype" : "FLOAT",
+    "name" : "kp"
+  },
+  "ctrlMel.i_range_m_z" : {
+    "ident" : 102,
+    "access" : 1,
+    "group" : "ctrlMel",
+    "ctype" : "FLOAT",
+    "name" : "i_range_m_z"
+  },
+  "ring.glowstep" : {
+    "ident" : 130,
+    "access" : 1,
+    "group" : "ring",
+    "ctype" : "FLOAT",
+    "name" : "glowstep"
+  },
+  "ring.solidGreen" : {
+    "ident" : 127,
+    "access" : 1,
+    "group" : "ring",
+    "ctype" : "UINT8_T",
+    "name" : "solidGreen"
+  },
+  "posCtlPid.xKp" : {
+    "ident" : 60,
+    "access" : 1,
+    "group" : "posCtlPid",
+    "ctype" : "FLOAT",
+    "name" : "xKp"
+  },
+  "ctrlMel.i_range_z" : {
+    "ident" : 91,
+    "access" : 1,
+    "group" : "ctrlMel",
+    "ctype" : "FLOAT",
+    "name" : "i_range_z"
+  },
+  "kalman.pNPos" : {
+    "ident" : 113,
+    "access" : 1,
+    "group" : "kalman",
+    "ctype" : "FLOAT",
+    "name" : "pNPos"
+  },
+  "ctrlMel.kp_z" : {
+    "ident" : 88,
+    "access" : 1,
+    "group" : "ctrlMel",
+    "ctype" : "FLOAT",
+    "name" : "kp_z"
+  },
+  "commander.enHighLevel" : {
+    "ident" : 16,
+    "access" : 1,
+    "group" : "commander",
+    "ctype" : "UINT8_T",
+    "name" : "enHighLevel"
+  },
+  "posEstAlt.vAccDeadband" : {
+    "ident" : 59,
+    "access" : 1,
+    "group" : "posEstAlt",
+    "ctype" : "FLOAT",
+    "name" : "vAccDeadband"
+  },
+  "ctrlMel.kd_xy" : {
+    "ident" : 85,
+    "access" : 1,
+    "group" : "ctrlMel",
+    "ctype" : "FLOAT",
+    "name" : "kd_xy"
+  }
+}
