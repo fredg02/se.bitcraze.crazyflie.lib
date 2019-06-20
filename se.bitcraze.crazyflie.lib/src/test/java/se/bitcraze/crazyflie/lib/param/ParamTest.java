@@ -31,39 +31,35 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+import se.bitcraze.crazyflie.lib.OfflineTests;
 import se.bitcraze.crazyflie.lib.TestConnectionAdapter;
+import se.bitcraze.crazyflie.lib.TestUtilities;
 import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie;
 import se.bitcraze.crazyflie.lib.crazyflie.CrazyflieTest;
 import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
-import se.bitcraze.crazyflie.lib.crtp.CommanderPacket;
-import se.bitcraze.crazyflie.lib.toc.Toc;
-import se.bitcraze.crazyflie.lib.toc.TocElement;
-import se.bitcraze.crazyflie.lib.toc.VariableType;
 
 public class ParamTest {
-
-    //TODO: separate testing of Param class methods
-    //TODO: separate testing of ParamTocElement class
 
     private Param mParam;
     private boolean mSetupFinished = false;
 
-    ConnectionData mConnectionData = new ConnectionData(CrazyflieTest.channel, CrazyflieTest.datarate);
-
+    private ConnectionData mConnectionData = new ConnectionData(CrazyflieTest.channel, CrazyflieTest.datarate);
 
     //TODO: when cf disconnects, testParam is still stuck in the while loop
 
     @Test
     public void testParam() {
+        if (!TestUtilities.isCrazyradioAvailable()) {
+            fail("Test only works when Crazyflie is connected.");
+        }
         //TODO: refactor this into a test utility method
         final Crazyflie crazyflie = new Crazyflie(CrazyflieTest.getConnectionImpl(), new File("src/test"));
 
-        //TODO: test that TocCache actually works
         crazyflie.clearTocCache();
 
         crazyflie.getDriver().addConnectionListener(new TestConnectionAdapter() {
@@ -86,7 +82,7 @@ public class ParamTest {
         boolean isTimeout = false;
         long startTime = System.currentTimeMillis();
         while(!mSetupFinished && !isTimeout) {
-            isTimeout = (System.currentTimeMillis() - startTime) > 30000;
+            isTimeout = (System.currentTimeMillis() - startTime) > 10000;
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
@@ -175,66 +171,7 @@ public class ParamTest {
     }
 
     @Test
-    public void testParamElements() {
-        //TODO: refactor this into a test utility method
-        Crazyflie crazyflie = new Crazyflie(CrazyflieTest.getConnectionImpl(), new File("src/test"));
-
-        crazyflie.clearTocCache();
-
-        crazyflie.getDriver().addConnectionListener(new TestConnectionAdapter() {});
-
-        crazyflie.setConnectionData(mConnectionData);
-        crazyflie.connect();
-
-        for (int i = 0; i < 200; i++) {
-            crazyflie.sendPacket(new CommanderPacket(0, 0, 0, (char) 0));
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException e) {
-                break;
-            }
-        }
-        crazyflie.disconnect();
-
-        if (crazyflie.getParam() == null) {
-            fail("crazyflie.getParam() is null");
-        }
-
-        if (crazyflie.getParam() == null) {
-            fail("crazyflie.getParam() is null");
-        }
-
-        Toc toc = crazyflie.getParam().getToc();
-        List<TocElement> elements = toc.getElements();
-
-        for (TocElement tocElement : elements) {
-            System.out.println(tocElement);
-        }
-
-        //Check only a few TOC elements
-
-        TocElement imu_tests = toc.getElementByCompleteName("imu_tests.HMC5883L");
-        assertEquals(VariableType.UINT8_T, imu_tests.getCtype());
-        assertEquals(TocElement.RO_ACCESS, imu_tests.getAccess());
-
-        TocElement cpuFlash = toc.getElementByCompleteName("cpu.flash");
-        assertEquals(VariableType.UINT16_T, cpuFlash.getCtype());
-        assertEquals(TocElement.RO_ACCESS, cpuFlash.getAccess());
-
-        TocElement cpuId0 = toc.getElementByCompleteName("cpu.id0");
-        assertEquals(VariableType.UINT32_T, cpuId0.getCtype());
-        assertEquals(TocElement.RO_ACCESS, cpuId0.getAccess());
-
-        TocElement althold = toc.getElementByCompleteName("flightmode.althold");
-        assertEquals(VariableType.UINT8_T, althold.getCtype());
-        assertEquals(TocElement.RW_ACCESS, althold.getAccess());
-
-        TocElement pitch_kd = toc.getElementByCompleteName("pid_attitude.pitch_kd");
-        assertEquals(VariableType.FLOAT, pitch_kd.getCtype());
-        assertEquals(TocElement.RW_ACCESS, pitch_kd.getAccess());
-    }
-
-    @Test
+    @Category(OfflineTests.class)
     public void testParamSet() throws InterruptedException {
         //TODO: refactor this into a test utility method
         Crazyflie crazyflie = new Crazyflie(CrazyflieTest.getConnectionImpl(), new File("src/test"));

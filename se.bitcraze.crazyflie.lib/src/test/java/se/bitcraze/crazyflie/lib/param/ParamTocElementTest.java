@@ -28,21 +28,110 @@
 package se.bitcraze.crazyflie.lib.param;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.util.List;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import se.bitcraze.crazyflie.lib.OfflineTests;
+import se.bitcraze.crazyflie.lib.TestConnectionAdapter;
+import se.bitcraze.crazyflie.lib.TestUtilities;
+import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie;
+import se.bitcraze.crazyflie.lib.crazyflie.CrazyflieTest;
+import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
+import se.bitcraze.crazyflie.lib.toc.Toc;
 import se.bitcraze.crazyflie.lib.toc.TocElement;
 import se.bitcraze.crazyflie.lib.toc.VariableType;
 
 @Category(OfflineTests.class)
 public class ParamTocElementTest {
 
+    private boolean mSetupFinished = false;
+    private ConnectionData mConnectionData = new ConnectionData(CrazyflieTest.channel, CrazyflieTest.datarate);
+    
+    @Test
+    public void testParamTocElements() {
+        //TODO: refactor this into a test utility method
+        final Crazyflie crazyflie = new Crazyflie(CrazyflieTest.getConnectionImpl(), new File("src/test"));
+
+        if (TestUtilities.isCrazyradioAvailable()) {
+            crazyflie.clearTocCache();
+        }
+
+        crazyflie.getDriver().addConnectionListener(new TestConnectionAdapter() {
+
+            @Override
+            public void setupFinished() {
+                System.out.println("SETUP FINISHED");
+                checkElements(crazyflie);
+                mSetupFinished = true;
+            }
+
+        });
+
+        crazyflie.setConnectionData(mConnectionData);
+        crazyflie.connect();
+
+        boolean isTimeout = false;
+        long startTime = System.currentTimeMillis();
+        while(!mSetupFinished && !isTimeout) {
+            isTimeout = (System.currentTimeMillis() - startTime) > 10000;
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                break;
+            }
+        }
+        
+        long endTime = System.currentTimeMillis();
+        System.out.println("It took " + (endTime - startTime) + "ms until setup finished.");
+        
+        crazyflie.disconnect();
+    }
+    
+    private void checkElements(Crazyflie crazyflie) {
+        if (crazyflie.getParam() == null) {
+            fail("crazyflie.getParam() is null");
+        }
+
+        Toc toc = crazyflie.getParam().getToc();
+        List<TocElement> elements = toc.getElements();
+
+        System.out.println("Number of Param TOC elements: " + elements.size());
+        
+        for (TocElement tocElement : elements) {
+            System.out.println(tocElement);
+        }
+
+        // Check a few TOC elements
+
+        TocElement imu_tests = toc.getElementByCompleteName("imu_tests.HMC5883L");
+        assertEquals(VariableType.UINT8_T, imu_tests.getCtype());
+        assertEquals(TocElement.RO_ACCESS, imu_tests.getAccess());
+
+        TocElement cpuFlash = toc.getElementByCompleteName("cpu.flash");
+        assertEquals(VariableType.UINT16_T, cpuFlash.getCtype());
+        assertEquals(TocElement.RO_ACCESS, cpuFlash.getAccess());
+
+        TocElement cpuId0 = toc.getElementByCompleteName("cpu.id0");
+        assertEquals(VariableType.UINT32_T, cpuId0.getCtype());
+        assertEquals(TocElement.RO_ACCESS, cpuId0.getAccess());
+
+        TocElement althold = toc.getElementByCompleteName("flightmode.althold");
+        assertEquals(VariableType.UINT8_T, althold.getCtype());
+        assertEquals(TocElement.RW_ACCESS, althold.getAccess());
+
+        TocElement pitch_kd = toc.getElementByCompleteName("pid_attitude.pitch_kd");
+        assertEquals(VariableType.FLOAT, pitch_kd.getCtype());
+        assertEquals(TocElement.RW_ACCESS, pitch_kd.getAccess());
+    }
 
     @Test
-    public void testParamTocElement() {
+    public void testParamTocElementParsing() {
 
         // First three bytes of payload need to be stripped away?
 

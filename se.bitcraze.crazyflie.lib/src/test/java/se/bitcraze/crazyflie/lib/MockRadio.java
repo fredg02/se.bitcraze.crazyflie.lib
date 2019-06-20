@@ -1,5 +1,6 @@
 package se.bitcraze.crazyflie.lib;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -17,6 +18,9 @@ import se.bitcraze.crazyflie.lib.crtp.CrtpPacket.Header;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
 import se.bitcraze.crazyflie.lib.log.Logg;
 import se.bitcraze.crazyflie.lib.param.Param;
+import se.bitcraze.crazyflie.lib.toc.Toc;
+import se.bitcraze.crazyflie.lib.toc.TocCache;
+import se.bitcraze.crazyflie.lib.toc.TocElement;
 import se.bitcraze.crazyflie.lib.toc.TocFetcher;
 
 /**
@@ -28,9 +32,13 @@ public class MockRadio extends Crazyradio {
     final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
     private boolean hasFwScan = true;
 
+    private final static int TOC_CRC_LOGG = 0xF14AC355;
+    private final static int TOC_CRC_PARAM = 0x3E16885D;
+    
     private int consoleTextCounter = 0;
 
     private final byte[] defaultData = new byte[] {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,};
+    private Toc mParamToc;
 
     private static List<String> consoleByteStrings = new ArrayList<String>();
     static {
@@ -62,6 +70,8 @@ public class MockRadio extends Crazyradio {
     }
 
     public MockRadio() {
+        TocCache tocCache = new TocCache(new File("src/test"));
+        mParamToc = tocCache.fetch(TOC_CRC_PARAM, CrtpPort.PARAMETERS);
     }
 
     @Override
@@ -171,14 +181,13 @@ public class MockRadio extends Crazyradio {
 
         int command = payload[0];
         CrtpPort port = header.getPort();
-        mLogger.debug("TOC - port: " + port.name());
         
         int tocCRC;
         if (port == CrtpPort.LOGGING) {
-            tocCRC = 0xFA47F936;
+            tocCRC = TOC_CRC_LOGG;
         } else {
             // Parameters
-            tocCRC = 0x3E16885D;
+            tocCRC = TOC_CRC_PARAM;
         }
         byte[] tocCRCBytes = new byte[4];
         ByteBuffer.wrap(tocCRCBytes).order(ByteOrder.BIG_ENDIAN).putInt(tocCRC);
@@ -186,11 +195,45 @@ public class MockRadio extends Crazyradio {
 //        tocCRC = 0xBDB60123;
         
         int tocLength = 255; //??
-        int maxPacket = 16; //??
-        int maxOps = 128; //??
+        int maxLogBlocks = 16; //??
+        int maxLogVariables = 128; //??
 
-        if (command == (byte) TocFetcher.CMD_TOC_INFO) {
-            data = new byte[]{1, header.getByte(), (byte) command, (byte) tocLength, tocCRCBytes[0], tocCRCBytes[1], tocCRCBytes[2], tocCRCBytes[3], (byte) maxPacket, (byte) maxOps};
+        if (port == CrtpPort.LOGGING) {
+            if (command == (byte) TocFetcher.CMD_TOC_INFO) {
+                mLogger.debug("Logging - Command: CMD_GET_INFO/CMD_TOC_INFO");
+                data = new byte[]{1, header.getByte(), (byte) command, (byte) tocLength, tocCRCBytes[0], tocCRCBytes[1], tocCRCBytes[2], tocCRCBytes[3], (byte) maxLogBlocks, (byte) maxLogVariables};
+            } else if (command == (byte) TocFetcher.CMD_TOC_ELEMENT) {
+                int toc_item_index = payload[1];
+                mLogger.debug("Logging - Command: CMD_GET_ITEM/CMD_TOC_ELEMENT) - item index: " + toc_item_index);
+                //TODO: add toc item data
+                int type = 0;
+                String group = "group";
+                byte[] groupBytes = new byte[8];
+                ByteBuffer.wrap(groupBytes).order(ByteOrder.BIG_ENDIAN).put(group.getBytes());
+                String variable = "variable";
+                byte[] variableBytes = new byte[8];
+                ByteBuffer.wrap(variableBytes).order(ByteOrder.BIG_ENDIAN).put(variable.getBytes());
+
+                data = new byte[]{1, header.getByte(), (byte) command, (byte) toc_item_index, (byte) type, groupBytes[0], groupBytes[1], groupBytes[2], groupBytes[3], groupBytes[4], groupBytes[5], variableBytes[0], variableBytes[1], variableBytes[2], variableBytes[3], variableBytes[4], variableBytes[5]};
+            }
+        } else if (port == CrtpPort.PARAMETERS) {
+            if (command == (byte) TocFetcher.CMD_TOC_INFO) {
+                mLogger.debug("Parameters - Command: CMD_TOC_INFO");
+                data = new byte[]{1, header.getByte(), (byte) command, (byte) tocLength, tocCRCBytes[0], tocCRCBytes[1], tocCRCBytes[2], tocCRCBytes[3]};
+            } else if (command == (byte) TocFetcher.CMD_TOC_ELEMENT) {
+                int toc_item_index = payload[1];
+                mLogger.debug("Parameters - Command: CMD_GET_ITEM/CMD_TOC_ELEMENT) - item index: " + toc_item_index);
+                //TODO: add toc item data
+                int type = 0;
+                String group = "group";
+                byte[] groupBytes = new byte[8];
+                ByteBuffer.wrap(groupBytes).order(ByteOrder.BIG_ENDIAN).put(group.getBytes());
+                String variable = "variable";
+                byte[] variableBytes = new byte[12];
+                ByteBuffer.wrap(variableBytes).order(ByteOrder.BIG_ENDIAN).put(variable.getBytes());
+                    
+                data = new byte[]{1, header.getByte(), (byte) command, (byte) toc_item_index, (byte) type, groupBytes[0], groupBytes[1], groupBytes[2], groupBytes[3], groupBytes[4], groupBytes[5], variableBytes[0], variableBytes[1], variableBytes[2], variableBytes[3], variableBytes[4], variableBytes[5], variableBytes[6], variableBytes[7], variableBytes[8]};
+          }
         }
         return data;
     }
@@ -290,16 +333,54 @@ public class MockRadio extends Crazyradio {
         return data;
     }
 
+    private int paramTest_testParamSet_newValue = -1;
+    
     private byte[] parameters(Header header, byte[] payload) {
         byte[] data = defaultData;
         int channel = header.getChannel();
+        int id = payload[0]; // & 0x00ff; ?
+        TocElement tocElement = mParamToc.getElementById(id);
 
         if (channel == Param.TOC_CHANNEL) {
             data = toc(header, payload);
+        } else if (channel == Param.READ_CHANNEL) {
+            mLogger.debug("Parameters - Command: READ_PARAM - id: " + id);
+            int value = 42;
+            if ("sound.freq".equals(tocElement.getCompleteName())) {  // ParamTest.testParamSet
+                value = (paramTest_testParamSet_newValue != -1) ? paramTest_testParamSet_newValue : 4000; // default value of sound.freq is 4000
+            }
+            data = createParamPacketData(header, id, value);
+        } else if (channel == Param.WRITE_CHANNEL) {
+            int value = (int) getParamValue(id, payload);
+            mLogger.debug("Parameters - Command: WRITE_PARAM - id: " + id + " - value: " + value);
+            if ("sound.freq".equals(tocElement.getCompleteName())) {  // ParamTest.testParamSet
+                paramTest_testParamSet_newValue = value;
+            }
+            data = createParamPacketData(header, id, value);
         }
         return data;
     }
 
+    private Number getParamValue(int id, byte[] payload) {
+        TocElement tocElement = mParamToc.getElementById(id);
+        ByteBuffer byteBuffer = ByteBuffer.wrap(payload, 1, payload.length-1);
+        Number number = tocElement.getCtype().parse(byteBuffer);
+        return number;
+    }
+    
+    private byte[] createParamPacketData(Header header, int id, int value) {
+        //TODO: can we just create a CrtpPacket (the first byte (1) is probably missing)?
+        TocElement tocElement = mParamToc.getElementById(id);
+        byte[] parse = tocElement.getCtype().parse(value);
+        ByteBuffer bb = ByteBuffer.allocate(parse.length+3);
+        bb.put((byte) 1);
+        bb.put(header.getByte());
+        bb.put((byte) tocElement.getIdent());
+        bb.put(parse);
+        return bb.array();
+        
+    }
+    
     @Override
     protected void sendVendorSetup(int request, int value, int index, byte[] data) {
         //TODO: decode request
