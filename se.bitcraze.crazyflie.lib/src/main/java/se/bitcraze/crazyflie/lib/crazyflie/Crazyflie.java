@@ -88,7 +88,7 @@ public class Crazyflie {
      * @param driver driver to use (e.g. RadioDriver or BleLink)
      */
     public Crazyflie(CrtpDriver driver) {
-        this(driver, null);
+        this(driver, new File("."));
     }
 
     /**
