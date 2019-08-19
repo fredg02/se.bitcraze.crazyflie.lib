@@ -8,7 +8,7 @@
 <unit id="com.fasterxml.jackson.core.jackson-annotations" version="2.9.9"/>
 <unit id="com.fasterxml.jackson.core.jackson-core" version="2.9.9"/>
 <unit id="com.fasterxml.jackson.core.jackson-annotations.source" version="2.9.9"/>
-<repository location="file:/home/fr3d/git/se.bitcraze.crazyflie.lib_new/se.bitcraze.crazyflie.lib-target/target/repository"/>
+<repository location="file:/this/needs/to/be/replaced/with/the/actual/path"/>
 </location>
 <location path="${eclipse_home}" type="Profile"/>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
