@@ -76,7 +76,7 @@ mvn clean verify
 
 Or from within Eclipse by running ``/se.bitcraze.crazyflie.lib/src/test/java/se/bitcraze/crazyflie/lib/AllTests.java`` as a JUnit test.
 
-**Please make sure that a Crazyradio (PA) is connected and a Crazyflie 1.0 or 2.0 is switched on, when running the tests** (otherwise they will fail).
+**Please make sure that a Crazyradio (PA) is connected and a Crazyflie 1.0 or 2.x is switched on, when running the tests** (otherwise they will fail).
 
 
 Examples
