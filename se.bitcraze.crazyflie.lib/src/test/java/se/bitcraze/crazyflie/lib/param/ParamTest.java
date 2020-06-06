@@ -28,6 +28,7 @@
 package se.bitcraze.crazyflie.lib.param;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.io.File;
@@ -191,6 +192,7 @@ public class ParamTest {
         }
 
         mParam = crazyflie.getParam();
+        assertNotNull("mParam should not be null!", mParam);
         System.out.println("Number of TOC elements: " + mParam.getToc().getElements().size());
         // Requesting initial param update
         String group = "sound";
@@ -198,9 +200,10 @@ public class ParamTest {
         String param = group + "." + name;
 
         mParam.requestParamUpdate(param);
-        Thread.sleep(150);
+        Thread.sleep(200);
 
         // Getting original param value
+        assertNotNull("valuesMap should not be null!", mParam.getValuesMap());
         Number originalValue = mParam.getValuesMap().get(group).get(name);
         System.out.println(param + " - original value: " + originalValue);
         assertEquals(4000, originalValue);
@@ -211,7 +214,8 @@ public class ParamTest {
 
         // Requesting param update
         mParam.requestParamUpdate(param);
-        Thread.sleep(150);
+        Thread.sleep(200);
+        assertNotNull("valuesMap should not be null!", mParam.getValuesMap());
         Number newValue = mParam.getValuesMap().get(group).get(name);
         System.out.println(param + " - new value: " + newValue);
         assertEquals(4001, newValue);
@@ -220,7 +224,8 @@ public class ParamTest {
         mParam.setValue(param, 4000);
         Thread.sleep(150);
         mParam.requestParamUpdate(param);
-        Thread.sleep(150);
+        Thread.sleep(200);
+        assertNotNull("valuesMap should not be null!", mParam.getValuesMap());
         Number resetValue = mParam.getValuesMap().get(group).get(name);
         System.out.println(param + " - reset value: " + resetValue);
         assertEquals(4000, resetValue);
