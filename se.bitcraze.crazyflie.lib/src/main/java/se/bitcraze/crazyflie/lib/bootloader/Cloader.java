@@ -268,6 +268,7 @@ public class Cloader {
             Thread.sleep(1500);
         } catch (InterruptedException e) {
             mLogger.error("InterruptedException: " + e.getMessage());
+            Thread.currentThread().interrupt();
         }
         return true;
     }
@@ -325,6 +326,7 @@ public class Cloader {
                 Thread.sleep(200);
             } catch (InterruptedException e) {
                 mLogger.error("InterruptedException: " + e.getMessage());
+                Thread.currentThread().interrupt();
             }
         }
         return false;
@@ -430,6 +432,7 @@ public class Cloader {
      * Upload data into a buffer on the Crazyflie
      */
     public void uploadBuffer(int targetId, int page, int address, byte[] buff) {
+        //TODO: simplify
         int count = 0;
         //pk.data = struct.pack("=BBHH", target_id, 0x14, page, address)
         ByteBuffer bb = ByteBuffer.allocate(31).order(ByteOrder.LITTLE_ENDIAN);
@@ -464,12 +467,21 @@ public class Cloader {
         sendBootloaderPacket(bb.array());
     }
 
+    private void sendReadFlashPacket(int addr, int page, int number) {
+        ByteBuffer bb = ByteBuffer.allocate(6).order(ByteOrder.LITTLE_ENDIAN);
+        bb.put((byte) addr);
+        bb.put((byte) READ_FLASH);
+        bb.putChar((char) page);
+        bb.putChar((char) number);
+        sendBootloaderPacket(bb.array());
+    }
+
     /**
      * Read back a flash page from the Crazyflie and return it
      */
     //def read_flash(self, addr=0xFF, page=0x00):
     public byte[] readFlash(int addr, int page) {
-        ByteBuffer buff = null;
+        ByteBuffer buff = ByteBuffer.allocate(0);
 
         Target target = this.mTargets.get(addr);
         if (target != null) {
@@ -481,13 +493,7 @@ public class Cloader {
                 int retryCounter = 5;
 
                 while (retryCounter >= 0) {
-                    ByteBuffer bb = ByteBuffer.allocate(6).order(ByteOrder.LITTLE_ENDIAN);
-                    bb.put((byte) addr);
-                    bb.put((byte) READ_FLASH);
-                    bb.putChar((char) page);
-                    bb.putChar((char) (i*25));
-
-                    sendBootloaderPacket(bb.array());
+                    sendReadFlashPacket(addr, page, i*25);
 
                     //System.out.println("ByteString send: " + getHexString(pk.getPayload()) + " " + UsbLinkJava.getByteString(pk.getPayload()));
 
@@ -507,7 +513,11 @@ public class Cloader {
                     mLogger.debug("Returning null...");
                     return new byte[0];
                 } else {
-                    buff.put(replyPk.getPayload(), 6, replyPk.getPayload().length - 6);
+                    if (replyPk != null) {
+                        buff.put(replyPk.getPayload(), 6, replyPk.getPayload().length - 6);
+                    } else {
+                        mLogger.debug("replyPk is null");
+                    }
                 }
             }
 
@@ -515,6 +525,17 @@ public class Cloader {
         //return buff[0:page_size]  # For some reason we get one byte extra here...
         //-> because of the ceil function?
         return buff.array();
+    }
+
+    private void sendWriteFlashPacket(int addr, int pageBuffer, int targetPage, int pageCount) {
+        //pk.data = struct.pack("<BBHHH", addr, 0x18, page_buffer, target_page, page_count)
+        ByteBuffer bb = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
+        bb.put((byte) addr);
+        bb.put((byte) WRITE_FLASH);
+        bb.putChar((char) pageBuffer);
+        bb.putChar((char) targetPage);
+        bb.putChar((char) pageCount);
+        sendBootloaderPacket(bb.array());
     }
 
     /**
@@ -529,14 +550,7 @@ public class Cloader {
         int retryCounter = 5;
         //#print "Flashing to 0x{:X}".format(addr)
 
-        //pk.data = struct.pack("<BBHHH", addr, 0x18, page_buffer, target_page, page_count)
-        ByteBuffer bb = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
-        bb.put((byte) addr);
-        bb.put((byte) WRITE_FLASH);
-        bb.putChar((char) pageBuffer);
-        bb.putChar((char) targetPage);
-        bb.putChar((char) pageCount);
-        sendBootloaderPacket(bb.array());
+        sendWriteFlashPacket(addr, pageBuffer, targetPage, pageCount);
 
         while(!isBootloaderReplyPacket(replyPk, addr, WRITE_FLASH) && retryCounter >= 0 && !isCancelled()) {
             replyPk = this.mDriver.receivePacket(1);
@@ -547,6 +561,11 @@ public class Cloader {
         if (retryCounter < 0) {
             mLogger.debug("RetryCounter is < 0!");
             //self.error_code = -1
+            return false;
+        }
+
+        if (replyPk == null) {
+            mLogger.debug("ReplyPk is null!");
             return false;
         }
 

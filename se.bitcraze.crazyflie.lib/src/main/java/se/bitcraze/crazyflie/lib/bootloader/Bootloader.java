@@ -302,14 +302,10 @@ public class Bootloader {
 
     private void unzip(File zipFile) {
         mLogger.debug("Trying to unzip " + zipFile + "...");
-        InputStream fis = null;
-        ZipInputStream zis = null;
-        FileOutputStream fos = null;
         String parent = zipFile.getAbsoluteFile().getParent();
 
-        try {
-            fis = new FileInputStream(zipFile);
-            zis = new ZipInputStream(new BufferedInputStream(fis));
+        try ( InputStream fis = new FileInputStream(zipFile);
+              ZipInputStream zis = new ZipInputStream(new BufferedInputStream(fis))) {
             ZipEntry ze;
             while ((ze = zis.getNextEntry()) != null) {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -324,8 +320,9 @@ public class Bootloader {
                 File filePath = new File(parent + "/" + getFileNameWithoutExtension(zipFile) + "/" + filename);
                 // create subdir
                 filePath.getParentFile().mkdirs();
-                fos = new FileOutputStream(filePath);
-                fos.write(bytes);
+                try (FileOutputStream fos = new FileOutputStream(filePath)) {
+                    fos.write(bytes);
+                }
                 //check
                 if(filePath.exists() && filePath.length() > 0) {
                     mLogger.debug(filename + " successfully extracted to " + filePath.getAbsolutePath());
@@ -337,22 +334,6 @@ public class Bootloader {
             mLogger.error(ffe.getMessage());
         } catch (IOException ioe) {
             mLogger.error(ioe.getMessage());
-        } finally {
-            if (zis != null) {
-                try {
-                    zis.close();
-                } catch (IOException e) {
-                    mLogger.error(e.getMessage());
-                }
-            }
-            if (fos != null) {
-                try {
-                    fos.close();
-                } catch (IOException e) {
-                    mLogger.error(e.getMessage());
-                }
-            }
-
         }
     }
 
