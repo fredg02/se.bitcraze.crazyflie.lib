@@ -16,6 +16,10 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+    - name: Generate target platform P2 repository
+      run: mvn -B clean verify -f se.bitcraze.crazyflie.lib-target/pom.xml
+    - name: Fix the path to the target platform P2 repository
+      run: ant -f se.bitcraze.crazyflie.lib-target/fixTargetDefinition.xml
     - name: Build with Maven
       run: mvn -B clean verify --file se.bitcraze.crazyflie.lib-parent/pom.xml
     - name: SonarCloud Scan
