@@ -85,7 +85,8 @@ public class UsbLinkJava implements CrazyUsbInterface {
      * @throws IOException if the device cannot be opened
      * @throws SecurityException
      */
-    public void initDevice(int vid, int pid) throws IOException, SecurityException {
+    @Override
+    public void initDevice(int vid, int pid) throws IOException {
         if(mIntf != null && mIntf.isClaimed()){
             mLogger.warn("USB device is already initialized or claimed.");
             return;
@@ -157,6 +158,7 @@ public class UsbLinkJava implements CrazyUsbInterface {
     /* (non-Javadoc)
      * @see CrazyUsbInterface#releaseInterface()
      */
+    @Override
     public void releaseInterface(){
         if(mIntf != null && mIntf.isClaimed()){
             try {
@@ -172,6 +174,7 @@ public class UsbLinkJava implements CrazyUsbInterface {
     /* (non-Javadoc)
      * @see CrazyUsbInterface#isUsbConnected()
      */
+    @Override
     public boolean isUsbConnected(){
         return mIntf != null && mIntf.isClaimed();
     }
@@ -179,6 +182,7 @@ public class UsbLinkJava implements CrazyUsbInterface {
     /* (non-Javadoc)
      * @see CrazyUsbInterface#sendControlTransfer(int, int, int, int, byte[])
      */
+    @Override
     public int sendControlTransfer(int requestType, int request, int value, int index, byte[] data) {
         int returnCode = -1;
         if(mUsbDevice != null){
@@ -188,15 +192,12 @@ public class UsbLinkJava implements CrazyUsbInterface {
                     data = new byte[0];
                 }
                 usbControlIrp.setData(data);
-                int dataLength = (data == null) ? 0 : data.length;
-                usbControlIrp.setLength(dataLength);
+                usbControlIrp.setLength(data.length);
                 debugControlTransfer((byte) requestType, (byte) request, (byte) value, (byte) index, data);
                 if(sendUsbControlIrp(mUsbDevice, usbControlIrp)){
                     returnCode = usbControlIrp.getActualLength();
                 }
-            } catch (IllegalArgumentException e) {
-                e.printStackTrace();
-            } catch (UsbDisconnectedException e) {
+            } catch (IllegalArgumentException | UsbDisconnectedException e) {
                 e.printStackTrace();
             }
         }
@@ -212,6 +213,7 @@ public class UsbLinkJava implements CrazyUsbInterface {
     /* (non-Javadoc)
      * @see CrazyUsbInterface#sendBulkTransfer(byte[], byte[])
      */
+    @Override
     public int sendBulkTransfer(byte[] data, byte[] receiveData){
         int returnCode = -1;
         if(mUsbDevice != null){
@@ -219,24 +221,26 @@ public class UsbLinkJava implements CrazyUsbInterface {
                 sendBulkTransfer(mEpOut, data);
                 returnCode = sendBulkTransfer(mEpIn, receiveData);
             } catch (UsbException e) {
-                mLogger.error("sendBulkTransfer failed: " + e.getMessage());
+                mLogger.error("sendBulkTransfer failed: {}", e.getMessage());
             }
         }
         return returnCode;
     }
 
+    @Override
     public void bulkWrite(byte[] data) {
         if(mUsbDevice != null){
             try {
                 sendBulkTransfer(mEpOut, data);
             } catch (UsbException e) {
-                mLogger.error("bulkWrite failed: " + e.getMessage());
+                mLogger.error("bulkWrite failed: {}", e.getMessage());
             }
         } else {
             mLogger.error("bulkWrite failed because mUsbDevice was null");
         }
     }
 
+    @Override
     public byte[] bulkRead() {
         int returnCode = -1;
         byte[] data = new byte[33];
@@ -245,7 +249,7 @@ public class UsbLinkJava implements CrazyUsbInterface {
                 returnCode = sendBulkTransfer(mEpIn, data);
                 mLogger.debug("bulkRead: return code = {}", returnCode);
             } catch (UsbException e) {
-                mLogger.error("bulkRead failed: " + e.getMessage());
+                mLogger.error("bulkRead failed: {}", e.getMessage());
             }
         }
         return data;
@@ -266,10 +270,12 @@ public class UsbLinkJava implements CrazyUsbInterface {
             }
             if (usbPipe.isOpen()) {
                 UsbIrp usbIrp = usbPipe.createUsbIrp();
+                if(data == null){
+                    data = new byte[0];
+                }
                 usbIrp.setData(data);
                 //TODO: data length does not need to be set explicitly
-//                int dataLength = (data == null) ? 0 : data.length;
-//                usbIrp.setLength(dataLength);
+                usbIrp.setLength(data.length);
                 usbPipe.syncSubmit(usbIrp);
                 if (!usbIrp.isUsbException()) {
                     returnCode = usbIrp.getActualLength();
@@ -322,18 +328,19 @@ public class UsbLinkJava implements CrazyUsbInterface {
             usbDevice.syncSubmit(usbControlIrp);
             return true;
         } catch (UsbException uE) {
-            LoggerFactory.getLogger("UsbLinkJava").error("DCP submission failed : " + uE.getMessage());
+            LoggerFactory.getLogger("UsbLinkJava").error("DCP submission failed: {}", uE.getMessage());
             return false;
         }
     }
 
+    @Override
     public List<UsbDevice> findDevices(int vid, int pid) {
         return findUsbDevices(mRootHub, (short) vid, (short) pid);
     }
 
     @SuppressWarnings("unchecked")
     public static List<UsbDevice> findUsbDevices(UsbHub hub, short vendorId, short productId) {
-        List<UsbDevice> usbDeviceList = new ArrayList<UsbDevice>();
+        List<UsbDevice> usbDeviceList = new ArrayList<>();
         if (hub != null) {
             for (UsbDevice device : (List<UsbDevice>) hub.getAttachedUsbDevices()) {
                 UsbDeviceDescriptor desc = device.getUsbDeviceDescriptor();
@@ -352,6 +359,7 @@ public class UsbLinkJava implements CrazyUsbInterface {
     /* (non-Javadoc)
      * @see se.bitcraze.crazyflie.lib.IUsbLink#getFirmwareVersion()
      */
+    @Override
     public float getFirmwareVersion() {
         return getFirmwareVersion(mUsbDevice);
     }
@@ -363,6 +371,7 @@ public class UsbLinkJava implements CrazyUsbInterface {
         return Float.valueOf("0." + Integer.toHexString(usbDevice.getUsbDeviceDescriptor().bcdDevice()));
     }
 
+    @Override
     public String getSerialNumber() {
         return getSerialNumber(mUsbDevice);
     }
@@ -373,13 +382,7 @@ public class UsbLinkJava implements CrazyUsbInterface {
         }
         try {
             return usbDevice.getSerialNumberString();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            return "N/A";
-        } catch (UsbDisconnectedException e) {
-            e.printStackTrace();
-            return "N/A";
-        } catch (UsbException e) {
+        } catch (UnsupportedEncodingException | UsbDisconnectedException | UsbException e) {
             e.printStackTrace();
             return "N/A";
         }

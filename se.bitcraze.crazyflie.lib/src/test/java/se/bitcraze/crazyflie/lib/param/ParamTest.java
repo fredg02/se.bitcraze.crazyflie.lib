@@ -46,6 +46,7 @@ import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
 
 public class ParamTest {
 
+    private static final String VALUES_MAP_SHOULD_NOT_BE_NULL = "valuesMap should not be null!";
     private Param mParam;
     private boolean mSetupFinished = false;
 
@@ -203,7 +204,7 @@ public class ParamTest {
         Thread.sleep(200);
 
         // Getting original param value
-        assertNotNull("valuesMap should not be null!", mParam.getValuesMap());
+        assertNotNull(VALUES_MAP_SHOULD_NOT_BE_NULL, mParam.getValuesMap());
         Number originalValue = mParam.getValuesMap().get(group).get(name);
         System.out.println(param + " - original value: " + originalValue);
         assertEquals(4000, originalValue);
@@ -215,7 +216,7 @@ public class ParamTest {
         // Requesting param update
         mParam.requestParamUpdate(param);
         Thread.sleep(200);
-        assertNotNull("valuesMap should not be null!", mParam.getValuesMap());
+        assertNotNull(VALUES_MAP_SHOULD_NOT_BE_NULL, mParam.getValuesMap());
         Number newValue = mParam.getValuesMap().get(group).get(name);
         System.out.println(param + " - new value: " + newValue);
         assertEquals(4001, newValue);
@@ -225,7 +226,7 @@ public class ParamTest {
         Thread.sleep(150);
         mParam.requestParamUpdate(param);
         Thread.sleep(200);
-        assertNotNull("valuesMap should not be null!", mParam.getValuesMap());
+        assertNotNull(VALUES_MAP_SHOULD_NOT_BE_NULL, mParam.getValuesMap());
         Number resetValue = mParam.getValuesMap().get(group).get(name);
         System.out.println(param + " - reset value: " + resetValue);
         assertEquals(4000, resetValue);
