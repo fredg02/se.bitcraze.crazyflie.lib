@@ -73,10 +73,10 @@ public class FirmwareRelease implements Comparable<FirmwareRelease> {
         return mCreatedAt;
     }
 
-    public void setAsset(String assetName, int assetSize, String URL) {
+    public void setAsset(String assetName, int assetSize, String url) {
         this.mAssetName = assetName;
         this.mSize = assetSize;
-        this.mBrowserDownloadUrl = URL;
+        this.mBrowserDownloadUrl = url;
     }
 
     public String getAssetName() {

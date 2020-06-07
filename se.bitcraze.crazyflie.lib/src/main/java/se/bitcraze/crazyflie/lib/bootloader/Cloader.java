@@ -63,21 +63,21 @@ public class Cloader {
     final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
 
     private CrtpDriver mDriver;
-    private List<ConnectionData> mAvailableBootConnections = new ArrayList<ConnectionData>();
+    private List<ConnectionData> mAvailableBootConnections = new ArrayList<>();
 
-    private Map<Integer, Target> mTargets = new HashMap<Integer, Target>();
+    private Map<Integer, Target> mTargets = new HashMap<>();
     private String mErrorMessage = "";
     private int mProtocolVersion = 0xFF;
 
     private boolean mCancelled = false;
 
     // Bootloader commands
-    public final static int GET_INFO = 0x10;
-    public final static int SET_ADDRESS = 0x11; // Only implemented on Crazyflie version 0x00
-    public final static int GET_MAPPING = 0x12; // Only implemented in version 0x10 target 0xFF
-    public final static int LOAD_BUFFER = 0x14;
-    public final static int WRITE_FLASH = 0x18;
-    public final static int READ_FLASH = 0x1C;
+    public static final int GET_INFO = 0x10;
+    public static final int SET_ADDRESS = 0x11; // Only implemented on Crazyflie version 0x00
+    public static final int GET_MAPPING = 0x12; // Only implemented in version 0x10 target 0xFF
+    public static final int LOAD_BUFFER = 0x14;
+    public static final int WRITE_FLASH = 0x18;
+    public static final int READ_FLASH = 0x1C;
 
 
     /**
@@ -115,7 +115,7 @@ public class Cloader {
             throw new IllegalArgumentException("Scanning for bootloader is only supported with a Crazyradio connection.");
         }
         long startTime = System.currentTimeMillis();
-        List<ConnectionData> resultList = new ArrayList<ConnectionData>();
+        List<ConnectionData> resultList = new ArrayList<>();
         while (resultList.isEmpty() && (System.currentTimeMillis() - startTime) < 10000) {
             for (ConnectionData connectionData : mAvailableBootConnections) {
                 if(((RadioDriver) mDriver).scanSelected(connectionData, new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF})) {
@@ -267,7 +267,7 @@ public class Cloader {
         try {
             Thread.sleep(1500);
         } catch (InterruptedException e) {
-            mLogger.error("InterruptedException: " + e.getMessage());
+            mLogger.error("InterruptedException: {}", e.getMessage());
             Thread.currentThread().interrupt();
         }
         return true;
@@ -325,7 +325,7 @@ public class Cloader {
             try {
                 Thread.sleep(200);
             } catch (InterruptedException e) {
-                mLogger.error("InterruptedException: " + e.getMessage());
+                mLogger.error("InterruptedException: {}", e.getMessage());
                 Thread.currentThread().interrupt();
             }
         }
@@ -340,7 +340,7 @@ public class Cloader {
         if (!(mDriver instanceof RadioDriver)) {
             throw new IllegalArgumentException("Setting the copter's radio address is only supported with a Crazyradio connection.");
         }
-        mLogger.debug("Setting bootloader radio address to " + Utilities.getHexString(newAddress));
+        mLogger.debug("Setting bootloader radio address to {}", Utilities.getHexString(newAddress));
         return ((RadioDriver) this.mDriver).setBootloaderAddress(newAddress);
     }
 
@@ -404,7 +404,7 @@ public class Cloader {
 
         if (mappingData.length % 2 != 0){
             //raise Exception("Malformed flash mapping packet")
-            mLogger.error("Malformed flash mapping packet: length is not even (%s)", mappingData.length);
+            mLogger.error("Malformed flash mapping packet: length is not even ({})", mappingData.length);
             //TODO: why is the length not even?
             //return new Integer[0];
         }
@@ -417,7 +417,7 @@ public class Cloader {
                 self.mapping.append(page)
                 page += m[(2*i)+1]
         */
-        List<Integer> mapping = new ArrayList<Integer>();
+        List<Integer> mapping = new ArrayList<>();
         int page = 0;
         for (int i = 0; i < mappingData.length/2; i++) {
             for (int j = 0; j < mappingData[2*i]; j++) {
@@ -587,7 +587,7 @@ public class Cloader {
         }
         if (errorCode != 0) {
           //TODO: also call listener
-          mLogger.error("%s (error code: %s)", mErrorMessage, errorCode);
+          mLogger.error("{} (error code: {})", mErrorMessage, errorCode);
         }
 
         return replyPk.getPayload()[2] == 1;
@@ -625,7 +625,7 @@ public class Cloader {
     }
 
     public List<Target> getTargetsAsList() {
-        List<Target> targets = new ArrayList<Target>();
+        List<Target> targets = new ArrayList<>();
         for (Target t : mTargets.values()) {
             targets.add(t);
         }

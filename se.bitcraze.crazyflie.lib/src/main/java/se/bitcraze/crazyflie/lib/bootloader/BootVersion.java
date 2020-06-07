@@ -29,9 +29,13 @@ package se.bitcraze.crazyflie.lib.bootloader;
 
 public class BootVersion {
 
-    public final static int CF1_PROTO_VER_0 = 0x00;
-    public final static int CF1_PROTO_VER_1 = 0x01;
-    public final static int CF2_PROTO_VER = 0x10;
+    public static final int CF1_PROTO_VER_0 = 0x00;
+    public static final int CF1_PROTO_VER_1 = 0x01;
+    public static final int CF2_PROTO_VER = 0x10;
+
+    private BootVersion() {
+        throw new IllegalStateException("Utility class");
+    }
 
     public static String toVersionString(int ver) {
         if (ver == BootVersion.CF1_PROTO_VER_0 || ver == BootVersion.CF1_PROTO_VER_1) {

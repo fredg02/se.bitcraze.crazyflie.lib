@@ -35,7 +35,7 @@ public class Manifest {
     private int mVersion;
     private int mSubversion;
     private String mRelease;
-    private Map<String, FirmwareDetails> mFiles = new HashMap<String, FirmwareDetails>();
+    private Map<String, FirmwareDetails> mFiles = new HashMap<>();
 
     public Manifest() {
 

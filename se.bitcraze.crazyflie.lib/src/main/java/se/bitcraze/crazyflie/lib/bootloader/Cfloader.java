@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import se.bitcraze.crazyflie.lib.bootloader.Target.TargetTypes;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
@@ -17,15 +20,16 @@ import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
  */
 public class Cfloader {
 
+    final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
+
     private CrtpDriver mDriver;
     private String mAction;
     private String mFileName;
     private String mBoot = "cold";
-    private List<String> mTargetStrings = new ArrayList<String>();
-    private Bootloader mBootloader;
+    private List<String> mTargetStrings = new ArrayList<>();
 
     /**
-     * Initialise the CRTP link driver
+     * Initialize the CRTP link driver
      */
     public Cfloader(CrtpDriver driver) {
         this.mDriver = driver;
@@ -50,12 +54,8 @@ public class Cfloader {
         System.out.println("                             mode.");
     }
 
-    /**
-     * Initialise the bootloader lib
-     */
-    public void initialiseBootloaderLib(String[] args) {
-
-        //analyse command line parameters
+    private void analyzeArgs(String[] args) {
+        //Analyze command line parameters
         int i = 0;
         while (i < args.length) {
             if ("--cold-boot".equalsIgnoreCase(args[i]) || "-c".equalsIgnoreCase(args[i])) {
@@ -74,14 +74,15 @@ public class Cfloader {
         }
         if ("flash".equals(args[0])) {
             if (args.length < 2) {
-                System.err.println("The flash action requires a file name.");
+                mLogger.error("The flash action requires a file name.");
                 return;
-            };
+            }
             this.mFileName = args[1];
         }
+    }
 
-        mBootloader = new Bootloader(this.mDriver);
-        /*
+    private void resetToBootloader(Bootloader bl) {
+                /*
          *  #########################################
          *  # Get the connection with the bootloader
          *  #########################################
@@ -89,27 +90,45 @@ public class Cfloader {
 
         // The connection is done by reseting to the bootloader (default)
         if ("warm".equals(mBoot)) {
-            System.out.print("Reset to bootloader mode...");
-            if (mBootloader.startBootloader(true)) {
-                System.out.println(" Done!");
+            mLogger.info("Reset to bootloader mode...");
+            if (bl.startBootloader(true)) {
+                mLogger.info(" Done!");
             } else {
-                System.out.println("Failed to warmboot");
-                mBootloader.close();
-                return;
+                mLogger.info("Failed to warmboot");
+                bl.close();
             }
         } else { // The connection is done by a cold boot ...
-            System.out.print("Restart the Crazyflie you want to bootload in the next 10 seconds...");
-            if (mBootloader.startBootloader(false)) {
-                System.out.println(" Done!");
+            mLogger.info("Restart the Crazyflie you want to bootload in the next 10 seconds...");
+            if (bl.startBootloader(false)) {
+                mLogger.info(" Done!");
             } else {
-                System.out.println("Cannot connect to the bootloader!");
-                mBootloader.close();
-                return;
+                mLogger.info("Cannot connect to the bootloader!");
+                bl.close();
             }
         }
+    }
 
-        int protocolVersion = mBootloader.getProtocolVersion();
-        System.out.println("Connected to bootloader on " + BootVersion.toVersionString(protocolVersion) + String.format(" (version=0x%02X)", protocolVersion));
+    private void resetToFirmware(Bootloader bl) {
+        mLogger.info("Reset in firmware mode...");
+        if (bl.resetToFirmware()) {
+            mLogger.info(" Done!");
+        } else {
+            mLogger.error(" Something went wrong!");
+        }
+    }
+
+    /**
+     * Initialize the bootloader lib
+     */
+    public void initialiseBootloaderLib(String[] args) {
+        analyzeArgs(args);
+
+        Bootloader bootloader = new Bootloader(this.mDriver);
+
+        resetToBootloader(bootloader);
+
+        int protocolVersion = bootloader.getProtocolVersion();
+        mLogger.debug("Connected to bootloader on {}{}", BootVersion.toVersionString(protocolVersion), String.format(" (version=0x%02X)", protocolVersion));
 
         //TODO: or just use something like bl.getTargets() !?
         if (protocolVersion == BootVersion.CF2_PROTO_VER) {
@@ -125,36 +144,25 @@ public class Cfloader {
 
         // Print information about the targets
         for (String targetString : this.mTargetStrings) {
-            System.out.println(mBootloader.getCloader().getTargets().get(TargetTypes.fromString(targetString)));
+            mLogger.debug("{}", bootloader.getCloader().getTargets().get(TargetTypes.fromString(targetString)));
         }
 
-        System.out.println();
+        mLogger.debug("");
         if ("info".equals(mAction)) {
             // Already done ...
         } else if ("reset".equals(mAction)) {
-            resetToFirmware(mBootloader);
+            resetToFirmware(bootloader);
         } else if ("flash".equals(mAction)) {
             try {
-                mBootloader.flash(new File(mFileName), (String[]) mTargetStrings.toArray(new String[mTargetStrings.size()]));
+                bootloader.flash(new File(mFileName), mTargetStrings.toArray(new String[mTargetStrings.size()]));
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            resetToFirmware(mBootloader);
+            resetToFirmware(bootloader);
         } else {
-            System.err.println("Action " + mAction + " unknown.");
+            mLogger.error("Action {} unknown.", mAction);
         }
-        if (mBootloader != null) {
-            mBootloader.close();
-        }
-    }
-
-    private void resetToFirmware(Bootloader bl) {
-        System.out.print("Reset in firmware mode...");
-        if (bl.resetToFirmware()) {
-            System.out.println(" Done!");
-        } else {
-            System.out.println(" Something went wrong!");
-        }
+        bootloader.close();
     }
 
     /**

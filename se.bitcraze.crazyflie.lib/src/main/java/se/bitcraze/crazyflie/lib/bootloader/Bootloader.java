@@ -43,7 +43,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
@@ -68,6 +67,8 @@ import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
 //TODO: fix targetId and addr confusion
 //TODO: fix warmboot
 public class Bootloader {
+
+    private static final String BOOTLOADER_LOGGER_NAME = "Bootloader";
 
     final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
 
@@ -136,7 +137,7 @@ public class Bootloader {
                 } else if (protocolVersion == BootVersion.CF2_PROTO_VER) {
                     this.mCload.requestInfoUpdate(TargetTypes.NRF51);
                 } else {
-                    mLogger.debug("Bootloader protocol " + String.format("0x%02X", protocolVersion) + " not supported!");
+                    mLogger.debug("Bootloader protocol {} not supported!", String.format("0x%02X", protocolVersion));
                 }
 
                 mLogger.info("startBootloader: started");
@@ -175,20 +176,10 @@ public class Bootloader {
     //TODO: improve
     public static byte[] readFile(File file) throws IOException {
         byte[] fileData = new byte[(int) file.length()];
-        Logger logger = LoggerFactory.getLogger("Bootloader");
-        logger.debug("readFile: " + file.getName() +  ", size: " +  file.length());
-        RandomAccessFile raf = null;
-        try {
-            raf = new RandomAccessFile(file.getAbsoluteFile(), "r");
+        Logger logger = LoggerFactory.getLogger(BOOTLOADER_LOGGER_NAME);
+        logger.debug("readFile: {}, size: {}", file.getName(), file.length());
+        try (RandomAccessFile raf = new RandomAccessFile(file.getAbsoluteFile(), "r")) {
             raf.readFully(fileData);
-        } finally {
-            if (raf != null) {
-                try {
-                    raf.close();
-                } catch (IOException ioe) {
-                    logger.error(ioe.getMessage());
-                }
-            }
         }
         return fileData;
     }
@@ -196,7 +187,7 @@ public class Bootloader {
     public boolean flash(File file) throws IOException {
         // assume stm32 if no target name is specified and file extension is ".bin"
         if (file.getName().endsWith(".bin")) {
-            mLogger.info("Assuming STM32 for file " + file.getName() + ".");
+            mLogger.info("Assuming STM32 for file {}.", file.getName());
             return flash(file, "stm32");
         }
         return flash(file, "");
@@ -213,7 +204,7 @@ public class Bootloader {
         for (FlashTarget ft : filesToFlash) {
             if (!internalFlash(ft, fileCounter, filesToFlash.size())) {
                 return false;
-            };
+            }
             fileCounter++;
         }
         return true;
@@ -221,17 +212,16 @@ public class Bootloader {
 
     // package private for tests
     /* package private */ List<FlashTarget> getFlashTargets(File file, String... targetNames) throws IOException {
-        List<FlashTarget> filesToFlash = new ArrayList<FlashTarget>();
+        List<FlashTarget> filesToFlash = new ArrayList<>();
 
         if (!file.exists()) {
-            mLogger.error(file + " not found.");
+            mLogger.error("{} not found.", file);
             return filesToFlash;
         }
 
         // check if supplied targetNames are known TargetTypes, if so, continue, else return
 
         if (isZipFile(file)) {
-            // unzip
             unzip(file);
 
             // read manifest.json
@@ -242,7 +232,7 @@ public class Bootloader {
                 try {
                     mf = readManifest(manifestFile);
                 } catch (IOException ioe) {
-                    mLogger.error("Error while trying to read manifest file:\n" + ioe.getMessage());
+                    mLogger.error("Error while trying to read manifest file:\n{}", ioe.getMessage());
                 }
                 //TODO: improve error handling
                 if (mf == null) {
@@ -277,11 +267,11 @@ public class Bootloader {
                             }
                         }
                     } else {
-                        mLogger.error("No target found for " + firmwareDetails.getTarget());
+                        mLogger.error("No target found for {}.", firmwareDetails.getTarget());
                     }
                 }
             } else {
-                mLogger.error("Zip file " + file.getName() + " does not include a " + MANIFEST_FILENAME);
+                mLogger.error("Zip file {} does not include a {}.", file.getName(), MANIFEST_FILENAME);
             }
         } else { // File is not a Zip file
             // add single flash target
@@ -301,7 +291,7 @@ public class Bootloader {
     }
 
     private void unzip(File zipFile) {
-        mLogger.debug("Trying to unzip " + zipFile + "...");
+        mLogger.debug("Trying to unzip {}...", zipFile);
         String parent = zipFile.getAbsoluteFile().getParent();
 
         try ( InputStream fis = new FileInputStream(zipFile);
@@ -325,9 +315,9 @@ public class Bootloader {
                 }
                 //check
                 if(filePath.exists() && filePath.length() > 0) {
-                    mLogger.debug(filename + " successfully extracted to " + filePath.getAbsolutePath());
+                    mLogger.debug("{} successfully extracted to {}" , filename, filePath.getAbsolutePath());
                 } else {
-                    mLogger.error(filename + " was not extracted.");
+                    mLogger.error("{} was not extracted.", filename);
                 }
             }
         } catch (FileNotFoundException ffe) {
@@ -350,22 +340,10 @@ public class Bootloader {
     //TODO: how can this be improved?
     private boolean isZipFile(File file) {
         if (file != null && file.exists() && file.getName().endsWith(".zip")) {
-            ZipFile zf = null;
-            try {
-                zf = new ZipFile(file);
+            try (ZipFile zf = new ZipFile(file);){
                 return zf.size() > 0;
-            } catch (ZipException e) {
-                mLogger.error(e.getMessage());
             } catch (IOException e) {
                 mLogger.error(e.getMessage());
-            } finally {
-                if (zf != null) {
-                    try {
-                        zf.close();
-                    } catch (IOException e) {
-                        mLogger.error(e.getMessage());
-                    }
-                }
             }
         }
         return false;
@@ -399,24 +377,24 @@ public class Bootloader {
 
     // def _internal_flash(self, target, current_file_number=1, total_files=1):
     private boolean internalFlash(FlashTarget flashTarget, int currentFileNo, int totalFiles) {
-        Target t_data = flashTarget.getTarget();
+        Target tData = flashTarget.getTarget();
         byte[] image = flashTarget.getData();
-        int pageSize = t_data.getPageSize();
+        int pageSize = tData.getPageSize();
         int startPage = flashTarget.getStartPage();
 
-        String flashingTo = "Flashing to " + TargetTypes.toString(t_data.getId()) + " (" + flashTarget.getType() + ")";
+        String flashingTo = "Flashing to " + TargetTypes.toString(tData.getId()) + " (" + flashTarget.getType() + ")";
         mLogger.info(flashingTo);
         notifyUpdateStatus(flashingTo);
 
         //if len(image) > ((t_data.flash_pages - start_page) * t_data.page_size):
-        if (image.length > ((t_data.getFlashPages() - startPage) * pageSize)) {
+        if (image.length > ((tData.getFlashPages() - startPage) * pageSize)) {
             mLogger.error("Error: Not enough space to flash the image file.");
             //raise Exception()
             return false;
         }
 
         int noOfPages = (image.length / pageSize) + 1;
-        mLogger.info(image.length - 1 + " bytes (" + noOfPages + " pages) ");
+        mLogger.info("{} bytes ({} pages) ", image.length - 1, noOfPages);
 
         // For each page
         int bufferCounter = 0; // Buffer counter
@@ -439,17 +417,17 @@ public class Bootloader {
                 break;
             }
 
-            this.mCload.uploadBuffer(t_data.getId(), bufferCounter, 0, buffer);
+            this.mCload.uploadBuffer(tData.getId(), bufferCounter, 0, buffer);
 
             bufferCounter++;
 
             // Flash when the complete buffers are full
-            if (bufferCounter >= t_data.getBufferPages()) {
+            if (bufferCounter >= tData.getBufferPages()) {
                 String buffersFull = "Flashing page " + (i+1) + "...";
                 mLogger.info(buffersFull);
                 notifyUpdateStatus(buffersFull);
                 notifyUpdateProgress(i+1, noOfPages);
-                if (!this.mCload.writeFlash(t_data.getId(), 0, startPage + i - (bufferCounter - 1), bufferCounter)) {
+                if (!this.mCload.writeFlash(tData.getId(), 0, startPage + i - (bufferCounter - 1), bufferCounter)) {
                     handleFlashError();
                     //raise Exception()
                     return false;
@@ -462,9 +440,9 @@ public class Bootloader {
             return false;
         }
         if (bufferCounter > 0) {
-            mLogger.info("BufferCounter: " + bufferCounter);
+            mLogger.info("BufferCounter: {}", bufferCounter);
             notifyUpdateProgress(i, noOfPages);
-            if (!this.mCload.writeFlash(t_data.getId(), 0, (startPage + ((image.length - 1) / pageSize)) - (bufferCounter - 1), bufferCounter)) {
+            if (!this.mCload.writeFlash(tData.getId(), 0, (startPage + ((image.length - 1) / pageSize)) - (bufferCounter - 1), bufferCounter)) {
                 handleFlashError();
                 //raise Exception()
                 return false;
@@ -577,7 +555,7 @@ public class Bootloader {
         } catch (JsonMappingException jme) {
             errorMessage = jme.getMessage();
         }
-        LoggerFactory.getLogger("Bootloader").error("Error while parsing manifest " + file.getName() + ": " + errorMessage);
+        LoggerFactory.getLogger(BOOTLOADER_LOGGER_NAME).error("Error while parsing manifest {}: {}", file.getName(), errorMessage);
         return null;
     }
 
@@ -592,6 +570,6 @@ public class Bootloader {
         } catch (JsonMappingException jme) {
             errorMessage = jme.getMessage();
         }
-        LoggerFactory.getLogger("Bootloader").error("Could not save manifest to file " + fileName + ".\n" + errorMessage);
+        LoggerFactory.getLogger(BOOTLOADER_LOGGER_NAME).error("Could not save manifest to file {}.\n{}", fileName, errorMessage);
     }
 }

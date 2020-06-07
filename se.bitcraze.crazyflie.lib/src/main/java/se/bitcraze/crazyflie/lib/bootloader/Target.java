@@ -66,7 +66,7 @@ public class Target {
 
         int cpuIdSize = 12;
         // Concatenate CPU ID
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(String.format("%02X", bb.get()));
         for (int i = 1; i < cpuIdSize; i++) {
             sb.append(String.format(":%02X", bb.get()));
@@ -129,8 +129,12 @@ public class Target {
     /* TargetTypes */
 
     public static class TargetTypes {
-        public final static int STM32 = 0xFF;
-        public final static int NRF51 = 0xFE;
+        public static final int STM32 = 0xFF;
+        public static final int NRF51 = 0xFE;
+
+        private TargetTypes() {
+            throw new IllegalStateException("Utility class");
+        }
 
         public static String toString(int target) {
             if (target == TargetTypes.STM32) {
