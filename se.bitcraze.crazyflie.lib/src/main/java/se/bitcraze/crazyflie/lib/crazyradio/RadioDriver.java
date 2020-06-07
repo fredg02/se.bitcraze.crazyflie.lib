@@ -59,7 +59,7 @@ public class RadioDriver extends CrtpDriver {
     private final BlockingQueue<CrtpPacket> mInQueue = new LinkedBlockingQueue<CrtpPacket>();
 
     private ConnectionData mConnectionData;
-    
+
     /**
      * Create the link driver
      */
@@ -72,6 +72,7 @@ public class RadioDriver extends CrtpDriver {
     /* (non-Javadoc)
      * @see se.bitcraze.crazyflie.lib.crtp.CrtpDriver#connect()
      */
+    @Override
     public void connect() {
         if (this.mConnectionData == null) {
             throw new IllegalStateException("ConnectionData must be set before attempting to connect to Crazyradio.");
@@ -117,7 +118,7 @@ public class RadioDriver extends CrtpDriver {
 
     /**
      * Sets the connection data (channel and data rate)
-     * 
+     *
      * @param connectionData channel and data rate
      */
     public void setConnectionData(ConnectionData connectionData) {
@@ -131,7 +132,7 @@ public class RadioDriver extends CrtpDriver {
     @Override
     public CrtpPacket receivePacket(int time) {
         try {
-            return mInQueue.poll((long) time, TimeUnit.SECONDS);
+            return mInQueue.poll(time, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             mLogger.error("InterruptedException: " + e.getMessage());
             return null;
@@ -166,6 +167,7 @@ public class RadioDriver extends CrtpDriver {
             this.mOutQueue.put(packet);
         } catch (InterruptedException e) {
             mLogger.error("InterruptedException: " + e.getMessage());
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -185,6 +187,7 @@ public class RadioDriver extends CrtpDriver {
             Thread.sleep(100);
         } catch (InterruptedException e) {
             mLogger.error("Interrupted during disconnect: " + e.getMessage());
+            Thread.currentThread().interrupt();
         }
         if(this.mCradio != null) {
             this.mCradio.disconnect();
@@ -319,6 +322,7 @@ public class RadioDriver extends CrtpDriver {
          * (non-Javadoc)
          * @see java.lang.Runnable#run()
          */
+        @Override
         public void run() {
             byte[] dataOut = Crazyradio.NULL_PACKET;
 

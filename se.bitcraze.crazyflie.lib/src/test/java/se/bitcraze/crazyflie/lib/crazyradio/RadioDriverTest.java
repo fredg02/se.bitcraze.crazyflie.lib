@@ -73,6 +73,7 @@ public class RadioDriverTest {
                     Thread.sleep(50);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                    Thread.currentThread().interrupt();
                 }
             }
         }
@@ -93,6 +94,7 @@ public class RadioDriverTest {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                    Thread.currentThread().interrupt();
                 }
                 CrtpPacket receivePacket = mRadioDriver.receivePacket(50);
                 receivedPackets.add(receivePacket);

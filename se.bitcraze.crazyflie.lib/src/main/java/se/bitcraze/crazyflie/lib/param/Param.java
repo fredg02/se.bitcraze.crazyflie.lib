@@ -157,7 +157,7 @@ public class Param {
      * Callback with data for an updated parameter
      */
     public void paramUpdated(CrtpPacket packet) {
-        // Fix for TOC > 128 items 
+        // Fix for TOC > 128 items
         int varId = packet.getPayload()[0] & 0x00ff;
         TocElement tocElement = mToc.getElementById(varId);
         if (tocElement != null) {
@@ -375,6 +375,7 @@ public class Param {
                 mRequestQueue.put(packet);
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                Thread.currentThread().interrupt();
             }
         }
 
@@ -412,13 +413,14 @@ public class Param {
             }
         }
 
+        @Override
         public void run() {
             CrtpPacket packet = null;
             while (mCrazyflie.getDriver() != null && !Thread.currentThread().isInterrupted()) {
                 try {
                     packet = null;
                     // pk = self.request_queue.get() # Wait for request update
-                    packet = mRequestQueue.poll((long) 100, TimeUnit.MILLISECONDS);
+                    packet = mRequestQueue.poll(100, TimeUnit.MILLISECONDS);
 
                     // self.wait_lock.acquire()
                     // if self.cf.link:

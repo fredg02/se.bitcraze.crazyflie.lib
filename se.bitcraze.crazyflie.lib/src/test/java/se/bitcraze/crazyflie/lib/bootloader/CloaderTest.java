@@ -122,6 +122,7 @@ public class CloaderTest {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
+            Thread.currentThread().interrupt();
         }
 
         Target target = cloader.getTargetsAsList().get(0);
@@ -142,6 +143,7 @@ public class CloaderTest {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
+            Thread.currentThread().interrupt();
         }
 
         Target target = cloader.getTargetsAsList().get(0);
@@ -162,7 +164,7 @@ public class CloaderTest {
 
     /**
      * TODO: does not even work with CF1 atm
-     * 
+     *
      * @throws IOException
      */
     @Test @Ignore
@@ -174,6 +176,7 @@ public class CloaderTest {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
+            Thread.currentThread().interrupt();
         }
 
         Target target = cloader.getTargetsAsList().get(0);
@@ -213,6 +216,7 @@ public class CloaderTest {
             Thread.sleep(50);
         } catch (InterruptedException e) {
             e.printStackTrace();
+            Thread.currentThread().interrupt();
         }
 
         byte[] buff2 = new byte[]{1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,1,2,3,4,5};
@@ -223,6 +227,7 @@ public class CloaderTest {
             Thread.sleep(50);
         } catch (InterruptedException e) {
             e.printStackTrace();
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -238,11 +243,12 @@ public class CloaderTest {
 
         // Using assumption instead of @ignore
         assumeFalse("testCloaderCF1_setAddress should only be tested on CF 1.0.", target.getFlashPages() != 128);
-        
+
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
+            Thread.currentThread().interrupt();
         }
 
         byte[] newAddress = new byte[]{(byte) 0xE6, (byte) 0xE6, (byte) 0xE6, (byte) 0xE6, (byte) 0xE6};

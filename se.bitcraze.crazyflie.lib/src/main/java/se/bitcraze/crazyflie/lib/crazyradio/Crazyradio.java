@@ -81,7 +81,7 @@ public class Crazyradio {
 
     protected Crazyradio () {
     }
-    
+
     /**
      * Create object and scan for USB dongle if no device is supplied
      *
@@ -290,7 +290,7 @@ public class Crazyradio {
 
     /**
      * Slow PC-driven scan
-     * 
+     *
      * @param start
      * @param stop
      * @return list of channels
@@ -308,6 +308,7 @@ public class Crazyradio {
                 Thread.sleep(20);
             } catch (InterruptedException e) {
                 mLogger.error("InterruptedException: " + e.getMessage());
+                Thread.currentThread().interrupt();
             }
         }
         return result;
