@@ -50,8 +50,8 @@ import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
 
 public class TocCacheTest {
 
-    private final static Map<String, Integer> loggingMap = new HashMap<String, Integer>();
-    private final static Map<String, Integer> parameterMap = new HashMap<String, Integer>();
+    private static final Map<String, Integer> loggingMap = new HashMap<String, Integer>();
+    private static final Map<String, Integer> parameterMap = new HashMap<String, Integer>();
 
     static {
         // Firmware version ??

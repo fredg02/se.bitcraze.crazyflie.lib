@@ -59,7 +59,7 @@ public class Logg {
     final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
 
     // The max size of a CRTP packet payload
-    private final static int MAX_LOG_DATA_PACKET_SIZE = 30;
+    private static final int MAX_LOG_DATA_PACKET_SIZE = 30;
 
     private Crazyflie mCrazyflie;
     private Toc mToc = null;
@@ -431,18 +431,18 @@ public class Logg {
     /* Methods from LogConfig class */
 
     // Commands used when accessing the Log configurations
-    public final static int CMD_CREATE_LOGCONFIG = 0;
-    public final static int CMD_APPEND_LOGCONFIG = 1;
-    public final static int CMD_DELETE_LOGCONFIG = 2;
-    public final static int CMD_START_LOGGING = 3;
-    public final static int CMD_STOP_LOGGING = 4;
-    public final static int CMD_RESET_LOGGING = 5;
+    public static final int CMD_CREATE_LOGCONFIG = 0;
+    public static final int CMD_APPEND_LOGCONFIG = 1;
+    public static final int CMD_DELETE_LOGCONFIG = 2;
+    public static final int CMD_START_LOGGING = 3;
+    public static final int CMD_STOP_LOGGING = 4;
+    public static final int CMD_RESET_LOGGING = 5;
 
 
     // Channels used for the logging port, public for MockDriver
-    public final static int CHAN_TOC = 0;
-    public final static int CHAN_SETTINGS = 1;
-    public final static int CHAN_LOGDATA = 2;
+    public static final int CHAN_TOC = 0;
+    public static final int CHAN_SETTINGS = 1;
+    public static final int CHAN_LOGDATA = 2;
 
     //TODO: callbacks?
 

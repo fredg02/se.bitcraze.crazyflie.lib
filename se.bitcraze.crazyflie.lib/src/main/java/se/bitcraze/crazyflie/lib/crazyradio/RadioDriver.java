@@ -306,7 +306,7 @@ public class RadioDriver extends CrtpDriver {
 
         final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
 
-        private final static int RETRYCOUNT_BEFORE_DISCONNECT = 10;
+        private static final int RETRYCOUNT_BEFORE_DISCONNECT = 10;
         private int mRetryBeforeDisconnect;
 
         /**

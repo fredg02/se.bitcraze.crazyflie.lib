@@ -48,8 +48,8 @@ public class Toc {
 
     private Map<String, TocElement> mTocElementMap = new HashMap<String, TocElement>();
 
-    private final static Map<Integer, VariableType> mVariableTypeMapParam = new HashMap<Integer, VariableType>(10);
-    private final static Map<Integer, VariableType> mVariableTypeMapLog = new HashMap<Integer, VariableType>(10);
+    private static final Map<Integer, VariableType> mVariableTypeMapParam = new HashMap<Integer, VariableType>(10);
+    private static final Map<Integer, VariableType> mVariableTypeMapLog = new HashMap<Integer, VariableType>(10);
 
     static {
         fillVariableTypeMapParam();

@@ -46,38 +46,38 @@ public class Crazyradio {
     final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
 
     // USB parameters
-    public final static int CRADIO_VID = 0x1915; //Vendor ID
-    public final static int CRADIO_PID = 0x7777; //Product ID
+    public static final int CRADIO_VID = 0x1915; //Vendor ID
+    public static final int CRADIO_PID = 0x7777; //Product ID
 
     // Dongle configuration requests
     // See http://wiki.bitcraze.se/projects:crazyradio:protocol for documentation
-    private final static int SET_RADIO_CHANNEL = 0x01;
-    private final static int SET_RADIO_ADDRESS = 0x02;
-    private final static int SET_DATA_RATE = 0x03;
-    private final static int SET_RADIO_POWER = 0x04;
-    private final static int SET_RADIO_ARD = 0x05;
-    private final static int SET_RADIO_ARC = 0x06;
-    private final static int ACK_ENABLE = 0x10;
-    private final static int SET_CONT_CARRIER = 0x20;
-    private final static int SCAN_CHANNELS = 0x21;
-    private final static int LAUNCH_BOOTLOADER = 0xFF;
+    private static final int SET_RADIO_CHANNEL = 0x01;
+    private static final int SET_RADIO_ADDRESS = 0x02;
+    private static final int SET_DATA_RATE = 0x03;
+    private static final int SET_RADIO_POWER = 0x04;
+    private static final int SET_RADIO_ARD = 0x05;
+    private static final int SET_RADIO_ARC = 0x06;
+    private static final int ACK_ENABLE = 0x10;
+    private static final int SET_CONT_CARRIER = 0x20;
+    private static final int SCAN_CHANNELS = 0x21;
+    private static final int LAUNCH_BOOTLOADER = 0xFF;
 
     // configuration constants
-    public final static int DR_250KPS = 0;
-    public final static int DR_1MPS = 1;
-    public final static int DR_2MPS = 2;
+    public static final int DR_250KPS = 0;
+    public static final int DR_1MPS = 1;
+    public static final int DR_2MPS = 2;
 
-    public final static int P_M18DBM = 0;
-    public final static int P_M12DBM = 1;
-    public final static int P_M6DBM = 2;
-    public final static int P_0DBM = 3;
+    public static final int P_M18DBM = 0;
+    public static final int P_M12DBM = 1;
+    public static final int P_M6DBM = 2;
+    public static final int P_0DBM = 3;
 
     private CrazyUsbInterface mUsbInterface;
     protected int mArc;
     private float mVersion; // Crazyradio firmware version
     private String mSerialNumber; // Crazyradio serial number
 
-    protected final static byte[] NULL_PACKET = new byte[] { (byte) 0xff };
+    protected static final byte[] NULL_PACKET = new byte[] { (byte) 0xff };
 
     protected Crazyradio () {
     }
