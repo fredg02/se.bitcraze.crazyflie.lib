@@ -41,7 +41,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -94,58 +93,62 @@ public class Bootloader {
         return this.mCload;
     }
 
-    public boolean startBootloader(boolean warmboot) {
+    private boolean warmBoot() {
+        mLogger.info("startBootloader: warmboot");
         boolean started = false;
-
-        if (warmboot) {
-            mLogger.info("startBootloader: warmboot");
-
-            //TODO
-            //self._cload.open_bootloader_uri(self.clink)
-            //this.mCload.openBootloaderConnection(connectionData);
-            started = this.mCload.resetToBootloader(TargetTypes.NRF51); //is NRF51 correct here?
-            if (started) {
-                started = this.mCload.checkLinkAndGetInfo(TargetTypes.STM32);
-            }
-        } else {
-            mLogger.info("startBootloader: coldboot");
-            ConnectionData bootloaderConnection = this.mCload.scanForBootloader();
-
-            // Workaround for libusb on Windows (open/close too fast)
-            //time.sleep(1)
-
-            if (bootloaderConnection != null) {
-                mLogger.info("startBootloader: bootloader connection found");
-                try {
-                    this.mCload.setConnectionData(bootloaderConnection);
-                    this.mCload.openBootloaderConnection();
-                    started = this.mCload.checkLinkAndGetInfo(TargetTypes.STM32); //TODO: what is the real parameter for this?
-                } catch (IOException e) {
-                    mLogger.warn(e.getMessage());
-                    started = false;
-                }
-            } else {
-                mLogger.info("startBootloader: bootloader connection NOT found");
-                started = false;
-            }
-
-            if (started) {
-                int protocolVersion = this.mCload.getProtocolVersion();
-                if (protocolVersion == BootVersion.CF1_PROTO_VER_0 ||
-                    protocolVersion == BootVersion.CF1_PROTO_VER_1) {
-                    // Nothing to do
-                } else if (protocolVersion == BootVersion.CF2_PROTO_VER) {
-                    this.mCload.requestInfoUpdate(TargetTypes.NRF51);
-                } else {
-                    mLogger.debug("Bootloader protocol {} not supported!", String.format("0x%02X", protocolVersion));
-                }
-
-                mLogger.info("startBootloader: started");
-            } else {
-                mLogger.info("startBootloader: not started");
-            }
+        //TODO
+        //self._cload.open_bootloader_uri(self.clink)
+        //this.mCload.openBootloaderConnection(connectionData);
+        started = this.mCload.resetToBootloader(TargetTypes.NRF51); //is NRF51 correct here?
+        if (started) {
+            started = this.mCload.checkLinkAndGetInfo(TargetTypes.STM32);
         }
         return started;
+    }
+
+    private boolean coldBoot() {
+        mLogger.info("startBootloader: coldboot");
+        boolean started = false;
+        ConnectionData bootloaderConnection = this.mCload.scanForBootloader();
+
+        // Workaround for libusb on Windows (open/close too fast)
+        //time.sleep(1)
+
+        if (bootloaderConnection != null) {
+            mLogger.info("startBootloader: bootloader connection found");
+            try {
+                this.mCload.setConnectionData(bootloaderConnection);
+                this.mCload.openBootloaderConnection();
+                started = this.mCload.checkLinkAndGetInfo(TargetTypes.STM32); //TODO: what is the real parameter for this?
+            } catch (IOException e) {
+                mLogger.warn(e.getMessage());
+                started = false;
+            }
+        } else {
+            mLogger.info("startBootloader: bootloader connection NOT found");
+            started = false;
+        }
+
+        if (started) {
+            int protocolVersion = this.mCload.getProtocolVersion();
+            if (protocolVersion == BootVersion.CF1_PROTO_VER_0 ||
+                protocolVersion == BootVersion.CF1_PROTO_VER_1) {
+                // Nothing to do
+            } else if (protocolVersion == BootVersion.CF2_PROTO_VER) {
+                this.mCload.requestInfoUpdate(TargetTypes.NRF51);
+            } else {
+                mLogger.debug("Bootloader protocol {} not supported!", String.format("0x%02X", protocolVersion));
+            }
+
+            mLogger.info("startBootloader: started");
+        } else {
+            mLogger.info("startBootloader: not started");
+        }
+        return started;
+    }
+
+    public boolean startBootloader(boolean warmboot) {
+        return warmboot ? warmBoot() : coldBoot();
     }
 
     public Target getTarget(int targetId) {
@@ -210,13 +213,64 @@ public class Bootloader {
         return true;
     }
 
-    // package private for tests
-    /* package private */ List<FlashTarget> getFlashTargets(File file, String... targetNames) throws IOException {
+    private List<FlashTarget> iterateOverFilesinManifest(File basePath, Manifest mf, String... targetNames) throws IOException {
         List<FlashTarget> filesToFlash = new ArrayList<>();
 
+        // iterate over file names in manifest.json
+        for (String fileName : mf.getFiles().keySet()) {
+            FirmwareDetails firmwareDetails = mf.getFiles().get(fileName);
+            Target t = this.mCload.getTargets().get(TargetTypes.fromString(firmwareDetails.getTarget()));
+            if (t != null) {
+                // use path to extracted file
+                //File flashFile = new File(file.getParent() + "/" + file.getName() + "/" + fileName);
+                File flashFile = new File(basePath.getAbsolutePath(), fileName);
+                FlashTarget ft = new FlashTarget(t, readFile(flashFile), firmwareDetails.getType(), t.getStartPage()); //TODO: does startPage HAVE to be an extra argument!? (it's already included in Target)
+                // add flash target
+                // if no target names are specified, flash everything
+                if (targetNames == null || targetNames.length == 0 || targetNames[0].isEmpty()) {
+                    // deal with different platforms (CF1, CF2)
+                    // TODO: simplify
+                    if (t.getFlashPages() == 128 && "cf1".equalsIgnoreCase(firmwareDetails.getPlatform())) { //128 = CF 1.0
+                        filesToFlash.add(ft);
+                        // deal with STM32 and NRF51 for CF2 (different no of flash pages)
+                    } else if ((t.getFlashPages() == 1024 || t.getFlashPages() == 232) && "cf2".equalsIgnoreCase(firmwareDetails.getPlatform())) { //1024 = CF 2.0
+                        filesToFlash.add(ft);
+                    }
+                } else {
+                    // else flash only files whose targets are contained in targetNames
+                    if (Arrays.asList(targetNames).contains(firmwareDetails.getTarget())) {
+                        filesToFlash.add(ft);
+                    }
+                }
+            } else {
+                mLogger.error("No target found for {}.", firmwareDetails.getTarget());
+            }
+        }
+        return filesToFlash;
+    }
+
+    private List<FlashTarget> addSingleFlashTarget(File file, String... targetNames) throws IOException {
+        List<FlashTarget> filesToFlash = new ArrayList<>();
+        // add single flash target
+        if (targetNames == null || targetNames.length != 1) {
+            mLogger.error("Not an archive, must supply ONE target to flash.");
+        } else {
+            for (String tn : targetNames) {
+                if (!tn.isEmpty()) {
+                    Target target = this.mCload.getTargets().get(TargetTypes.fromString(tn));
+                    FlashTarget ft = new FlashTarget(target, readFile(file), "binary", target.getStartPage());
+                    filesToFlash.add(ft);
+                }
+            }
+        }
+        return filesToFlash;
+    }
+
+    // package private for tests
+    /* package private */ List<FlashTarget> getFlashTargets(File file, String... targetNames) throws IOException {
         if (!file.exists()) {
             mLogger.error("{} not found.", file);
-            return filesToFlash;
+            return Collections.emptyList();
         }
 
         // check if supplied targetNames are known TargetTypes, if so, continue, else return
@@ -236,58 +290,17 @@ public class Bootloader {
                 }
                 //TODO: improve error handling
                 if (mf == null) {
-                    return filesToFlash;
+                    return Collections.emptyList();
                 }
-                Set<String> files = mf.getFiles().keySet();
 
-                // iterate over file names in manifest.json
-                for (String fileName : files) {
-                    FirmwareDetails firmwareDetails = mf.getFiles().get(fileName);
-                    Target t = this.mCload.getTargets().get(TargetTypes.fromString(firmwareDetails.getTarget()));
-                    if (t != null) {
-                        // use path to extracted file
-                        //File flashFile = new File(file.getParent() + "/" + file.getName() + "/" + fileName);
-                        File flashFile = new File(basePath.getAbsolutePath(), fileName);
-                        FlashTarget ft = new FlashTarget(t, readFile(flashFile), firmwareDetails.getType(), t.getStartPage()); //TODO: does startPage HAVE to be an extra argument!? (it's already included in Target)
-                        // add flash target
-                        // if no target names are specified, flash everything
-                        if (targetNames == null || targetNames.length == 0 || targetNames[0].isEmpty()) {
-                            // deal with different platforms (CF1, CF2)
-                            // TODO: simplify
-                            if (t.getFlashPages() == 128 && "cf1".equalsIgnoreCase(firmwareDetails.getPlatform())) { //128 = CF 1.0
-                                filesToFlash.add(ft);
-                                // deal with STM32 and NRF51 for CF2 (different no of flash pages)
-                            } else if ((t.getFlashPages() == 1024 || t.getFlashPages() == 232) && "cf2".equalsIgnoreCase(firmwareDetails.getPlatform())) { //1024 = CF 2.0
-                                filesToFlash.add(ft);
-                            }
-                        } else {
-                            // else flash only files whose targets are contained in targetNames
-                            if (Arrays.asList(targetNames).contains(firmwareDetails.getTarget())) {
-                                filesToFlash.add(ft);
-                            }
-                        }
-                    } else {
-                        mLogger.error("No target found for {}.", firmwareDetails.getTarget());
-                    }
-                }
+                return iterateOverFilesinManifest(basePath, mf, targetNames);
             } else {
                 mLogger.error("Zip file {} does not include a {}.", file.getName(), MANIFEST_FILENAME);
+                return Collections.emptyList();
             }
         } else { // File is not a Zip file
-            // add single flash target
-            if (targetNames == null || targetNames.length != 1) {
-                mLogger.error("Not an archive, must supply ONE target to flash.");
-            } else {
-                for (String tn : targetNames) {
-                    if (!tn.isEmpty()) {
-                        Target target = this.mCload.getTargets().get(TargetTypes.fromString(tn));
-                        FlashTarget ft = new FlashTarget(target, readFile(file), "binary", target.getStartPage());
-                        filesToFlash.add(ft);
-                    }
-                }
-            }
+            return addSingleFlashTarget(file, targetNames);
         }
-        return filesToFlash;
     }
 
     private void unzip(File zipFile) {
@@ -414,7 +427,8 @@ public class Bootloader {
             notifyUpdateProgress(i+1, noOfPages);
 
             if (isCancelled()) {
-                break;
+                mLogger.info("Flashing cancelled!");
+                return false;
             }
 
             this.mCload.uploadBuffer(tData.getId(), bufferCounter, 0, buffer);
@@ -434,10 +448,6 @@ public class Bootloader {
                 }
                 bufferCounter = 0;
             }
-        }
-        if (isCancelled()) {
-            mLogger.info("Flashing cancelled!");
-            return false;
         }
         if (bufferCounter > 0) {
             mLogger.info("BufferCounter: {}", bufferCounter);

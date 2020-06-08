@@ -254,7 +254,7 @@ public class BootloaderTest {
 
             //TODO: works, even though file is not found!!!
             //#4 Bin file with more than one target name given -> should return an empty list and an error
-            List<FlashTarget> targets3 = mBootloader.getFlashTargets(new File("cf1-2015.08.1.bin"), new String[] {"stm32", "nrf51"});
+            List<FlashTarget> targets3 = mBootloader.getFlashTargets(new File("cf1-2015.08.1.bin"), "stm32", "nrf51");
             assertEquals("Should return a list with size 0.", 0, targets3.size());
 
             //TODO: clean up, delete unzipped files
@@ -268,17 +268,17 @@ public class BootloaderTest {
 
     /**
      * Tests that only one STM32 flash target for CF1 is found
-     * 
+     *
      * @throws IOException
      */
     @Test
     public void testFW201602_cf1() throws IOException {
         //TODO: simplify
         byte[] data = new byte[] {-1,16,0,4,10,0,-128,0,10,0,80,-1,118,6,73,-123,86,84,81,38,20,-121,1,0,0,0,0,0,0,0,0};
-        
+
         Target target = new Target(0xFF);
         target.parseData(data);
-        
+
         mBootloader.getCloader().getTargets().put(TargetTypes.STM32, target);
         List<FlashTarget> targets = mBootloader.getFlashTargets(new File("src/test/fw/crazyflie-2016.02.zip"), "");
         for (FlashTarget ft : targets) {
@@ -294,7 +294,7 @@ public class BootloaderTest {
     /**
      * Tests that only one STM32 flash target for CF2 is found
      * TODO: does not check NRF51 flash target
-     * 
+     *
      * @throws IOException
      */
     @Test
@@ -303,14 +303,14 @@ public class BootloaderTest {
         byte[] data = new byte[] {-1,16,0,4,10,0,0,4,16,0,-89,4,48,106,79,-34,98,94,-1,-27,28,16,16,0,0,0,0,0,0,0,0};
         Target target = new Target(0xFF);
         target.parseData(data);
-        
+
         mBootloader.getCloader().getTargets().put(TargetTypes.STM32, target);
         List<FlashTarget> targets = mBootloader.getFlashTargets(new File("src/test/fw/crazyflie-2016.02.zip"), "");
         for (FlashTarget ft : targets) {
             System.out.println(ft);
         }
         System.out.println();
-        
+
         // should only find one flash target (for CF2)
         assertEquals(1, targets.size());
         assertEquals(127792, targets.get(0).getData().length);
@@ -347,7 +347,7 @@ public class BootloaderTest {
     public void writeManifest() throws IOException {
         Manifest manifest = new Manifest();
         manifest.setVersion(1);
-        Map<String, FirmwareDetails> map = new HashMap<String, FirmwareDetails>();
+        Map<String, FirmwareDetails> map = new HashMap<>();
         FirmwareDetails firmwareDetails = new FirmwareDetails("cf2", "stm32", "fw", "2015.01.11", "release-repo");
         map.put("cflie2.bin", firmwareDetails);
         manifest.setFiles(map);
@@ -371,14 +371,17 @@ public class BootloaderTest {
 
     public class BootloaderAdapter implements BootloaderListener {
 
+        @Override
         public void updateProgress(int progress, int max) {
             System.out.println("Update progress: " +  progress + " max: " + max);
         }
 
+        @Override
         public void updateStatus(String status) {
             System.out.println("Update status: " +  status);
         }
 
+        @Override
         public void updateError(String error) {
             System.err.println("Update error: " + error);
         }
