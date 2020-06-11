@@ -46,7 +46,6 @@ import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
 
 public class ParamTest {
 
-    private static final String VALUES_MAP_SHOULD_NOT_BE_NULL = "valuesMap should not be null!";
     private Param mParam;
     private boolean mSetupFinished = false;
 
@@ -172,6 +171,27 @@ public class ParamTest {
         }
     }
 
+    private void waitForNotNull(String group, String name) {
+        int maxIterations = 100;
+        int pause = 5;
+        for (int i = 0; i < maxIterations; i++) {
+            if (mParam.getValuesMap() != null
+                    && mParam.getValuesMap().get(group) != null
+                    && mParam.getValuesMap().get(group).get(name) != null) {
+                System.out.println("waitForNotNull done after: " + (i * pause) + "s");
+                return;
+            } else {
+                try {
+                    Thread.sleep(pause);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+        System.out.println("waitForNotNull timeout reached: " + (maxIterations * pause) + "s");
+    }
+
     @Test
     @Category(OfflineTests.class)
     public void testParamSet() throws InterruptedException {
@@ -201,32 +221,29 @@ public class ParamTest {
         String param = group + "." + name;
 
         mParam.requestParamUpdate(param);
-        Thread.sleep(200);
 
         // Getting original param value
-        assertNotNull(VALUES_MAP_SHOULD_NOT_BE_NULL, mParam.getValuesMap());
+        waitForNotNull(group, name);
         Number originalValue = mParam.getValuesMap().get(group).get(name);
         System.out.println(param + " - original value: " + originalValue);
         assertEquals(4000, originalValue);
 
         // Setting new param value
         mParam.setValue(param, 4001);
-        Thread.sleep(150);
+        Thread.sleep(500);
 
         // Requesting param update
         mParam.requestParamUpdate(param);
-        Thread.sleep(200);
-        assertNotNull(VALUES_MAP_SHOULD_NOT_BE_NULL, mParam.getValuesMap());
+        waitForNotNull(group, name);
         Number newValue = mParam.getValuesMap().get(group).get(name);
         System.out.println(param + " - new value: " + newValue);
         assertEquals(4001, newValue);
 
         // Reset param value to original value
         mParam.setValue(param, 4000);
-        Thread.sleep(150);
+        Thread.sleep(500);
         mParam.requestParamUpdate(param);
-        Thread.sleep(200);
-        assertNotNull(VALUES_MAP_SHOULD_NOT_BE_NULL, mParam.getValuesMap());
+        waitForNotNull(group, name);
         Number resetValue = mParam.getValuesMap().get(group).get(name);
         System.out.println(param + " - reset value: " + resetValue);
         assertEquals(4000, resetValue);
