@@ -40,7 +40,7 @@ import se.bitcraze.crazyflie.lib.crazyflie.ConnectionListener;
  */
 public abstract class CrtpDriver {
 
-    protected Set<ConnectionListener> mConnectionListeners = new CopyOnWriteArraySet<ConnectionListener>();
+    protected Set<ConnectionListener> mConnectionListeners = new CopyOnWriteArraySet<>();
 
     /**
      * Driver constructor. Throw an exception if the driver is unable to open the URI

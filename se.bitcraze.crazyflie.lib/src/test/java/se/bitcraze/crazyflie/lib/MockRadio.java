@@ -7,9 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import se.bitcraze.crazyflie.lib.bootloader.Cloader;
 import se.bitcraze.crazyflie.lib.bootloader.Target.TargetTypes;
 import se.bitcraze.crazyflie.lib.crazyradio.Crazyradio;
@@ -29,7 +26,6 @@ import se.bitcraze.crazyflie.lib.toc.TocFetcher;
  */
 public class MockRadio extends Crazyradio {
 
-    final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
     private boolean hasFwScan = true;
 
     private static final int TOC_CRC_LOGG = 0xF14AC355;

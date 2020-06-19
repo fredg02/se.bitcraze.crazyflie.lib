@@ -54,10 +54,10 @@ public class Crazyflie {
     private CrtpDriver mDriver;
     private Thread mIncomingPacketHandlerThread;
 
-    private LinkedBlockingDeque<CrtpPacket> mResendQueue = new LinkedBlockingDeque<CrtpPacket>();
+    private LinkedBlockingDeque<CrtpPacket> mResendQueue = new LinkedBlockingDeque<>();
     private Thread mResendQueueHandlerThread;
 
-    private Set<DataListener> mDataListeners = new CopyOnWriteArraySet<DataListener>();
+    private Set<DataListener> mDataListeners = new CopyOnWriteArraySet<>();
 
     private State mState = State.DISCONNECTED;
 
@@ -189,23 +189,6 @@ public class Crazyflie {
         }
     }
 
-    /**
-     * Callback called for every packet received to check if we are
-     * waiting for a packet like this. If so, then remove it from the queue.
-     *
-     * @param packet received packet
-     */
-    private void checkReceivedPackets(CrtpPacket packet) {
-        // compare received packet with expectedReplies in resend queue
-        for(CrtpPacket resendQueuePacket : mResendQueue) {
-            if(isPacketMatchingExpectedReply(resendQueuePacket, packet)) {
-                mResendQueue.remove(resendQueuePacket);
-                // mLogger.debug("QUEUE REMOVE: " + resendQueuePacket);
-                break;
-            }
-        }
-    }
-
     private boolean isPacketMatchingExpectedReply(CrtpPacket resendQueuePacket, CrtpPacket packet) {
         //Only check equality for the amount of bytes in expected reply
         byte[] expectedReply = resendQueuePacket.getExpectedReply();
@@ -219,6 +202,8 @@ public class Crazyflie {
 
     private class ResendQueueHandler implements Runnable {
 
+        @Override
+        @SuppressWarnings("java:s2189")
         public void run() {
             mLogger.debug("ResendQueueHandlerThread was started.");
             while(true) {
@@ -240,28 +225,6 @@ public class Crazyflie {
 
     }
 
-
-    /**
-     * Called when first packet arrives from Crazyflie.
-     * This is used to determine if we are connected to something that is answering.
-     *
-     * @param packet initial packet
-     */
-    private void checkForInitialPacketCallback(CrtpPacket packet) {
-        // mLogger.info("checkForInitialPacketCallback...");
-        //TODO: should be made more reliable
-        if (this.mState == State.INITIALIZED) {
-            mLogger.info("Initial packet has been received! => State.CONNECTED");
-            this.mState = State.CONNECTED;
-            //self.link_established.call(self.link_uri)
-            //FIXME: Crazyflie should not call mDriver.notifyConnected()
-            this.mDriver.notifyConnected();
-            startConnectionSetup();
-        }
-        //self.packet_received.remove_callback(self._check_for_initial_packet_cb)
-        // => IncomingPacketHandler
-    }
-
     public CrtpDriver getDriver(){
         return mDriver;
     }
@@ -271,11 +234,12 @@ public class Crazyflie {
      * Start the connection setup by refreshing the TOCs
      */
     private void startConnectionSetup() {
-        mLogger.info("We are connected [{}], requesting connection setup...", mConnectionData.toString());
+        mLogger.info("We are connected [{}], requesting connection setup...", mConnectionData);
 
         mParam = new Param(this);
         //must be defined first to be usable in Log TocFetchFinishedListener
         final TocFetchFinishedListener paramTocFetchFinishedListener = new TocFetchFinishedListener(CrtpPort.PARAMETERS) {
+            @Override
             public void tocFetchFinished() {
                 //_param_toc_updated_cb(self):
                 mLogger.info("Param TOC finished updating.");
@@ -289,6 +253,7 @@ public class Crazyflie {
 
         mLogg = new Logg(this);
         TocFetchFinishedListener loggTocFetchFinishedListener = new TocFetchFinishedListener(CrtpPort.LOGGING) {
+            @Override
             public void tocFetchFinished() {
                 mLogger.info("Logg TOC finished updating.");
                 //after log toc has been fetched, fetch param toc
@@ -334,7 +299,7 @@ public class Crazyflie {
      */
     public void addDataListener(DataListener dataListener) {
         if (dataListener != null) {
-            mLogger.debug("Adding data listener for port [" + dataListener.getPort() + "]");
+            mLogger.debug("Adding data listener for port [{}]", dataListener.getPort());
             this.mDataListeners.add(dataListener);
         }
     }
@@ -346,30 +311,12 @@ public class Crazyflie {
      */
     public void removeDataListener(DataListener dataListener) {
         if (dataListener != null) {
-            mLogger.debug("Removing data listener for port [" + dataListener.getPort() + "]");
+            mLogger.debug("Removing data listener for port [{}]", dataListener.getPort());
             this.mDataListeners.remove(dataListener);
         }
     }
 
     //public void removeDataListener(CrtpPort); ?
-
-    /**
-     * Notify data listeners that a packet was received
-     *
-     * @param packet received packet
-     */
-    private void notifyDataReceived(CrtpPacket packet) {
-        boolean found = false;
-        for (DataListener dataListener : mDataListeners) {
-            if (dataListener.getPort() == packet.getHeader().getPort()) {
-                dataListener.dataReceived(packet);
-                found = true;
-            }
-        }
-        if (!found) {
-            //mLogger.warn("Got packet on port [" + packet.getHeader().getPort() + "] but found no data listener to handle it.");
-        }
-    }
 
     /**
      * Handles incoming packets and sends the data to the correct listeners
@@ -378,6 +325,63 @@ public class Crazyflie {
 
         final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
 
+        /**
+         * Callback called for every packet received to check if we are
+         * waiting for a packet like this. If so, then remove it from the queue.
+         *
+         * @param packet received packet
+         */
+        private void checkReceivedPackets(CrtpPacket packet) {
+            // compare received packet with expectedReplies in resend queue
+            for(CrtpPacket resendQueuePacket : mResendQueue) {
+                if(isPacketMatchingExpectedReply(resendQueuePacket, packet)) {
+                    mResendQueue.remove(resendQueuePacket);
+                    // mLogger.debug("QUEUE REMOVE: " + resendQueuePacket);
+                    break;
+                }
+            }
+        }
+
+        /**
+         * Called when first packet arrives from Crazyflie.
+         * This is used to determine if we are connected to something that is answering.
+         *
+         * @param packet initial packet
+         */
+        private void checkForInitialPacketCallback(CrtpPacket packet) {
+            // mLogger.info("checkForInitialPacketCallback...");
+            //TODO: should be made more reliable
+            if (mState == State.INITIALIZED) {
+                mLogger.info("Initial packet has been received! => State.CONNECTED");
+                mState = State.CONNECTED;
+                //self.link_established.call(self.link_uri)
+                //FIXME: Crazyflie should not call mDriver.notifyConnected()
+                mDriver.notifyConnected();
+                startConnectionSetup();
+            }
+            //self.packet_received.remove_callback(self._check_for_initial_packet_cb)
+            // => IncomingPacketHandler
+        }
+
+        /**
+         * Notify data listeners that a packet was received
+         *
+         * @param packet received packet
+         */
+        private void notifyDataReceived(CrtpPacket packet) {
+            boolean found = false;
+            for (DataListener dataListener : mDataListeners) {
+                if (dataListener.getPort() == packet.getHeader().getPort()) {
+                    dataListener.dataReceived(packet);
+                    found = true;
+                }
+            }
+            if (!found) {
+                //mLogger.warn("Got packet on port [" + packet.getHeader().getPort() + "] but found no data listener to handle it.");
+            }
+        }
+
+        @Override
         public void run() {
             mLogger.debug("IncomingPacketHandlerThread was started.");
             while(!Thread.currentThread().isInterrupted()) {

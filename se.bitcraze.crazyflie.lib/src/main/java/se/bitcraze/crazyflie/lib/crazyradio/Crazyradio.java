@@ -43,7 +43,7 @@ import se.bitcraze.crazyflie.lib.usb.CrazyUsbInterface;
  */
 public class Crazyradio {
 
-    final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
+    protected final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
 
     // USB parameters
     public static final int CRADIO_VID = 0x1915; //Vendor ID
@@ -57,10 +57,10 @@ public class Crazyradio {
     private static final int SET_RADIO_POWER = 0x04;
     private static final int SET_RADIO_ARD = 0x05;
     private static final int SET_RADIO_ARC = 0x06;
-    private static final int ACK_ENABLE = 0x10;
+    //private static final int ACK_ENABLE = 0x10;
     private static final int SET_CONT_CARRIER = 0x20;
     private static final int SCAN_CHANNELS = 0x21;
-    private static final int LAUNCH_BOOTLOADER = 0xFF;
+    //private static final int LAUNCH_BOOTLOADER = 0xFF;
 
     // configuration constants
     public static final int DR_250KPS = 0;
@@ -273,7 +273,7 @@ public class Crazyradio {
     }
 
     public List<Integer> scanChannels(int start, int stop) {
-        List<Integer> result = new ArrayList<Integer>();
+        List<Integer> result = new ArrayList<>();
 
         if (mUsbInterface != null && mUsbInterface.isUsbConnected()) {
             if (hasFwScan()) {
@@ -297,17 +297,17 @@ public class Crazyradio {
      */
     private List<Integer> slowScan(int start, int stop) {
         mLogger.debug("Slow scan...");
-        List<Integer> result = new ArrayList<Integer>();
+        List<Integer> result = new ArrayList<>();
         // for i in range(start, stop + 1):
         for (int channel = start; channel <= stop; channel++) {
             if(scanSelected(channel, NULL_PACKET)) {
-                mLogger.debug("Found channel: %s", channel);
+                mLogger.debug("Found channel: {}", channel);
                 result.add(channel);
             }
             try {
                 Thread.sleep(20);
             } catch (InterruptedException e) {
-                mLogger.error("InterruptedException: " + e.getMessage());
+                mLogger.error("InterruptedException: {}", e.getMessage());
                 Thread.currentThread().interrupt();
             }
         }
@@ -343,14 +343,14 @@ public class Crazyradio {
 
     protected List<Integer> firmwareScan(int start, int stop) {
         mLogger.debug("Fast scan...");
-        List<Integer> result = new ArrayList<Integer>();
+        List<Integer> result = new ArrayList<>();
         final byte[] rdata = new byte[64];
         mUsbInterface.sendControlTransfer(0x40, SCAN_CHANNELS, start, stop, NULL_PACKET);
         final int nfound = mUsbInterface.sendControlTransfer(0xc0, SCAN_CHANNELS, 0, 0, rdata);
         if (nfound != 64) {
             for (int i = 0; i < nfound; i++) {
                 result.add((int) rdata[i]);
-                mLogger.debug("Found channel: " + rdata[i]);
+                mLogger.debug("Found channel: {}", rdata[i]);
             }
         }
         return result;

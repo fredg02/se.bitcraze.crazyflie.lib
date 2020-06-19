@@ -54,9 +54,9 @@ public class RadioDriver extends CrtpDriver {
 
     private CrazyUsbInterface mUsbInterface;
 
-    private final BlockingQueue<CrtpPacket> mOutQueue = new LinkedBlockingQueue<CrtpPacket>();
+    private final BlockingQueue<CrtpPacket> mOutQueue = new LinkedBlockingQueue<>();
     //TODO: Limit size of out queue to avoid "ReadBack" effect?
-    private final BlockingQueue<CrtpPacket> mInQueue = new LinkedBlockingQueue<CrtpPacket>();
+    private final BlockingQueue<CrtpPacket> mInQueue = new LinkedBlockingQueue<>();
 
     private ConnectionData mConnectionData;
 
@@ -134,7 +134,7 @@ public class RadioDriver extends CrtpDriver {
         try {
             return mInQueue.poll(time, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            mLogger.error("InterruptedException: " + e.getMessage());
+            mLogger.error("InterruptedException: {}", e.getMessage());
             return null;
         }
     }
@@ -166,7 +166,7 @@ public class RadioDriver extends CrtpDriver {
         try {
             this.mOutQueue.put(packet);
         } catch (InterruptedException e) {
-            mLogger.error("InterruptedException: " + e.getMessage());
+            mLogger.error("InterruptedException: {}", e.getMessage());
             Thread.currentThread().interrupt();
         }
     }
@@ -186,7 +186,7 @@ public class RadioDriver extends CrtpDriver {
         try {
             Thread.sleep(100);
         } catch (InterruptedException e) {
-            mLogger.error("Interrupted during disconnect: " + e.getMessage());
+            mLogger.error("Interrupted during disconnect: {}", e.getMessage());
             Thread.currentThread().interrupt();
         }
         if(this.mCradio != null) {
@@ -204,7 +204,7 @@ public class RadioDriver extends CrtpDriver {
      * Scan interface for Crazyflies
      */
     private static List<ConnectionData> scanInterface(Crazyradio crazyRadio, CrazyUsbInterface crazyUsbInterface) {
-        List<ConnectionData> connectionDataList = new ArrayList<ConnectionData>();
+        List<ConnectionData> connectionDataList = new ArrayList<>();
 
         if(crazyRadio == null) {
             crazyRadio = new Crazyradio(crazyUsbInterface);
@@ -213,7 +213,7 @@ public class RadioDriver extends CrtpDriver {
             //TODO: throw exception?
         }
 
-        LoggerFactory.getLogger("RadioDriver").info("Found Crazyradio with version " + crazyRadio.getVersion() + " and serial number " + crazyRadio.getSerialNumber());
+        LoggerFactory.getLogger("RadioDriver").info("Found Crazyradio with version {} and serial number {}", crazyRadio.getVersion(), crazyRadio.getSerialNumber());
 
         crazyRadio.setArc(1);
 
@@ -254,13 +254,13 @@ public class RadioDriver extends CrtpDriver {
         // self.link.pause()
         stopSendReceiveThread();
 
-        int SET_BOOTLOADER_ADDRESS = 0x11; // Only implemented on Crazyflie version 0x00
+        int setBootladerAddress = 0x11; // Only implemented on Crazyflie version 0x00
         //TODO: is there a more elegant way to do this?
         //pkdata = (0xFF, 0xFF, 0x11) + tuple(new_address)
         byte[] pkData = new byte[newAddress.length + 3];
         pkData[0] = (byte) 0xFF;
         pkData[1] = (byte) 0xFF;
-        pkData[2] = (byte) SET_BOOTLOADER_ADDRESS;
+        pkData[2] = (byte) setBootladerAddress;
         System.arraycopy(newAddress, 0, pkData, 3, newAddress.length);
 
         for (int i = 0; i < 10; i++) {
@@ -273,7 +273,7 @@ public class RadioDriver extends CrtpDriver {
             //if self.link.cradio.send_packet((0xff,)).ack:
             RadioAck ack = mCradio.sendPacket(new byte[] {(byte) 0xFF});
             if (ack != null) {
-                mLogger.info("Bootloader set to radio address " + Utilities.getHexString(newAddress));
+                mLogger.info("Bootloader set to radio address {}", Utilities.getHexString(newAddress));
                 startSendReceiveThread();
                 return true;
             }
@@ -317,6 +317,48 @@ public class RadioDriver extends CrtpDriver {
         }
 
         /**
+         * Check AckStatus
+         *
+         * @param ackStatus
+         * @return false if ackStatus is empty or false, otherwise true
+         */
+        private boolean isAckStatusOk(RadioAck ackStatus) {
+            // Analyze the data packet
+            if (ackStatus == null) {
+                notifyConnectionLost("Dongle communication error (ackStatus == null)");
+                mLogger.warn("Dongle communication error (ackStatus == null)");
+                return false;
+            }
+
+            notifyLinkQualityUpdated((10 - ackStatus.getRetry()) * 10);
+
+            // If no copter, retry
+            //TODO: how is this actually possible?
+            if (!ackStatus.isAck()) {
+                this.mRetryBeforeDisconnect--;
+                if (this.mRetryBeforeDisconnect == 0) {
+                    notifyConnectionLost("Too many packets lost");
+                    mLogger.warn("Too many packets lost");
+                }
+                return false;
+            }
+            this.mRetryBeforeDisconnect = RETRYCOUNT_BEFORE_DISCONNECT;
+            return true;
+        }
+
+        /**
+         * Get the next packet to send after relaxation (wait 10ms)
+         *
+         * @param waitTime wait time in seconds
+         * @return next packet to send our "NULL_PACKET" if queue is empty
+         * @throws InterruptedException
+         */
+        private byte[] getNextPacketToSend(long waitTime) throws InterruptedException {
+            CrtpPacket outPacket = mOutQueue.poll(waitTime, TimeUnit.SECONDS);
+            return outPacket != null ? outPacket.toByteArray() : Crazyradio.NULL_PACKET;
+        }
+
+        /**
          * Run the receiver thread
          *
          * (non-Javadoc)
@@ -344,26 +386,9 @@ public class RadioDriver extends CrtpDriver {
                     */
                     RadioAck ackStatus = mCradio.sendPacket(dataOut);
 
-                    // Analyze the data packet
-                    if (ackStatus == null) {
-                        notifyConnectionLost("Dongle communication error (ackStatus == null)");
-                        mLogger.warn("Dongle communication error (ackStatus == null)");
+                    if (!isAckStatusOk(ackStatus)) {
                         continue;
                     }
-
-                    notifyLinkQualityUpdated((10 - ackStatus.getRetry()) * 10);
-
-                    // If no copter, retry
-                    //TODO: how is this actually possible?
-                    if (!ackStatus.isAck()) {
-                        this.mRetryBeforeDisconnect--;
-                        if (this.mRetryBeforeDisconnect == 0) {
-                            notifyConnectionLost("Too many packets lost");
-                            mLogger.warn("Too many packets lost");
-                        }
-                        continue;
-                    }
-                    this.mRetryBeforeDisconnect = RETRYCOUNT_BEFORE_DISCONNECT;
 
                     byte[] data = ackStatus.getData();
 
@@ -384,15 +409,7 @@ public class RadioDriver extends CrtpDriver {
                             waitTime = 0;
                         }
                     }
-
-                    // get the next packet to send after relaxation (wait 10ms)
-                    CrtpPacket outPacket = mOutQueue.poll((long) waitTime, TimeUnit.SECONDS);
-
-                    if (outPacket != null) {
-                        dataOut = outPacket.toByteArray();
-                    } else {
-                        dataOut = Crazyradio.NULL_PACKET;
-                    }
+                    dataOut = getNextPacketToSend((long) waitTime);
 //                    Thread.sleep(10);
                 } catch (InterruptedException e) {
                     mLogger.debug("RadioDriverThread was interrupted.");
