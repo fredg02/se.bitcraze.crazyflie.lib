@@ -59,6 +59,7 @@ public class LoggTest {
     //TODO: improve timeout handling
 
 
+    private static final String LOG_CONFIG_NAME = "testConfig";
     private Logg mLogg;
     private boolean mSetupFinished = false;
 
@@ -83,7 +84,7 @@ public class LoggTest {
         crazyflie.clearTocCache();
 
         // create log config
-        final LogConfig testConfig = new LogConfig("testConfig");
+        final LogConfig testConfig = new LogConfig(LOG_CONFIG_NAME);
         testConfig.addVariable("motor.m1");
         testConfig.addVariable("motor.m2");
         testConfig.addVariable("motor.m3");
@@ -183,7 +184,7 @@ public class LoggTest {
     @Category(OfflineTests.class)
     @Test(expected = IllegalStateException.class)
     public void testCreateConfigWithNonExistentToc() {
-        LogConfig testConfig = new LogConfig("testConfig");
+        LogConfig testConfig = new LogConfig(LOG_CONFIG_NAME);
         testConfig.addVariable("foo.bar");
 
         Crazyflie cf = new Crazyflie(new MockDriver());
@@ -200,7 +201,7 @@ public class LoggTest {
     @Category(OfflineTests.class)
     @Test(expected = IllegalStateException.class)
     public void testCreateConfigWithNonExistentVariableType() {
-        LogConfig testConfig = new LogConfig("testConfig");
+        LogConfig testConfig = new LogConfig(LOG_CONFIG_NAME);
         testConfig.addVariable("foo.bar");
 
         Crazyflie cf = new Crazyflie(new MockDriver());

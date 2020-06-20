@@ -39,9 +39,12 @@ import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
  */
 public class UsbLinkJavaDebug extends UsbLinkJava {
 
+    private static final String UNKNOWN = "UNKNOWN";
+
     public UsbLinkJavaDebug() {
     }
 
+    @Override
     protected void debugBulkTransfer(String direction, byte[] data) {
         //TODO: show type of packet in debug log
         if (FILTER_OUT_NULL_AND_ACK_PACKETS &&
@@ -62,8 +65,8 @@ public class UsbLinkJavaDebug extends UsbLinkJava {
         String portName = header.getPort().name();
         int channel = header.getChannel();
 
-        String channelName = "UNKNOWN";
-        String commandName = "UNKNOWN";
+        String channelName = UNKNOWN;
+        String commandName = UNKNOWN;
         if (header.getPort() == CrtpPort.LOGGING) {
             switch (channel) {
             case 0:
@@ -71,57 +74,79 @@ public class UsbLinkJavaDebug extends UsbLinkJava {
                 break;
             case 1:
                 channelName = "LOG control";
-                switch (command) {
-                case 0:
-                    commandName = "CREATE";
-                    break;
-                case 1:
-                    commandName = "APPEND";
-                    break;
-                case 2:
-                    commandName = "DELETE";
-                    break;
-                case 3:
-                    commandName = "START";
-                    break;
-                case 4:
-                    commandName = "STOP";
-                    break;
-                case 5:
-                    commandName = "RESET";
-                    break;
-                }
+                commandName = getLogControlCommandName(command);
                 break;
             case 2:
                 channelName = "Log data";
                 break;
+            default:
+                channelName = UNKNOWN;
+                commandName = UNKNOWN;
+                break;
             }
         }else if (header.getPort() == CrtpPort.PARAMETERS) {
-            switch (channel) {
-            case 0:
-                channelName = "TOC access";
-                break;
-            case 1:
-                channelName = "PARAM read";
-                break;
-            case 2:
-                channelName = "PARAM write";
-                break;
-            case 3:
-                channelName = "Misc";
-                break;
-            }
+            channelName = getParametersChannelName(channel);
         }
-        
+
         //Filter out "ALL" packets
         if (header.getPort() == CrtpPort.ALL) {
             return;
         }
-        
+
         direction = String.format("%3s", direction);
         portName = String.format("%11s", portName);
         channelName = String.format("%11s", channelName);
         commandName = String.format("%7s", commandName);
         mLogger.debug("bulkTransfer - <->: {}, port: {}, channel: {}, commandName: {}, bytes: {}", direction, portName, channelName, commandName, Utilities.getHexString(data));
+    }
+
+    private String getLogControlCommandName(int command) {
+        String commandName = "";
+        switch (command) {
+        case 0:
+            commandName = "CREATE";
+            break;
+        case 1:
+            commandName = "APPEND";
+            break;
+        case 2:
+            commandName = "DELETE";
+            break;
+        case 3:
+            commandName = "START";
+            break;
+        case 4:
+            commandName = "STOP";
+            break;
+        case 5:
+            commandName = "RESET";
+            break;
+        default:
+            commandName = UNKNOWN;
+            break;
+        }
+        return commandName;
+    }
+
+    private String getParametersChannelName(int channel) {
+        String channelName = "";
+        switch (channel) {
+        case 0:
+            channelName = "TOC access";
+            break;
+        case 1:
+            channelName = "PARAM read";
+            break;
+        case 2:
+            channelName = "PARAM write";
+            break;
+        case 3:
+            channelName = "Misc";
+            break;
+        default:
+            channelName = "Unknown";
+            break;
+        }
+        return channelName;
     }
 }
