@@ -54,7 +54,7 @@ public class LogDataLiveTest {
     private Logg mLogg;
     private boolean mSetupFinished = false;
 
-    ConnectionData mConnectionData = new ConnectionData(CrazyflieTest.channel, CrazyflieTest.datarate);
+    ConnectionData mConnectionData = new ConnectionData(CrazyflieTest.CHANNEL, CrazyflieTest.DATARATE);
 
     @Test
     public void testLogg() {

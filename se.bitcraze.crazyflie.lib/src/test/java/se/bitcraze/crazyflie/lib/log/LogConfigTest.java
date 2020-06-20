@@ -16,6 +16,18 @@ import se.bitcraze.crazyflie.lib.toc.VariableType;
 @Category(OfflineTests.class)
 public class LogConfigTest {
 
+    private static final String FOOBAR = "foobar";
+    private static final String BATTERY = "battery";
+    private static final String RANGE_ZRANGE = "range.zrange";
+    private static final String OA_RIGHT = "oa.right";
+    private static final String OA_LEFT = "oa.left";
+    private static final String OA_BACK = "oa.back";
+    private static final String OA_FRONT = "oa.front";
+    private static final String OA_UP = "oa.up";
+    private static final String BARO_PRESSURE = "baro.pressure";
+    private static final String BARO_TEMP = "baro.temp";
+    private static final String PM_VBAT = "pm.vbat";
+
     // header + blockID(1) + timestamp(3) + logValues(0-28)
     // original: 01 52 01 3D 3C 01 D7 8F 72 40 (00 ...)
     private static final byte[] PAYLOAD_SINGLE = new byte[]{(byte) 0x01, (byte) 0x3D, (byte) 0x3C, (byte) 0x01, (byte) 0xD7, (byte) 0x8F, (byte) 0x72, (byte) 0x40};
@@ -57,12 +69,12 @@ public class LogConfigTest {
     }
 
     @Test
-    public void testParseTimestamp_single() {
+    public void testParseTimestampSingle() {
         assertEquals(PAYLOAD_SINGLE_TIMESTAMP, getTimestamp(PAYLOAD_SINGLE));
     }
 
     @Test
-    public void testParseTimestamp_multi() {
+    public void testParseTimestampMulti() {
         assertEquals(PAYLOAD_MULTI_TIMESTAMP, getTimestamp(PAYLOAD_MULTI));
     }
 
@@ -80,112 +92,112 @@ public class LogConfigTest {
     }
 
    @Test
-    public void testParseLogData_single() {
+    public void testParseLogDataSingle() {
         LogConfig lc = createTestLogConfig();
-        Map<String, Number> logDataMap = new HashMap<String, Number>();
+        Map<String, Number> logDataMap = new HashMap<>();
         int timestamp = Logg.parseLogData(PAYLOAD_SINGLE, lc, logDataMap);
 
         assertEquals(PAYLOAD_SINGLE_TIMESTAMP, timestamp);
-        assertEquals(PAYLOAD_SINGLE_PM_VBAT_VALUE, logDataMap.get("pm.vbat").floatValue(), 0.0f);
+        assertEquals(PAYLOAD_SINGLE_PM_VBAT_VALUE, logDataMap.get(PM_VBAT).floatValue(), 0.0f);
     }
 
    @Test
-   public void testParseLogData_multi() {
+   public void testParseLogDataMulti() {
        LogConfig lc = createTestLogConfig();
-       lc.addVariable("baro.temp", VariableType.FLOAT);
-       lc.addVariable("baro.pressure", VariableType.FLOAT);
+       lc.addVariable(BARO_TEMP, VariableType.FLOAT);
+       lc.addVariable(BARO_PRESSURE, VariableType.FLOAT);
 
-       Map<String, Number> logDataMap = new HashMap<String, Number>();
+       Map<String, Number> logDataMap = new HashMap<>();
        int timestamp = Logg.parseLogData(PAYLOAD_MULTI, lc, logDataMap);
 
        assertEquals(PAYLOAD_MULTI_TIMESTAMP, timestamp);
-       assertEquals(PAYLOAD_MULTI_PM_VBAT_VALUE, logDataMap.get("pm.vbat").floatValue(), 0.0f);
-       assertEquals(PAYLOAD_MULTI_BARO_TEMP_VALUE, logDataMap.get("baro.temp").floatValue(), 0.0f);
-       assertEquals(PAYLOAD_MULTI_BARO_PRESSURE_VALUE, logDataMap.get("baro.pressure").floatValue(), 0.0f);
+       assertEquals(PAYLOAD_MULTI_PM_VBAT_VALUE, logDataMap.get(PM_VBAT).floatValue(), 0.0f);
+       assertEquals(PAYLOAD_MULTI_BARO_TEMP_VALUE, logDataMap.get(BARO_TEMP).floatValue(), 0.0f);
+       assertEquals(PAYLOAD_MULTI_BARO_PRESSURE_VALUE, logDataMap.get(BARO_PRESSURE).floatValue(), 0.0f);
    }
 
     @Test
-    public void testUnpackLogData_single() {
+    public void testUnpackLogDataSingle() {
         LogConfig lc = createTestLogConfig();
         Map<String, Number> logDataMap = lc.unpackLogData(getPayloadWithoutTimestamp(PAYLOAD_SINGLE));
-        assertEquals(PAYLOAD_SINGLE_PM_VBAT_VALUE, logDataMap.get("pm.vbat").floatValue(), 0.0f);
+        assertEquals(PAYLOAD_SINGLE_PM_VBAT_VALUE, logDataMap.get(PM_VBAT).floatValue(), 0.0f);
     }
 
     @Test
-    public void testUnpackLogData_multi() {
+    public void testUnpackLogDataMulti() {
         LogConfig lc = createTestLogConfig();
-        lc.addVariable("baro.temp", VariableType.FLOAT);
-        lc.addVariable("baro.pressure", VariableType.FLOAT);
+        lc.addVariable(BARO_TEMP, VariableType.FLOAT);
+        lc.addVariable(BARO_PRESSURE, VariableType.FLOAT);
 
         Map<String, Number> logDataMap = lc.unpackLogData(getPayloadWithoutTimestamp(PAYLOAD_MULTI));
-        assertEquals(PAYLOAD_MULTI_PM_VBAT_VALUE, logDataMap.get("pm.vbat").floatValue(), 0.0f);
-        assertEquals(PAYLOAD_MULTI_BARO_TEMP_VALUE, logDataMap.get("baro.temp").floatValue(), 0.0f);
-        assertEquals(PAYLOAD_MULTI_BARO_PRESSURE_VALUE, logDataMap.get("baro.pressure").floatValue(), 0.0f);
+        assertEquals(PAYLOAD_MULTI_PM_VBAT_VALUE, logDataMap.get(PM_VBAT).floatValue(), 0.0f);
+        assertEquals(PAYLOAD_MULTI_BARO_TEMP_VALUE, logDataMap.get(BARO_TEMP).floatValue(), 0.0f);
+        assertEquals(PAYLOAD_MULTI_BARO_PRESSURE_VALUE, logDataMap.get(BARO_PRESSURE).floatValue(), 0.0f);
     }
 
     @Test
-    public void testUnpackLogData_OA1() {
+    public void testUnpackLogDataOA1() {
         LogConfig lc = createTestLogConfig();
-        lc.addVariable("oa.up", VariableType.UINT16_T);
-        lc.addVariable("oa.front", VariableType.UINT16_T);
+        lc.addVariable(OA_UP, VariableType.UINT16_T);
+        lc.addVariable(OA_FRONT, VariableType.UINT16_T);
 
         assertEquals(13988, getTimestamp(PAYLOAD_OA1));
 
         Map<String, Number> logDataMap = lc.unpackLogData(getPayloadWithoutTimestamp(PAYLOAD_OA1));
-        assertEquals(3.9800587f, logDataMap.get("pm.vbat").floatValue(), 0.0f);
-        assertEquals(110, logDataMap.get("oa.up"));
-        assertEquals(215, logDataMap.get("oa.front"));
+        assertEquals(3.9800587f, logDataMap.get(PM_VBAT).floatValue(), 0.0f);
+        assertEquals(110, logDataMap.get(OA_UP));
+        assertEquals(215, logDataMap.get(OA_FRONT));
     }
 
     @Test
-    public void testUnpackLogData_OA2() {
+    public void testUnpackLogDataOA2() {
         LogConfig lc = createTestLogConfig();
-        lc.addVariable("oa.up", VariableType.UINT16_T);
-        lc.addVariable("oa.front", VariableType.UINT16_T);
-        lc.addVariable("oa.back", VariableType.UINT16_T);
-        lc.addVariable("oa.left", VariableType.UINT16_T);
-        lc.addVariable("oa.right", VariableType.UINT16_T);
-        lc.addVariable("range.zrange", VariableType.UINT16_T);
+        lc.addVariable(OA_UP, VariableType.UINT16_T);
+        lc.addVariable(OA_FRONT, VariableType.UINT16_T);
+        lc.addVariable(OA_BACK, VariableType.UINT16_T);
+        lc.addVariable(OA_LEFT, VariableType.UINT16_T);
+        lc.addVariable(OA_RIGHT, VariableType.UINT16_T);
+        lc.addVariable(RANGE_ZRANGE, VariableType.UINT16_T);
 
         assertEquals(187872, getTimestamp(PAYLOAD_OA2));
 
         Map<String, Number> logDataMap = lc.unpackLogData(getPayloadWithoutTimestamp(PAYLOAD_OA2));
-        assertEquals(3.9272728f, logDataMap.get("pm.vbat").floatValue(), 0.0f);
-        assertEquals(8190, logDataMap.get("oa.up"));
-        assertEquals(246, logDataMap.get("oa.front"));
-        assertEquals(299, logDataMap.get("oa.back"));
-        assertEquals(464, logDataMap.get("oa.left"));
-        assertEquals(101, logDataMap.get("oa.right"));
-        assertEquals(27, logDataMap.get("range.zrange"));
+        assertEquals(3.9272728f, logDataMap.get(PM_VBAT).floatValue(), 0.0f);
+        assertEquals(8190, logDataMap.get(OA_UP));
+        assertEquals(246, logDataMap.get(OA_FRONT));
+        assertEquals(299, logDataMap.get(OA_BACK));
+        assertEquals(464, logDataMap.get(OA_LEFT));
+        assertEquals(101, logDataMap.get(OA_RIGHT));
+        assertEquals(27, logDataMap.get(RANGE_ZRANGE));
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testUnpackLogData_bufferToSmall() {
+    public void testUnpackLogDataBufferToSmall() {
         LogConfig lc = createTestLogConfig();
-        lc.addVariable("oa.up", VariableType.UINT16_T);
-        lc.addVariable("oa.front", VariableType.UINT16_T);
-        lc.addVariable("oa.back", VariableType.UINT16_T);
-        lc.addVariable("oa.left", VariableType.UINT16_T);
-        lc.addVariable("oa.right", VariableType.UINT16_T);
-        lc.addVariable("range.zrange", VariableType.UINT16_T);
+        lc.addVariable(OA_UP, VariableType.UINT16_T);
+        lc.addVariable(OA_FRONT, VariableType.UINT16_T);
+        lc.addVariable(OA_BACK, VariableType.UINT16_T);
+        lc.addVariable(OA_LEFT, VariableType.UINT16_T);
+        lc.addVariable(OA_RIGHT, VariableType.UINT16_T);
+        lc.addVariable(RANGE_ZRANGE, VariableType.UINT16_T);
 
         assertEquals(187872, getTimestamp(PAYLOAD_BUE));
 
         Map<String, Number> logDataMap = lc.unpackLogData(getPayloadWithoutTimestamp(PAYLOAD_BUE));
-        assertEquals(3.9272728f, logDataMap.get("pm.vbat").floatValue(), 0.0f);
-        assertEquals(8190, logDataMap.get("oa.up"));
-        assertEquals(246, logDataMap.get("oa.front"));
-        assertEquals(299, logDataMap.get("oa.back"));
-        assertEquals(464, logDataMap.get("oa.left"));
-        assertEquals(101, logDataMap.get("oa.right"));
-        assertEquals(27, logDataMap.get("range.zrange"));
+        assertEquals(3.9272728f, logDataMap.get(PM_VBAT).floatValue(), 0.0f);
+        assertEquals(8190, logDataMap.get(OA_UP));
+        assertEquals(246, logDataMap.get(OA_FRONT));
+        assertEquals(299, logDataMap.get(OA_BACK));
+        assertEquals(464, logDataMap.get(OA_LEFT));
+        assertEquals(101, logDataMap.get(OA_RIGHT));
+        assertEquals(27, logDataMap.get(RANGE_ZRANGE));
     }
 
     @Category(OfflineTests.class)
     @Test
     public void testDuplicateLogVariables() {
         LogConfig lc = createTestLogConfig();
-        lc.addVariable("pm.vbat", VariableType.FLOAT);
+        lc.addVariable(PM_VBAT, VariableType.FLOAT);
 //        for (LogVariable lv : lc.getLogVariables()) {
 //            System.out.println("" + lv.getName());
 //            System.out.println("" + lv.getType());
@@ -197,32 +209,32 @@ public class LogConfigTest {
     @Category(OfflineTests.class)
     @Test
     public void testDuplicateLogVariables2() {
-        LogConfig lc = new LogConfig("battery", 500);
+        LogConfig lc = new LogConfig(BATTERY, 500);
         lc.setId(1);
         // 1st
-        lc.addVariable("pm.vbat");
+        lc.addVariable(PM_VBAT);
         // 2nd
-        lc.addVariable("pm.vbat");
+        lc.addVariable(PM_VBAT);
         assertEquals(1, lc.getLogVariables().size());
     }
 
     @Category(OfflineTests.class)
     @Test
     public void testDuplicateLogVariablesMemory() {
-        LogConfig lc = new LogConfig("battery", 500);
+        LogConfig lc = new LogConfig(BATTERY, 500);
         lc.setId(1);
         // 1st
-        lc.addMemory("foobar", VariableType.FLOAT, 1234);
+        lc.addMemory(FOOBAR, VariableType.FLOAT, 1234);
         // 2nd
-        lc.addMemory("foobar", VariableType.FLOAT, 1234);
+        lc.addMemory(FOOBAR, VariableType.FLOAT, 1234);
         assertEquals(1, lc.getLogVariables().size());
     }
 
     /* Utilities */
     private LogConfig createTestLogConfig() {
-        LogConfig lc = new LogConfig("battery", 500);
+        LogConfig lc = new LogConfig(BATTERY, 500);
         lc.setId(1);
-        lc.addVariable("pm.vbat", VariableType.FLOAT);
+        lc.addVariable(PM_VBAT, VariableType.FLOAT);
         return lc;
     }
 

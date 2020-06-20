@@ -32,24 +32,29 @@ import java.util.Map;
 import se.bitcraze.crazyflie.lib.log.LogConfig;
 import se.bitcraze.crazyflie.lib.log.LogListener;
 
+@SuppressWarnings("java:S106")
 public class TestLogAdapter implements LogListener {
 
     //TODO: use LogAdapter instead (redirect logging to console if possible)
 
+    @Override
     public void logConfigAdded(LogConfig logConfig) {
         String msg = logConfig.isAdded() ? "' ADDED" : "' DELETED";
         System.out.println("LOG_CONFIG '" + logConfig.getName() + msg);
     }
 
+    @Override
     public void logConfigError(LogConfig logConfig) {
         System.out.println("LOG_CONFIG ERROR: " + logConfig.getName() + "': " + logConfig.getErrMsg() + ", ErrNo: " + logConfig.getErrNo());
     }
 
+    @Override
     public void logConfigStarted(LogConfig logConfig) {
         String msg = logConfig.isStarted() ? "' STARTED" : "' STOPPED";
         System.out.println("LOG_CONFIG '" + logConfig.getName() + msg);
     }
 
+    @Override
     public void logDataReceived(LogConfig logConfig, Map<String, Number> data, int timestamp) {
         // System.out.println("LOG_CONFIG DATA RECEIVED: " + logConfig.getName());
     }

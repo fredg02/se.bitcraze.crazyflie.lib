@@ -33,6 +33,7 @@ import se.bitcraze.crazyflie.lib.crazyflie.ConnectionListener;
  * An abstract adapter class for receiving connection events.
  * This class exists as convenience for creating listener objects in test.
  */
+@SuppressWarnings("java:S106")
 public abstract class TestConnectionAdapter implements ConnectionListener {
 
     @Override
@@ -65,6 +66,7 @@ public abstract class TestConnectionAdapter implements ConnectionListener {
         System.out.println("DISCONNECTED");
     }
 
+    @Override
     public void linkQualityUpdated(int percent) {
         //System.out.println("LINK QUALITY: " + percent);
     }

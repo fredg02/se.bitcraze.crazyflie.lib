@@ -136,14 +136,14 @@ public class VariableTypeTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testParseVariableType_bufferToSmall() {
+    public void testParseVariableTypeBufferToSmall() {
         // buffer capacity is smaller than 8, therefore the parse method should return an exception
         ByteBuffer testBuffer = ByteBuffer.wrap(new byte[] {-46,2,-106,73,0,0,0});
         assertEquals(1234567890L, VariableType.INT64_T.parse(testBuffer));
     }
 
     @Test
-    public void testParseVariable_positiveTest1() {
+    public void testParseVariablePositiveTest1() {
         ByteBuffer testBuffer = ByteBuffer.wrap(new byte[] {-46,2,-106,73,0,0,0,0});
         assertEquals(1234567890L, VariableType.INT64_T.parse(testBuffer));
     }

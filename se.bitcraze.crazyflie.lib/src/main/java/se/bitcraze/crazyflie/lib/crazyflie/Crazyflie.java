@@ -189,21 +189,10 @@ public class Crazyflie {
         }
     }
 
-    private boolean isPacketMatchingExpectedReply(CrtpPacket resendQueuePacket, CrtpPacket packet) {
-        //Only check equality for the amount of bytes in expected reply
-        byte[] expectedReply = resendQueuePacket.getExpectedReply();
-        for(int i = 0; i < expectedReply.length;i++) {
-            if(expectedReply[i] != packet.getPayload()[i]) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     private class ResendQueueHandler implements Runnable {
 
         @Override
-        @SuppressWarnings("java:s2189")
+        @SuppressWarnings("java:S2189")
         public void run() {
             mLogger.debug("ResendQueueHandlerThread was started.");
             while(true) {
@@ -324,6 +313,17 @@ public class Crazyflie {
     private class IncomingPacketHandler implements Runnable {
 
         final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
+
+        private boolean isPacketMatchingExpectedReply(CrtpPacket resendQueuePacket, CrtpPacket packet) {
+            //Only check equality for the amount of bytes in expected reply
+            byte[] expectedReply = resendQueuePacket.getExpectedReply();
+            for(int i = 0; i < expectedReply.length;i++) {
+                if(expectedReply[i] != packet.getPayload()[i]) {
+                    return false;
+                }
+            }
+            return true;
+        }
 
         /**
          * Callback called for every packet received to check if we are

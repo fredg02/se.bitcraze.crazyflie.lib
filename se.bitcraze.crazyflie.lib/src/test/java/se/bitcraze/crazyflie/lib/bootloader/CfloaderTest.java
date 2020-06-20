@@ -1,7 +1,5 @@
 package se.bitcraze.crazyflie.lib.bootloader;
 
-import javax.usb.UsbException;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -11,19 +9,21 @@ import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
 import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
 
+@SuppressWarnings("java:S106")
 public class CfloaderTest {
 
-    private CrtpDriver mDriver;
+    private static final String FLASH = "flash";
     private Cfloader mCfloader;
 
     @Before
-    public void setUp() throws SecurityException, UsbException {
+    public void setUp() {
+        CrtpDriver driver;
         if (TestUtilities.isCrazyradioAvailable()) {
-            mDriver = new RadioDriver(new UsbLinkJava());
+            driver = new RadioDriver(new UsbLinkJava());
         } else {
-            mDriver = new MockDriver();
+            driver = new MockDriver();
         }
-        mCfloader = new Cfloader(mDriver);
+        mCfloader = new Cfloader(driver);
     }
 
     @Test
@@ -38,7 +38,7 @@ public class CfloaderTest {
 
     @Test
     public void testCfLoaderflashNoFile() {
-        mCfloader.initialiseBootloaderLib(new String[]{"flash"});
+        mCfloader.initialiseBootloaderLib(new String[]{FLASH});
     }
 
     @Test
@@ -48,12 +48,12 @@ public class CfloaderTest {
 
     @Test
     public void testCfLoaderflashBin() {
-        mCfloader.initialiseBootloaderLib(new String[]{"flash", "src/test/fw/cf1-2015.08.1.bin"});
+        mCfloader.initialiseBootloaderLib(new String[]{FLASH, "src/test/fw/cf1-2015.08.1.bin"});
     }
 
     @Test
     public void testCfLoaderflashZip() {
-        mCfloader.initialiseBootloaderLib(new String[]{"flash", "src/test/fw/cf2.2014.12.1.zip"});
+        mCfloader.initialiseBootloaderLib(new String[]{FLASH, "src/test/fw/cf2.2014.12.1.zip"});
     }
 
 }

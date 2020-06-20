@@ -27,6 +27,7 @@ import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
 //TODO: mock bootloader reply packets
 //TODO: Fix USB error after reset to firmware
 //TODO: test info on NRF51
+@SuppressWarnings("java:S106")
 public class CloaderTest {
 
     private Cloader cloader;
@@ -84,7 +85,7 @@ public class CloaderTest {
      */
 
     @Test
-    public void testCloader_getInfo() throws IOException {
+    public void testCloaderGetInfo() throws IOException {
         boolean checkLinkAndGetInfo = cloader.checkLinkAndGetInfo(TargetTypes.STM32); //CF1
         assertTrue(checkLinkAndGetInfo);
 
@@ -114,7 +115,7 @@ public class CloaderTest {
     }
 
     @Test
-    public void testCloader_resetToFirmware() throws IOException {
+    public void testCloaderResetToFirmware() {
         boolean checkLinkAndGetInfo = cloader.checkLinkAndGetInfo(TargetTypes.STM32); //CF1
         assertTrue(checkLinkAndGetInfo);
 
@@ -135,7 +136,7 @@ public class CloaderTest {
     }
 
     @Test
-    public void testCloader_updateMapping() throws IOException {
+    public void testCloaderUpdateMapping() {
         boolean checkLinkAndGetInfo = cloader.checkLinkAndGetInfo(TargetTypes.STM32); //CF1
         assertTrue(checkLinkAndGetInfo);
 
@@ -168,7 +169,7 @@ public class CloaderTest {
      * @throws IOException
      */
     @Test @Ignore
-    public void testCloaderCF1_readFlash() throws IOException {
+    public void testCloaderCF1ReadFlash() throws IOException {
         boolean checkLinkAndGetInfo = cloader.checkLinkAndGetInfo(TargetTypes.STM32); //CF1
         assertTrue(checkLinkAndGetInfo);
 
@@ -204,7 +205,7 @@ public class CloaderTest {
     }
 
     @Test
-    public void testCloader_uploadBuffer() throws IOException {
+    public void testCloaderUploadBuffer() throws IOException {
         boolean checkLinkAndGetInfo = cloader.checkLinkAndGetInfo(TargetTypes.STM32); //CF1
         assertTrue(checkLinkAndGetInfo);
 
@@ -232,7 +233,7 @@ public class CloaderTest {
     }
 
     @Test
-    public void testCloaderCF1_setAddress() throws IOException {
+    public void testCloaderCF1setAddress() {
         boolean checkLinkAndGetInfo = cloader.checkLinkAndGetInfo(TargetTypes.STM32); //CF1
         assertTrue(checkLinkAndGetInfo);
 

@@ -41,6 +41,7 @@ import se.bitcraze.crazyflie.lib.toc.TocElement;
 import se.bitcraze.crazyflie.lib.toc.VariableType;
 
 @Category(OfflineTests.class)
+@SuppressWarnings("java:S106")
 public class LogTocElementTest {
 
     @Test
@@ -100,14 +101,14 @@ public class LogTocElementTest {
     public void testGetVariableTypeId() {
         //pm.vbat
         byte[] pmVbat = new byte[] {0,7,112,109,0,118,98,97,116,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-        TocElement lte_pmVbat = new TocElement(CrtpPort.LOGGING, pmVbat);
-        
-        VariableType ctype = lte_pmVbat.getCtype();
-        int variableTypeId = new Toc().getVariableTypeIdLog(ctype); 
-        
+        TocElement ltePmVbat = new TocElement(CrtpPort.LOGGING, pmVbat);
+
+        VariableType ctype = ltePmVbat.getCtype();
+        int variableTypeId = new Toc().getVariableTypeIdLog(ctype);
+
         System.out.println("Ctype: " + ctype.name());
         System.out.println("VariableTypeId: " + variableTypeId);
-        
+
         assertEquals(VariableType.FLOAT, ctype);
         assertEquals(7, variableTypeId);
     }
@@ -122,7 +123,7 @@ public class LogTocElementTest {
         TocElement paramTocElement = new TocElement();
         showMap(paramTocElement);
     }
-    
+
     private void showMap(TocElement tocElement) {
         for (Entry<Integer, VariableType> entry : new Toc().getVariableTypeMapLog().entrySet()) {
             System.out.println(entry.getKey() + " " + entry.getValue());

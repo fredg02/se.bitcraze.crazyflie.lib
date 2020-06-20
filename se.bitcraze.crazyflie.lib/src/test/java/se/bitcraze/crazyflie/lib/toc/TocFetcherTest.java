@@ -48,6 +48,7 @@ import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPacket.Header;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
 
+@SuppressWarnings("java:S106")
 public class TocFetcherTest {
 
     boolean mStateConnectionRequested = false;
@@ -82,7 +83,7 @@ public class TocFetcherTest {
 
     @Category(OfflineTests.class)
     @Test
-    public void testTocFetcherOffline_TocIsBiggerThan128() {
+    public void testTocFetcherOfflineTocIsBiggerThan128() {
         Crazyflie crazyflieDummy = new Crazyflie(new MockDriver());
         TocFetcher tocFetcher = new TocFetcher(crazyflieDummy, CrtpPort.PARAMETERS, new Toc(), null);
         tocFetcher.start();
@@ -135,7 +136,7 @@ public class TocFetcherTest {
 
         });
 
-        crazyflie.setConnectionData(new ConnectionData(CrazyflieTest.channel, CrazyflieTest.datarate));
+        crazyflie.setConnectionData(new ConnectionData(CrazyflieTest.CHANNEL, CrazyflieTest.DATARATE));
         crazyflie.connect();
 
         for (int i = 0; i < 500; i++) {

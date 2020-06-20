@@ -8,21 +8,22 @@ import org.junit.experimental.categories.Category;
 import se.bitcraze.crazyflie.lib.OfflineTests;
 
 @Category(OfflineTests.class)
+@SuppressWarnings("java:S106")
 public class TargetTest {
 
 
     @Test
-    public void testParseDataSTM32_cf1() {
+    public void testParseDataSTM32Cf1() {
         //original: 1, -1,-1,16,0,4,10,0,-128,0,10,0,80,-1,118,6,73,-123,86,84,81,38,20,-121,1,0,0,0,0,0,0,0,0
         // removed the first two bytes
-        
+
         byte[] data = new byte[] {-1,16,0,4,10,0,-128,0,10,0,80,-1,118,6,73,-123,86,84,81,38,20,-121,1,0,0,0,0,0,0,0,0};
         Target target = new Target(0xFF);
         checkParseData(target, data, 118, 10, 128, 255, 1024, 1 /*0x01*/, 10);
     }
 
     @Test
-    public void testParseDataSTM32_cf2() {
+    public void testParseDataSTM32Cf2() {
         //original: 1,-1,-1,16,0,4,10,0,0,4,16,0,-89,4,48,106,79,-34,98,94,-1,-27,28,16,16,0,0,0,0,0,0,0,0,
         // removed the first two bytes
 

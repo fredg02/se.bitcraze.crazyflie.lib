@@ -44,12 +44,13 @@ import se.bitcraze.crazyflie.lib.crazyflie.Crazyflie;
 import se.bitcraze.crazyflie.lib.crazyflie.CrazyflieTest;
 import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
 
+@SuppressWarnings("java:S106")
 public class ParamTest {
 
     private Param mParam;
     private boolean mSetupFinished = false;
 
-    private ConnectionData mConnectionData = new ConnectionData(CrazyflieTest.channel, CrazyflieTest.datarate);
+    private ConnectionData mConnectionData = new ConnectionData(CrazyflieTest.CHANNEL, CrazyflieTest.DATARATE);
 
     //TODO: when cf disconnects, testParam is still stuck in the while loop
 
@@ -114,60 +115,58 @@ public class ParamTest {
 
         if (mParam == null) {
             fail("mParam is null");
-        }
+        } else {
+            Map<String, Map<String, Number>> valuesMap = mParam.getValuesMap();
 
-        Map<String, Map<String, Number>> valuesMap = mParam.getValuesMap();
-
-        int noOfValueMapElements = 0;
-        for(String g : valuesMap.keySet()) {
-            for(String n : valuesMap.get(g).keySet()) {
-                noOfValueMapElements++;
+            int noOfValueMapElements = 0;
+            for(String g : valuesMap.keySet()) {
+                noOfValueMapElements += valuesMap.get(g).keySet().size();
             }
-        }
 
-        //TODO: why are not all values fetched in a reasonable time?
-//        assertEquals(mParam.getToc().getTocSize(), valuesMap.keySet().size());
-        System.out.println("TocSize: " + mParam.getToc().getTocSize() + ", No of valueMap elements: " + noOfValueMapElements);
+            //TODO: why are not all values fetched in a reasonable time?
+    //        assertEquals(mParam.getToc().getTocSize(), valuesMap.keySet().size());
+            System.out.println("TocSize: " + mParam.getToc().getTocSize() + ", No of valueMap elements: " + noOfValueMapElements);
 
-        if(mParam.getToc().getTocSize() != noOfValueMapElements) {
-            for(String name : mParam.getToc().getTocElementMap().keySet()) {
-                if(valuesMap.get(name) == null) {
-                    System.out.println("Missing param in ValueMap: " + name);
-                    continue;
+            if(mParam.getToc().getTocSize() != noOfValueMapElements) {
+                for(String name : mParam.getToc().getTocElementMap().keySet()) {
+                    if(valuesMap.get(name) == null) {
+                        System.out.println("Missing param in ValueMap: " + name);
+                        continue;
+                    }
                 }
             }
-        }
 
-        if(!isTimeout2) {
-            for(String s : valuesMap.keySet()) {
-                System.out.println(s + ": " + valuesMap.get(s));
+            if(!isTimeout2) {
+                for(String s : valuesMap.keySet()) {
+                    System.out.println(s + ": " + valuesMap.get(s));
+                }
+
+                //TODO: use values that hardly change
+
+                //identify CF1 and CF2 by CPU flash (CF1 has 128kb, CF2 has 1MB)
+                int flash = valuesMap.get("cpu").get("flash").intValue();
+                if(flash == 128) { // CF1
+                    //uint8_t
+                    assertEquals(13, valuesMap.get("imu_acc_lpf").get("factor"));
+
+                    //uint32_t == Long
+                    assertEquals(2266244689L, valuesMap.get("cpu").get("id2"));
+                } else if(flash == 1024) { // CF2
+                    //uint8_t
+                    assertEquals(1, valuesMap.get("imu_tests").get("MPU6500"));
+
+                    //uint32_t == Long
+                    assertEquals(926103090L, valuesMap.get("cpu").get("id2"));
+                } else {
+                    fail("cpu.flash value is not 128 or 1024.");
+                }
+
+                //uint16_t
+                assertEquals(4000, valuesMap.get("sound").get("freq"));
+
+                //float
+                assertEquals(4.2f, valuesMap.get("ring").get("fullCharge"));
             }
-
-            //TODO: use values that hardly change
-
-            //identify CF1 and CF2 by CPU flash (CF1 has 128kb, CF2 has 1MB)
-            int flash = valuesMap.get("cpu").get("flash").intValue();
-            if(flash == 128) { // CF1
-                //uint8_t
-                assertEquals(13, valuesMap.get("imu_acc_lpf").get("factor"));
-
-                //uint32_t == Long
-                assertEquals(2266244689L, valuesMap.get("cpu").get("id2"));
-            } else if(flash == 1024) { // CF2
-                //uint8_t
-                assertEquals(1, valuesMap.get("imu_tests").get("MPU6500"));
-
-                //uint32_t == Long
-                assertEquals(926103090L, valuesMap.get("cpu").get("id2"));
-            } else {
-                fail("cpu.flash value is not 128 or 1024.");
-            }
-
-            //uint16_t
-            assertEquals(4000, valuesMap.get("sound").get("freq"));
-
-            //float
-            assertEquals(4.2f, valuesMap.get("ring").get("fullCharge"));
         }
     }
 

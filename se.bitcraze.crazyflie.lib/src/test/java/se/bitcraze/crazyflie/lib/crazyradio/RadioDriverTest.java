@@ -42,17 +42,18 @@ import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
 
 public class RadioDriverTest {
 
+    private static final String NO_ACTIVE_CONNECTIONS_FOUND = "No active connections found. Please make sure at least one Crazyflie is turned on";
     private RadioDriver mRadioDriver;
     private UsbLinkJava mUsbLinkJava;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         mUsbLinkJava = new UsbLinkJava();
         mRadioDriver = new RadioDriver(mUsbLinkJava);
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         if (mRadioDriver != null) {
             mRadioDriver.disconnect();
             mRadioDriver = null;
@@ -63,7 +64,7 @@ public class RadioDriverTest {
     public void testSendPacket() {
         List<ConnectionData> connectionDataList = mRadioDriver.scanInterface();
         if (connectionDataList.isEmpty()) {
-            fail("No active connections found. Please make sure at least one Crazyflie is turned on");
+            fail(NO_ACTIVE_CONNECTIONS_FOUND);
         } else {
             mRadioDriver.setConnectionData(connectionDataList.get(0));
             mRadioDriver.connect();
@@ -81,10 +82,10 @@ public class RadioDriverTest {
 
     @Test
     public void testReceivePacket() {
-        List<CrtpPacket> receivedPackets = new ArrayList<CrtpPacket>();
+        List<CrtpPacket> receivedPackets = new ArrayList<>();
         List<ConnectionData> connectionDataList = mRadioDriver.scanInterface();
         if (connectionDataList.isEmpty()) {
-            fail("No active connections found. Please make sure at least one Crazyflie is turned on");
+            fail(NO_ACTIVE_CONNECTIONS_FOUND);
         } else {
             mRadioDriver.setConnectionData(connectionDataList.get(0));
             mRadioDriver.connect();
@@ -110,7 +111,7 @@ public class RadioDriverTest {
     public void testScanInterface() {
         List<ConnectionData> connectionDataList = mRadioDriver.scanInterface();
         if (connectionDataList.isEmpty()) {
-            fail("No active connections found. Please make sure at least one Crazyflie is turned on");
+            fail(NO_ACTIVE_CONNECTIONS_FOUND);
         } else {
             System.out.println("Found active connections:");
             for (ConnectionData cd : connectionDataList) {

@@ -42,62 +42,65 @@ import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
 import se.bitcraze.crazyflie.lib.toc.VariableType;
 
 @Category(OfflineTests.class)
+@SuppressWarnings("java:S106")
 public class LogDataStaticTest {
 
     /*
      * FLOAT             Header (Port 5, Channel 2)  Block ID    Timestamp           Log values (in little endian format)
-     * 
+     *
      * original byte: 1, 82,                         1,          67,-58,0,           -59,68,-126,64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-     * 
+     *
      * 0       BLOCK_ID                ID of the log config block
      * 1       ID                      Timestamp in ms from the copter startup as a little-endian 3 bytes integer
      * 4..     Log variable values     Packed log values in little endian format
      */
 
+    private static final String PM_VBAT = "pm.vbat";
+
     // original array:                                 1,82,1,67,-58,0,-59,68,-126,64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
     private final byte[] originalByteArray = new byte[] {82,1,67,-58,0,-59,68,-126,64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,};
-    
+
     private static final LogConfig lc_battery = new LogConfig("battery");
-    private static final LogVariable lv_pmVbat = new LogVariable("pm.vbat", VariableType.FLOAT);
+    private static final LogVariable lv_pmVbat = new LogVariable(PM_VBAT, VariableType.FLOAT);
     static {
         lc_battery.getLogVariables().add(lv_pmVbat);
     }
-    
-    private static int TIMESTAMP_VALUE = 50755;
-    private static float PM_VBAT_VALUE = 4.0708947f;
+
+    private static final int TIMESTAMP_VALUE = 50755;
+    private static final float PM_VBAT_VALUE = 4.0708947f;
 
     @Test
     public void testManualParseLogData() {
         ByteBuffer byteBuffer = ByteBuffer.wrap(originalByteArray).order(CrtpPacket.BYTE_ORDER);
-        
+
         //strip header byte
         byteBuffer.get();
-        
+
         //get ID?
         byte id = byteBuffer.get();
         System.out.println("ID: " + id);
-        
+
         //TODO: how can timestamp extraction be simplified? (without using another ByteBuffer?)
         //see also se.bitcraze.crazyflie.lib.log.Logg.parseTimestamp(byte, byte, byte)
-        
+
         //get timestamp
         byte[] timestampByteArray = new byte[4];
         byteBuffer.get(timestampByteArray, 0, 3);
-        
+
         ByteBuffer bb = ByteBuffer.wrap(timestampByteArray).order(CrtpPacket.BYTE_ORDER);
         int timestamp = bb.getInt();
-        
+
         System.out.println("Timestamp: " + timestamp);
-        
+
         //get log value
         // Note that only the current position of the ByteBuffer has shifted, the underlying array is still the same
         Float parsedValue = (Float) VariableType.FLOAT.parse(byteBuffer);
         System.out.println("Log value: " + parsedValue);
-        
+
         assertEquals(1, id);
         assertEquals(TIMESTAMP_VALUE, timestamp);
         assertEquals(PM_VBAT_VALUE, parsedValue, 0);
-        
+
         System.out.println();
     }
 
@@ -106,12 +109,12 @@ public class LogDataStaticTest {
         int offset = 5;
         // Note that the offset will just shift the current position, it does not change the underlying array
         ByteBuffer logVariablesRaw = ByteBuffer.wrap(originalByteArray, offset, originalByteArray.length-offset);
-        
+
         Number parsedValue = lv_pmVbat.getVariableType().parse(logVariablesRaw);
         System.out.println("ParsedValue: " + parsedValue);
-        
+
         assertEquals(PM_VBAT_VALUE, parsedValue);
-        
+
         System.out.println();
     }
 
@@ -120,9 +123,9 @@ public class LogDataStaticTest {
         int offset = 5;
         byte[] logVariablesByteArray = new byte[originalByteArray.length-offset];
         System.arraycopy(originalByteArray, offset, logVariablesByteArray, 0, logVariablesByteArray.length);
-        
+
         Map<String, Number> unpackLogData = lc_battery.unpackLogData(logVariablesByteArray);
-        System.out.println("LogData (pm.vbat): " + unpackLogData.get("pm.vbat"));
+        System.out.println("LogData (pm.vbat): " + unpackLogData.get(PM_VBAT));
 
         System.out.println();
     }
@@ -131,17 +134,17 @@ public class LogDataStaticTest {
     public void testLoggParseLogData () {
         CrtpPacket packet = new CrtpPacket(originalByteArray);
         byte[] payload = packet.getPayload();
-        
-        Map<String, Number> parseLogData = new HashMap<String, Number>();
+
+        Map<String, Number> parseLogData = new HashMap<>();
         int timestamp = Logg.parseLogData(payload, lc_battery, parseLogData);
         for (Entry<String, Number> entry : parseLogData.entrySet()) {
             System.out.println("Key: " + entry.getKey() + ", value: " + entry.getValue() + ", timestamp: " + timestamp);
         }
-        
+
         //TODO: test timestamp
-        
-        assertEquals(PM_VBAT_VALUE, parseLogData.get("pm.vbat"));
-        
+
+        assertEquals(PM_VBAT_VALUE, parseLogData.get(PM_VBAT));
+
         System.out.println();
     }
 

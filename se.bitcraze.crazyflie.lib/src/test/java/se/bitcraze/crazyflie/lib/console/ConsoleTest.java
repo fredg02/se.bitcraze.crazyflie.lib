@@ -10,9 +10,10 @@ import org.junit.experimental.categories.Category;
 import se.bitcraze.crazyflie.lib.OfflineTests;
 
 @Category(OfflineTests.class)
+@SuppressWarnings("java:S106")
 public class ConsoleTest {
 
-    private static List<String> byteStrings = new ArrayList<String>();
+    private static List<String> byteStrings = new ArrayList<>();
     static {
         byteStrings.add("01 00 53 59 53 3A 20 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 00");
         byteStrings.add("01 00 2D 2D 2D 0A 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00");

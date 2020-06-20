@@ -11,6 +11,7 @@ import se.bitcraze.crazyflie.lib.OfflineTests;
 import se.bitcraze.crazyflie.lib.bootloader.Target.TargetTypes;
 
 @Category(OfflineTests.class)
+@SuppressWarnings("java:S106")
 public class UtilitiesTest {
 
     @Test

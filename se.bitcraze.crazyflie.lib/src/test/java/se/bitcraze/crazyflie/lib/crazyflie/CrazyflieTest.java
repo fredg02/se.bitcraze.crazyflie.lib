@@ -45,10 +45,11 @@ import se.bitcraze.crazyflie.lib.crtp.CrtpPacket;
 import se.bitcraze.crazyflie.lib.crtp.CrtpPort;
 import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
 
+@SuppressWarnings("java:S106")
 public class CrazyflieTest {
 
-    public static int channel = 80;
-    public static int datarate = 0;
+    public static final int CHANNEL = 80;
+    public static final int DATARATE = 0;
 
     private boolean connectionRequested = false;
     private boolean connected = false;
@@ -73,8 +74,8 @@ public class CrazyflieTest {
         System.out.println("=== TEST START - testDataListener() ===");
         Crazyflie crazyflie = new Crazyflie(getConnectionImpl());
 
-        final ArrayList<CrtpPacket> packetList = new ArrayList<CrtpPacket>();
-        
+        final ArrayList<CrtpPacket> packetList = new ArrayList<>();
+
         //FIXME: only works right after start up
         crazyflie.addDataListener(new DataListener(CrtpPort.CONSOLE) {
 
@@ -86,7 +87,7 @@ public class CrazyflieTest {
 
         });
 
-        crazyflie.setConnectionData(new ConnectionData(channel, datarate));
+        crazyflie.setConnectionData(new ConnectionData(CHANNEL, DATARATE));
         crazyflie.connect();
 
         for (int i = 0; i < 15; i++) {
@@ -98,7 +99,7 @@ public class CrazyflieTest {
             }
         }
         crazyflie.disconnect();
-        
+
         assertFalse("PacketList should not be empty", packetList.isEmpty());
         System.out.println("=== TEST END - testDataListener() ===\n");
     }
@@ -134,6 +135,7 @@ public class CrazyflieTest {
                 disconnected = true;
             }
 
+            @Override
             public void linkQualityUpdated(int percent) {
 //                System.out.println("LINK QUALITY: " + percent);
                 linkQuality = true;
@@ -141,11 +143,11 @@ public class CrazyflieTest {
 
         });
 
-        crazyflie.setConnectionData(new ConnectionData(channel, datarate));
+        crazyflie.setConnectionData(new ConnectionData(CHANNEL, DATARATE));
         crazyflie.connect();
 
         int timeout = 1000;
-        
+
         while (!setupFinished && timeout > 0) {
             try {
                 Thread.sleep(50, 0);
@@ -156,7 +158,7 @@ public class CrazyflieTest {
         }
 
         crazyflie.disconnect();
-        
+
         assertTrue(connectionRequested);
         assertTrue(connected);
         assertTrue(setupFinished);

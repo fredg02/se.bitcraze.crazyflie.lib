@@ -52,6 +52,7 @@ import se.bitcraze.crazyflie.lib.toc.Toc;
 import se.bitcraze.crazyflie.lib.toc.TocElement;
 import se.bitcraze.crazyflie.lib.toc.VariableType;
 
+@SuppressWarnings("java:S106")
 public class LoggTest {
 
     //TODO: test adding multiple log configs
@@ -61,7 +62,7 @@ public class LoggTest {
     private Logg mLogg;
     private boolean mSetupFinished = false;
 
-    ConnectionData mConnectionData = new ConnectionData(CrazyflieTest.channel, CrazyflieTest.datarate);
+    ConnectionData mConnectionData = new ConnectionData(CrazyflieTest.CHANNEL, CrazyflieTest.DATARATE);
 
     @Category(OfflineTests.class)
     @Test(expected = IllegalArgumentException.class)

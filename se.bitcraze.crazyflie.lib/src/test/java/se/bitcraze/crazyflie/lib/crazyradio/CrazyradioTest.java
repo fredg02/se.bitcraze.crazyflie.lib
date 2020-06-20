@@ -46,18 +46,19 @@ import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
  * TODO: clean up, do not fail tests if no Crazyflie is found?
  *
  */
+@SuppressWarnings("java:S106")
 public class CrazyradioTest {
 
     private Crazyradio mCrazyradio;
-    private List<ConnectionData> mConnectionDataList = new ArrayList<ConnectionData>();
+    private List<ConnectionData> mConnectionDataList = new ArrayList<>();
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         mCrazyradio = new Crazyradio(new UsbLinkJava());
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         mCrazyradio.disconnect();
     }
 
@@ -74,18 +75,19 @@ public class CrazyradioTest {
             fail("No active channels found. Please make sure at least one Crazyflie is turned on.");
         } else {
             System.out.println("Found active channels 250k:");
+            String channelString = "  Channel ";
             for (Integer i : scanChannels250k) {
-                System.out.println("  Channel " + i);
+                System.out.println(channelString + i);
                 mConnectionDataList.add(new ConnectionData(i, Crazyradio.DR_250KPS));
             }
             System.out.println("Found active channels 1M:");
             for (Integer i : scanChannels1m) {
-                System.out.println("  Channel " + i);
+                System.out.println(channelString + i);
                 mConnectionDataList.add(new ConnectionData(i, Crazyradio.DR_1MPS));
             }
             System.out.println("Found active channels 2M:");
             for (Integer i : scanChannels2m) {
-                System.out.println("  Channel " + i);
+                System.out.println(channelString + i);
                 mConnectionDataList.add(new ConnectionData(i, Crazyradio.DR_2MPS));
             }
         }

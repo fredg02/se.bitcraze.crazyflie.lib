@@ -41,12 +41,13 @@ import org.junit.experimental.categories.Category;
 import se.bitcraze.crazyflie.lib.OfflineTests;
 
 @Category(OfflineTests.class)
+@SuppressWarnings("java:S106")
 public class TocTest {
 
     private Toc mToc;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         mToc = new Toc();
         assertTrue(mToc.getTocElementMap().isEmpty());
         TocElement tocElement = createTocElement("testGroup", "testName", 1);
@@ -74,7 +75,7 @@ public class TocTest {
         mToc.addElement(tocElement4);
         TocElement tocElement5 = createTocElement("bla", "blub", 4);
         mToc.addElement(tocElement5);
-        
+
         List<TocElement> elements = mToc.getElements();
         System.out.println(elements);
         assertEquals(1, elements.get(0).getIdent());

@@ -13,15 +13,17 @@ import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
 
 public class TestUtilities {
 
+    private TestUtilities() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static boolean isCrazyradioAvailable() {
         try {
             UsbServices services = UsbHostManager.getUsbServices();
             UsbHub rootHub = services.getRootUsbHub();
             List<UsbDevice> usbDeviceList = UsbLinkJava.findUsbDevices(rootHub, (short) Crazyradio.CRADIO_VID, (short) Crazyradio.CRADIO_PID);
             return !usbDeviceList.isEmpty();
-        } catch (SecurityException e) {
-            e.printStackTrace();
-        } catch (UsbException e) {
+        } catch (SecurityException | UsbException e) {
             e.printStackTrace();
         }
         return false;

@@ -12,8 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.usb.UsbException;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,13 +29,21 @@ import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
 import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
 
 //TODO: Fix testCf1ConfigPrepareConfig
+@SuppressWarnings("java:S106")
 public class BootloaderTest {
+
+    private static final String STM32 = "stm32";
+    private static final String CFLIE2_BIN = "cflie2.bin";
+    private static final String DONE = " Done!";
+    private static final String FIRMWARE_FILE_CF1_2015_08_1_BIN = "src/test/fw/cf1-2015.08.1.bin";
+    private static final String BOOTLOADER_NOT_STARTED = "Bootloader not started.";
+    private static final String RESTART_THE_CRAZYFLIE_MSG = "Restart the Crazyflie you want to bootload in the next 10 seconds ...";
 
     private Bootloader mBootloader = null;
     private CrtpDriver mDriver = null;
 
     @Before
-    public void setUp() throws SecurityException, UsbException {
+    public void setUp() {
         if (TestUtilities.isCrazyradioAvailable()) {
             mDriver = new RadioDriver(new UsbLinkJava());
         } else {
@@ -54,11 +60,11 @@ public class BootloaderTest {
     }
 
     @Test
-    public void testBootloader() throws InterruptedException {
-        System.out.print("Restart the Crazyflie you want to bootload in the next 10 seconds ...");
+    public void testBootloader() {
+        System.out.print(RESTART_THE_CRAZYFLIE_MSG);
         mBootloader.addBootloaderListener(new BootloaderAdapter());
         if (mBootloader.startBootloader(false)) {
-            System.out.println(" Done!");
+            System.out.println(DONE);
 
             assertNotNull("Cloader should not be null", mBootloader.getCloader());
 
@@ -77,16 +83,16 @@ public class BootloaderTest {
                 fail("Number of flash pages seems to be wrong (" + target.getFlashPages() + ")");
             }
         } else {
-            fail("Bootloader not started.");
+            fail(BOOTLOADER_NOT_STARTED);
         }
     }
 
     @Test
-    public void testReadWriteCF1Config() throws InterruptedException {
-        System.out.print("Restart the Crazyflie you want to bootload in the next 10 seconds ...");
+    public void testReadWriteCF1Config() {
+        System.out.print(RESTART_THE_CRAZYFLIE_MSG);
         mBootloader.addBootloaderListener(new BootloaderAdapter());
         if (mBootloader.startBootloader(false)) {
-            System.out.println(" Done!");
+            System.out.println(DONE);
 
             Target target = mBootloader.getCloader().getTargetsAsList().get(0);
             if (target.getFlashPages() != 128) { //128 = CF 1.0, 1024 = CF 2.0
@@ -132,7 +138,7 @@ public class BootloaderTest {
             System.out.println("\nResetting CF1 config ...");
             mBootloader.writeCF1Config(oldConfig.prepareConfig());
         } else {
-            fail("Bootloader not started.");
+            fail(BOOTLOADER_NOT_STARTED);
         }
     }
 
@@ -151,11 +157,11 @@ public class BootloaderTest {
     }
 
     @Test
-    public void testFlashSingleTarget() throws InterruptedException, IOException {
-        System.out.print("Restart the Crazyflie you want to bootload in the next 10 seconds ...");
+    public void testFlashSingleTarget() throws IOException {
+        System.out.print(RESTART_THE_CRAZYFLIE_MSG);
         mBootloader.addBootloaderListener(new BootloaderAdapter());
         if (mBootloader.startBootloader(false)) {
-            System.out.println(" Done!");
+            System.out.println(DONE);
 
             //Load firmware file directly into byte array/buffer
             //Flash firmware
@@ -166,11 +172,11 @@ public class BootloaderTest {
             System.out.println("FlashPages: " + target.getFlashPages());
             if (target.getFlashPages() == 128) { //128 = CF 1.0
                 System.out.println("CF 1.0");
-                mBootloader.flash(new File("src/test/fw/cf1-2015.08.1.bin"), "stm32");
+                mBootloader.flash(new File(FIRMWARE_FILE_CF1_2015_08_1_BIN), STM32);
 //            mBootloader.flash(new File("Crazyflie1-2015.1.bin"), "stm32");
             } else if (target.getFlashPages() == 1024) { //1024 = CF 2.0
                 System.out.println("CF 2.0");
-                mBootloader.flash(new File("src/test/fw/cf2-2015.08.1.bin"), "stm32");
+                mBootloader.flash(new File("src/test/fw/cf2-2015.08.1.bin"), STM32);
 //                mBootloader.flash(new File("src/test/fw/Crazyflie2_2014.12.0.zip"), "");
 //                mBootloader.flash(new File("cflie2.bin"), "stm32");
             } else {
@@ -182,16 +188,16 @@ public class BootloaderTest {
 //            mBootloader.resetToFirmware();
             //Check if everything still works
         } else {
-            fail("Bootloader not started.");
+            fail(BOOTLOADER_NOT_STARTED);
         }
     }
 
     @Test
-    public void testFlashMultipleTargets() throws InterruptedException, IOException {
-        System.out.print("Restart the Crazyflie you want to bootload in the next 10 seconds ...");
+    public void testFlashMultipleTargets() throws IOException {
+        System.out.print(RESTART_THE_CRAZYFLIE_MSG);
         mBootloader.addBootloaderListener(new BootloaderAdapter());
         if (mBootloader.startBootloader(false)) {
-            System.out.println(" Done!");
+            System.out.println(DONE);
 
             Target target = mBootloader.getCloader().getTargets().get(TargetTypes.STM32);
             if (target.getFlashPages() == 128) { //128 = CF 1.0
@@ -205,16 +211,16 @@ public class BootloaderTest {
             //mBootloader.resetToFirmware();
             //TODO: Check if everything still works
         } else {
-            fail("Bootloader not started.");
+            fail(BOOTLOADER_NOT_STARTED);
         }
     }
 
     @Test
-    public void testGetFlashTargets() throws Exception {
-        System.out.print("Restart the Crazyflie you want to bootload in the next 10 seconds ...");
+    public void testGetFlashTargets() throws IOException {
+        System.out.print(RESTART_THE_CRAZYFLIE_MSG);
         mBootloader.addBootloaderListener(new BootloaderAdapter());
         if (mBootloader.startBootloader(false)) {
-            System.out.println(" Done!");
+            System.out.println(DONE);
 
             ((RadioDriver) this.mDriver).disconnect();
 
@@ -240,10 +246,10 @@ public class BootloaderTest {
 
 
             //#2 Bin file with no target name given
-            assertEquals("#2 Should return an empty list.", 0, mBootloader.getFlashTargets(new File("src/test/fw/cf1-2015.08.1.bin"), "").size());
+            assertEquals("#2 Should return an empty list.", 0, mBootloader.getFlashTargets(new File(FIRMWARE_FILE_CF1_2015_08_1_BIN), "").size());
 
             //#3 Bin file with target name given
-            List<FlashTarget> targets2 = mBootloader.getFlashTargets(new File("src/test/fw/cf1-2015.08.1.bin"), "stm32");
+            List<FlashTarget> targets2 = mBootloader.getFlashTargets(new File(FIRMWARE_FILE_CF1_2015_08_1_BIN), STM32);
             assertEquals("#3 Should return a list with size 1.", 1, targets2.size());
 
             System.out.println("#3 bin file:");
@@ -254,14 +260,14 @@ public class BootloaderTest {
 
             //TODO: works, even though file is not found!!!
             //#4 Bin file with more than one target name given -> should return an empty list and an error
-            List<FlashTarget> targets3 = mBootloader.getFlashTargets(new File("cf1-2015.08.1.bin"), "stm32", "nrf51");
+            List<FlashTarget> targets3 = mBootloader.getFlashTargets(new File("cf1-2015.08.1.bin"), STM32, "nrf51");
             assertEquals("Should return a list with size 0.", 0, targets3.size());
 
             //TODO: clean up, delete unzipped files
 
         } else {
             mBootloader.close();
-            fail("Bootloader not started.");
+            fail(BOOTLOADER_NOT_STARTED);
         }
         mBootloader.close();
     }
@@ -272,7 +278,7 @@ public class BootloaderTest {
      * @throws IOException
      */
     @Test
-    public void testFW201602_cf1() throws IOException {
+    public void testFW201602CF1() throws IOException {
         //TODO: simplify
         byte[] data = new byte[] {-1,16,0,4,10,0,-128,0,10,0,80,-1,118,6,73,-123,86,84,81,38,20,-121,1,0,0,0,0,0,0,0,0};
 
@@ -298,7 +304,7 @@ public class BootloaderTest {
      * @throws IOException
      */
     @Test
-    public void testFW201602_cf2() throws IOException {
+    public void testFW201602CF2() throws IOException {
         //TODO: simplify
         byte[] data = new byte[] {-1,16,0,4,10,0,0,4,16,0,-89,4,48,106,79,-34,98,94,-1,-27,28,16,16,0,0,0,0,0,0,0,0};
         Target target = new Target(0xFF);
@@ -329,10 +335,10 @@ public class BootloaderTest {
         }
 
         assertEquals(1, readManifest.getVersion());
-        assertTrue(readManifest.getFiles().containsKey("cflie2.bin"));
-        FirmwareDetails firmwareDetails1 = readManifest.getFiles().get("cflie2.bin");
+        assertTrue(readManifest.getFiles().containsKey(CFLIE2_BIN));
+        FirmwareDetails firmwareDetails1 = readManifest.getFiles().get(CFLIE2_BIN);
         assertEquals("cf2", firmwareDetails1.getPlatform());
-        assertEquals("stm32", firmwareDetails1.getTarget());
+        assertEquals(STM32, firmwareDetails1.getTarget());
         assertEquals("fw", firmwareDetails1.getType());
 
         assertTrue(readManifest.getFiles().containsKey("cf2_nrf_1.1.bin"));
@@ -348,8 +354,8 @@ public class BootloaderTest {
         Manifest manifest = new Manifest();
         manifest.setVersion(1);
         Map<String, FirmwareDetails> map = new HashMap<>();
-        FirmwareDetails firmwareDetails = new FirmwareDetails("cf2", "stm32", "fw", "2015.01.11", "release-repo");
-        map.put("cflie2.bin", firmwareDetails);
+        FirmwareDetails firmwareDetails = new FirmwareDetails("cf2", STM32, "fw", "2015.01.11", "release-repo");
+        map.put(CFLIE2_BIN, firmwareDetails);
         manifest.setFiles(map);
 
         String testFileName = "manifestTest.json";

@@ -32,12 +32,9 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import javax.usb.UsbDevice;
-import javax.usb.UsbDisconnectedException;
-import javax.usb.UsbException;
 
 import org.junit.After;
 import org.junit.Before;
@@ -45,25 +42,23 @@ import org.junit.Test;
 
 import se.bitcraze.crazyflie.lib.crazyradio.Crazyradio;
 
-
+@SuppressWarnings("java:S106")
 public class UsbLinkJavaTest {
 
     private UsbLinkJava mUsbLinkJava;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         this.mUsbLinkJava = new UsbLinkJava();
         try {
             this.mUsbLinkJava.initDevice(Crazyradio.CRADIO_VID, Crazyradio.CRADIO_PID);
-        } catch (SecurityException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (SecurityException | IOException e) {
             e.printStackTrace();
         }
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         if(mUsbLinkJava != null && mUsbLinkJava.isUsbConnected()) {
             mUsbLinkJava.releaseInterface();
         }
@@ -85,7 +80,7 @@ public class UsbLinkJavaTest {
     }
 
     @Test
-    public void testGetFirmwareVersionMutipleRadios() throws UnsupportedEncodingException, UsbDisconnectedException, UsbException {
+    public void testGetFirmwareVersionMutipleRadios() {
         List<UsbDevice> usbDeviceList = mUsbLinkJava.findDevices(Crazyradio.CRADIO_VID, Crazyradio.CRADIO_PID);
         if (usbDeviceList.isEmpty()) {
             fail("No Crazyradios found");
