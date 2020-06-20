@@ -55,7 +55,7 @@ public class LogConfig {
 
     private int mErrNo;
 
-    private List<LogVariable> logVariables = new ArrayList<LogVariable>();
+    private List<LogVariable> logVariables = new ArrayList<>();
     private boolean mAdded = false;
     private boolean mStarted = false;
     private boolean mValid = false;
@@ -234,7 +234,7 @@ public class LogConfig {
     // def unpack_log_data(self, log_data, timestamp):
     public Map<String, Number> unpackLogData(byte[] logData) {
         ByteBuffer logVariablesRaw = ByteBuffer.wrap(logData).order(CrtpPacket.BYTE_ORDER);
-        Map<String, Number> logDataMap = new ConcurrentHashMap<String, Number>();
+        Map<String, Number> logDataMap = new ConcurrentHashMap<>();
         for(LogVariable logVariable : this.getLogVariables()) {
             Number parsedValue = logVariable.getVariableType().parse(logVariablesRaw);
             logDataMap.put(logVariable.getName(), parsedValue);

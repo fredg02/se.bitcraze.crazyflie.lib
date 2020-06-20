@@ -61,17 +61,19 @@ public class Logg {
     // The max size of a CRTP packet payload
     private static final int MAX_LOG_DATA_PACKET_SIZE = 30;
 
+    private static final String LOG_CONFIG_IS_NULL = "LogConfig is null!";
+
     private Crazyflie mCrazyflie;
     private Toc mToc = null;
     private TocCache mTocCache = null;
     private TocFetchFinishedListener mTocFetchFinishedListener;
 
-    private List<LogConfig> mLogConfigs = new ArrayList<LogConfig>();
+    private List<LogConfig> mLogConfigs = new ArrayList<>();
     private int mLogConfigIdCounter = 0;
 
-    private Set<LogListener> mLogListeners = new CopyOnWriteArraySet<LogListener>();
+    private Set<LogListener> mLogListeners = new CopyOnWriteArraySet<>();
 
-    private static Map<Integer, String> mErrCodes = new HashMap<Integer, String>();
+    private static Map<Integer, String> mErrCodes = new HashMap<>();
 
     private final Header loggHeader = new Header(CHAN_SETTINGS, CrtpPort.LOGGING);
 
@@ -153,7 +155,7 @@ public class Logg {
          */
 
         if (logConfig == null) {
-            throw new IllegalArgumentException("LogConfig is null!");
+            throw new IllegalArgumentException(LOG_CONFIG_IS_NULL);
         }
 
         for(LogVariable logVariable : logConfig.getLogVariables()) {
@@ -161,7 +163,7 @@ public class Logg {
                 String name = logVariable.getName();
                 TocElement tocElement = mToc.getElementByCompleteName(name);
                 if (tocElement == null) {
-                    mLogger.warn(name + "is not in TOC, this log config cannot be used!");
+                    mLogger.warn("{} is not in TOC, this log config cannot be used!", name);
                     logConfig.setValid(false);
                     return;
                     // raise KeyError("Variable {} not in TOC".format(name))
@@ -189,13 +191,11 @@ public class Logg {
              */
 
             // TODO: seems to be redundant
-            if (logVariable.isTocVariable()) {
-                if (mToc.getElementByCompleteName(logVariable.getName()) == null) {
-                    mLogger.warn(logVariable.getName() + " not in TOC, this log config cannot be used!");
-                    logConfig.setValid(false);
-                    return;
-                    // raise KeyError("Variable {} not in TOC".format(var.name))
-                }
+            if (logVariable.isTocVariable() && mToc.getElementByCompleteName(logVariable.getName()) == null) {
+                mLogger.warn("{} not in TOC, this log config cannot be used!", logVariable.getName());
+                logConfig.setValid(false);
+                return;
+                // raise KeyError("Variable {} not in TOC".format(var.name))
             }
         }
 
@@ -211,13 +211,11 @@ public class Logg {
             } else {
                 mLogger.error("Maximum number of logconfig (255) is reached.");
                 logConfig.setValid(false);
-                return;
             }
             // TODO: self.block_added_cb.call(logconf)
         } else {
             logConfig.setValid(false);
             mLogger.error("Logconfig {} is too large or has an invalid parameter (period).", logConfig.getName());
-            return;
             // throw exception?
         }
     }
@@ -269,13 +267,13 @@ public class Logg {
             if (cmd == CMD_CREATE_LOGCONFIG) {
                 createLogConfig(errorStatus, logConfig, id);
             } else if (cmd == CMD_START_LOGGING) {
-                startLogging_reply(errorStatus, logConfig, id);
+                startLoggingReply(errorStatus, logConfig, id);
             } else if (cmd == CMD_STOP_LOGGING) {
-                stopLogging_reply(errorStatus, logConfig, id);
+                stopLoggingReply(errorStatus, logConfig, id);
             } else if (cmd == CMD_DELETE_LOGCONFIG) {
-                deleteLogging_reply(errorStatus, logConfig, id);
+                deleteLoggingReply(errorStatus, logConfig, id);
             } else if (cmd == CMD_RESET_LOGGING) {
-                resetLogging_reply();
+                resetLoggingReply();
             }
         } else if (channel == CHAN_LOGDATA) {
             // TODO: fix payload offset
@@ -283,11 +281,11 @@ public class Logg {
             LogConfig logConfig = findLogConfig(id);
 
             if (logConfig != null) {
-                Map<String, Number> logDataMap = new HashMap<String, Number>();
+                Map<String, Number> logDataMap = new HashMap<>();
                 int timestamp = parseLogData(payload, logConfig, logDataMap);
                 notifyLogDataReceived(logConfig, logDataMap, timestamp);
             } else {
-                mLogger.warn("Error no LogEntry to handle id=" + id);
+                mLogger.warn("Error no LogEntry to handle id={}", id);
             }
         }
     }
@@ -296,7 +294,7 @@ public class Logg {
         if (logConfig != null) {
             if (errorStatus == 0x00) {
                 if (!logConfig.isAdded()) {
-                    mLogger.debug("Successfully added log config ID=" + id);
+                    mLogger.debug("Successfully added log config ID={}", id);
                     //TODO: test
 //                    if (logConfig.getId() == -1) {
 //                        logConfig.setId(id);
@@ -305,12 +303,12 @@ public class Logg {
                     notifyLogAdded(logConfig);
                 } else {
                     //TODO can this ever happen?
-                    mLogger.warn("Log config ID=" + id + " is already added. Flag error?");
+                    mLogger.warn("Log config ID={} is already added. Flag error?", id);
                 }
             } else {
                 //TODO: logging is redundant if LogListener is set up correctly
                 String msg = getErrorMsg(errorStatus);
-                mLogger.warn("Error " + errorStatus + " when adding ID=" + id + " (" + msg + ")");
+                mLogger.warn("Error {} when adding ID={} ({})", errorStatus, id, msg);
                 logConfig.setErrNo(errorStatus);
                 /*
                 TODO:
@@ -325,9 +323,9 @@ public class Logg {
         }
     }
 
-    private void startLogging_reply(int errorStatus, LogConfig logConfig, int id) {
+    private void startLoggingReply(int errorStatus, LogConfig logConfig, int id) {
         if (errorStatus == 0x00) {
-            mLogger.info("Successfully started logging for log config ID=" +id);
+            mLogger.info("Successfully started logging for log config ID={}", id);
             if (logConfig != null) {
                 logConfig.setStarted(true);
                 notifyLogStarted(logConfig);
@@ -335,7 +333,7 @@ public class Logg {
         } else {
             // msg = self._err_codes[error_status]
             String msg = getErrorMsg(errorStatus);
-            mLogger.warn("Error " + errorStatus + " when starting ID=" + id + " (" + msg + ")");
+            mLogger.warn("Error {} when starting ID={} ({})", errorStatus, id, msg);
 
             if (logConfig != null) {
                 logConfig.setErrNo(errorStatus);
@@ -344,25 +342,25 @@ public class Logg {
         }
     }
 
-    private void stopLogging_reply(int errorStatus, LogConfig logConfig, int id) {
+    private void stopLoggingReply(int errorStatus, LogConfig logConfig, int id) {
         if (errorStatus == 0x00) {
-            mLogger.info("Successfully stopped logging for ID=" + id);
+            mLogger.info("Successfully stopped logging for ID={}", id);
             if (logConfig != null) {
                 logConfig.setStarted(false);
                 notifyLogStarted(logConfig);
             }
         } else {
-            mLogger.warn("Problem when stopping logging for ID=" + id);
+            mLogger.warn("Problem when stopping logging for ID={}", id);
         }
     }
 
-    private void deleteLogging_reply(int errorStatus, LogConfig logConfig, int id) {
+    private void deleteLoggingReply(int errorStatus, LogConfig logConfig, int id) {
         /*
          * Accept deletion of a log config that hasn't been added. This could
          * happen due to timing (i.e add/start/delete in fast sequence)
          */
         if (errorStatus == 0x00) {
-            mLogger.info("Successfully deleted log config ID=" + id);
+            mLogger.info("Successfully deleted log config ID={}", id);
             if (logConfig != null) {
 //                logConfig.setStarted(false);
                 logConfig.setAdded(false);
@@ -372,15 +370,15 @@ public class Logg {
                 mLogConfigs.remove(logConfig);
             }
         } else {
-            mLogger.warn("Problem when deleting log config ID=" +id);
+            mLogger.warn("Problem when deleting log config ID={}", id);
         }
     }
 
-    private void resetLogging_reply() {
+    private void resetLoggingReply() {
         // Guard against multiple responses due to re-sending
         if (mToc == null) {
             mLogger.debug("Logging reset, continue with TOC download");
-            mLogConfigs = new ArrayList<LogConfig>();
+            mLogConfigs = new ArrayList<>();
 
             mToc = new Toc();
             // toc_fetcher = TocFetcher(self.cf, LogTocElement, CRTPPort.LOGGING, self.toc, self._refresh_callback, self._toc_cache)
@@ -399,7 +397,7 @@ public class Logg {
         System.arraycopy(payload, offset, logData, 0, logData.length);
 
         logDataMap.putAll(logConfig.unpackLogData(logData));
-        LoggerFactory.getLogger("Logg").debug("Unpacked log data (ID: " + logConfig.getId() + ") with time stamp " + timestamp);
+        LoggerFactory.getLogger("Logg").debug("Unpacked log data (ID: {}) with time stamp {}", logConfig.getId(), timestamp);
         //TODO: what to do with the unpacked data?
         return timestamp;
     }
@@ -451,7 +449,7 @@ public class Logg {
      */
     public void create(LogConfig logConfig) {
         if (logConfig == null) {
-            throw new IllegalArgumentException("LogConfig is null!");
+            throw new IllegalArgumentException(LOG_CONFIG_IS_NULL);
         }
         int logConfigId = logConfig.getId();
 
@@ -488,9 +486,9 @@ public class Logg {
 
         if (noOfCheckedLogVariables > 0) {
             sendLoggPacket(bb.array(), new byte[]{CMD_CREATE_LOGCONFIG, (byte) logConfig.getId()});
-            mLogger.debug("Added log config ID " + logConfigId + " containing " + noOfCheckedLogVariables + " log variables.");
+            mLogger.debug("Added log config ID {} containing {} log variables.", logConfigId, noOfCheckedLogVariables);
         } else {
-            mLogger.error("No log variables added to log config, skipped creating log config " + logConfig.getName());
+            mLogger.error("No log variables added to log config, skipped creating log config {}", logConfig.getName());
         }
     }
 
@@ -518,7 +516,7 @@ public class Logg {
         int variableTypeId = mToc.getVariableTypeIdLog(variableType);
 
         // logger.debug("Logging to raw memory %d, 0x%04X", var.get_storage_and_fetch_byte(), var.address)
-        mLogger.debug("Logging to raw memory " + variableType.name() + ", address: " + variable.getAddress());
+        mLogger.debug("Logging to raw memory {}, address: {}", variableType.name(),  variable.getAddress());
         // pk.data += struct.pack('<B', var.get_storage_and_fetch_byte())
         // pk.data += struct.pack('<I', var.address)
         bb.put(new byte[] {(byte) variableTypeId, (byte) variable.getAddress()});
@@ -531,7 +529,7 @@ public class Logg {
         // get TOC element ID
         int tocElementId = mToc.getElementId(name);
         if (tocElementId == -1) {
-            mLogger.error("Toc element " + name + " not found in TOC.");
+            mLogger.error("Toc element {} not found in TOC.", name);
             // TODO: create UI error message?
             return false;
         }
@@ -540,7 +538,7 @@ public class Logg {
         if (logTocElement != null) {
             int variableTypeId = mToc.getVariableTypeIdLog(variableType);
             if (variableTypeId == -1) {
-                mLogger.error("No variableType found for TOC element " + logTocElement.getCompleteName() + ".");
+                mLogger.error("No variableType found for TOC element {}.", logTocElement.getCompleteName());
                 //TODO: notifyLogError(logConfig);?
                 return false;
             }
@@ -559,7 +557,7 @@ public class Logg {
      */
     public void start(LogConfig logConfig) {
         if (logConfig == null) {
-            throw new IllegalArgumentException("LogConfig is null!");
+            throw new IllegalArgumentException(LOG_CONFIG_IS_NULL);
         }
         //if (self.cf.link is not None):
         // TODO:
@@ -569,7 +567,7 @@ public class Logg {
                 create(logConfig);
                 mLogger.debug("First time log config is started, add log config");
             } else {
-                mLogger.debug("Log config already registered, starting logging for ID=" + logConfig.getId());
+                mLogger.debug("Log config already registered, starting logging for ID={}", logConfig.getId());
             }
             sendLoggPacket(new byte[] {CMD_START_LOGGING, (byte) logConfig.getId(), (byte) logConfig.getPeriod()}, new byte[]{CMD_START_LOGGING, (byte) logConfig.getId()});
         }
@@ -580,7 +578,7 @@ public class Logg {
      */
     public void stop(LogConfig logConfig) {
         if (logConfig == null) {
-            throw new IllegalArgumentException("LogConfig is null!");
+            throw new IllegalArgumentException(LOG_CONFIG_IS_NULL);
         }
         // TODO:
         // if (mCrazyflie.getDriver() != null && mCrazyflie.getDriver().isConnected()) {
@@ -588,7 +586,7 @@ public class Logg {
             if (logConfig.getId() == -1) {
                 mLogger.warn("Stopping log config, but no log config registered");
             } else {
-                mLogger.debug("Sending stop logging for ID=" + logConfig.getId());
+                mLogger.debug("Sending stop logging for ID={}", logConfig.getId());
                 sendLoggPacket(new byte[]{CMD_STOP_LOGGING, (byte) logConfig.getId()});
             }
         }
@@ -599,7 +597,7 @@ public class Logg {
      */
     public void delete(LogConfig logConfig) {
         if (logConfig == null) {
-            throw new IllegalArgumentException("LogConfig is null!");
+            throw new IllegalArgumentException(LOG_CONFIG_IS_NULL);
         }
         // TODO:
         // if (mCrazyflie.getDriver() != null && mCrazyflie.getDriver().isConnected()) {
@@ -607,7 +605,7 @@ public class Logg {
             if (logConfig.getId() == -1) {
                 mLogger.warn("Delete log config, but no log config registered");
             } else {
-                mLogger.debug("Sending delete logging for ID=" + logConfig.getId());
+                mLogger.debug("Sending delete logging for ID={}", logConfig.getId());
                 sendLoggPacket(new byte[]{CMD_DELETE_LOGCONFIG, (byte) logConfig.getId()});
             }
         }
