@@ -11,6 +11,7 @@
   <packaging>eclipse-plugin</packaging>
   <properties>
     <maven.surefire.version>2.22.2</maven.surefire.version>
+    <jacoco-version>0.8.5</jacoco-version>
   </properties>
   
   <dependencies>
@@ -65,6 +66,25 @@
             <phase>test-compile</phase>
             <goals>
               <goal>testCompile</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>${jacoco-version}</version>
+        <executions>
+          <execution>
+            <id>prepare-agent</id>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>report</id>
+            <goals>
+              <goal>report</goal>
             </goals>
           </execution>
         </executions>
