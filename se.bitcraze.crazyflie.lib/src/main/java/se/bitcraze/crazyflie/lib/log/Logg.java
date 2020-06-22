@@ -199,6 +199,10 @@ public class Logg {
             }
         }
 
+        checkLogConfigSize(logConfig, size);
+    }
+
+    private void checkLogConfigSize(LogConfig logConfig, int size) {
         if (size <= MAX_LOG_DATA_PACKET_SIZE && (logConfig.getPeriod() > 0 && logConfig.getPeriod() < 0xFF)) {
             logConfig.setValid(true);
             // logconf.cf = self.cf         -> not necessary in Java

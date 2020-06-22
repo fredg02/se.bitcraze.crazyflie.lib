@@ -47,4 +47,42 @@ public class HoverPacket extends CrtpPacket {
     public String toString() {
         return "HoverPacket: vx: " + this.mVx + " vy: " + this.mVy + " yawrate: " + this.mYawrate + " zDistance: " + this.mZdistance;
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + Float.floatToIntBits(mVx);
+        result = prime * result + Float.floatToIntBits(mVy);
+        result = prime * result + Float.floatToIntBits(mYawrate);
+        result = prime * result + Float.floatToIntBits(mZdistance);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
+        if (!(obj instanceof HoverPacket)) {
+            return false;
+        }
+        HoverPacket other = (HoverPacket) obj;
+        if (Float.floatToIntBits(mVx) != Float.floatToIntBits(other.mVx)) {
+            return false;
+        }
+        if (Float.floatToIntBits(mVy) != Float.floatToIntBits(other.mVy)) {
+            return false;
+        }
+        if (Float.floatToIntBits(mYawrate) != Float.floatToIntBits(other.mYawrate)) {
+            return false;
+        }
+        if (Float.floatToIntBits(mZdistance) != Float.floatToIntBits(other.mZdistance)) {
+            return false;
+        }
+        return true;
+    }
 }

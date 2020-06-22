@@ -63,7 +63,7 @@ public class TocFetcher {
     private int mRequestedIndex = -1;
     private int mNoOfItems = -1;
 
-    private Set<TocFetchFinishedListener> mTocFetchFinishedListeners = new CopyOnWriteArraySet<TocFetchFinishedListener>();
+    private Set<TocFetchFinishedListener> mTocFetchFinishedListeners = new CopyOnWriteArraySet<>();
 
     private DataListener mDataListener;
     private long tocFetchStartTime;
@@ -135,30 +135,28 @@ public class TocFetcher {
         ByteBuffer payloadBuffer = ByteBuffer.wrap(payload);
 
         int command = packet.getPayload()[0];
-        
+
         if (mState == TocState.GET_TOC_INFO) {
             if (command == CMD_TOC_INFO) {
                 handleCmdTocInfo(payloadBuffer);
             }
-        } else if (mState == TocState.GET_TOC_ELEMENT) {
-            if (command == CMD_TOC_ELEMENT) {
-                // Always add new element, but only request new if it's not the last one.
-                // if self.requested_index != ord(payload[0]):
-                // Fix for TOC > 128 items (fixed by Arnaud)
-                int actualIndex = payloadBuffer.get(0) & 0x00ff;
-                if (this.mRequestedIndex != actualIndex) {
-                    /*
-                        # TODO: There might be a timing issue here with resending old
-                        #       packets while loosing new ones. Then if 7 is requested
-                        #       but 6 is send back due to timing issues with the resend
-                        #       while 7 is lost then we will never resend for 7.
-                        #       This is pretty hard to reproduce but happens...
-                     */
-                    mLogger.warn("[{}]: Was expecting {} but got {}.", this.mPort, this.mRequestedIndex, actualIndex);
-                    return;
-                }
-                handleCmdTocElement(payloadBuffer);
+        } else if (mState == TocState.GET_TOC_ELEMENT && command == CMD_TOC_ELEMENT) {
+            // Always add new element, but only request new if it's not the last one.
+            // if self.requested_index != ord(payload[0]):
+            // Fix for TOC > 128 items (fixed by Arnaud)
+            int actualIndex = payloadBuffer.get(0) & 0x00ff;
+            if (this.mRequestedIndex != actualIndex) {
+                /*
+                    # TODO: There might be a timing issue here with resending old
+                    #       packets while loosing new ones. Then if 7 is requested
+                    #       but 6 is send back due to timing issues with the resend
+                    #       while 7 is lost then we will never resend for 7.
+                    #       This is pretty hard to reproduce but happens...
+                 */
+                mLogger.warn("[{}]: Was expecting {} but got {}.", this.mPort, this.mRequestedIndex, actualIndex);
+                return;
             }
+            handleCmdTocElement(payloadBuffer);
         }
     }
 

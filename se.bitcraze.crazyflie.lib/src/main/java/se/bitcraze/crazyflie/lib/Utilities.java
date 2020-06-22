@@ -29,6 +29,10 @@ package se.bitcraze.crazyflie.lib;
 
 public class Utilities {
 
+    private Utilities() {
+        throw new IllegalStateException("Utility class");
+    }
+
     /**
      * Returns byte array as comma separated string
      * (for debugging purposes)
@@ -37,7 +41,7 @@ public class Utilities {
      * @return
      */
     public static String getByteString(byte[] data) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (byte b : data) {
             sb.append(b);
             sb.append(",");
@@ -46,7 +50,7 @@ public class Utilities {
     }
 
     public static String getHexString(byte... array) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (byte b : array) {
             sb.append(String.format("%02X", b));
             sb.append(" ");
@@ -66,5 +70,5 @@ public class Utilities {
         System.arraycopy(array, offset, strippedArray, 0, strippedArray.length);
         return strippedArray;
     }
-    
+
 }

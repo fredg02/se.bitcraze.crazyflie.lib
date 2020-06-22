@@ -94,4 +94,46 @@ public class CommanderPacket extends CrtpPacket {
         return "CommanderPacket: roll: " + this.mRoll + " pitch: " + this.mPitch + " yaw: " + this.mYaw + " thrust: " + (int) this.mThrust + " xmode: " + this.mClientXmode;
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + (mClientXmode ? 1231 : 1237);
+        result = prime * result + Float.floatToIntBits(mPitch);
+        result = prime * result + Float.floatToIntBits(mRoll);
+        result = prime * result + mThrust;
+        result = prime * result + Float.floatToIntBits(mYaw);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
+        if (!(obj instanceof CommanderPacket)) {
+            return false;
+        }
+        CommanderPacket other = (CommanderPacket) obj;
+        if (mClientXmode != other.mClientXmode) {
+            return false;
+        }
+        if (Float.floatToIntBits(mPitch) != Float.floatToIntBits(other.mPitch)) {
+            return false;
+        }
+        if (Float.floatToIntBits(mRoll) != Float.floatToIntBits(other.mRoll)) {
+            return false;
+        }
+        if (mThrust != other.mThrust) {
+            return false;
+        }
+        if (Float.floatToIntBits(mYaw) != Float.floatToIntBits(other.mYaw)) {
+            return false;
+        }
+        return true;
+    }
+
 }

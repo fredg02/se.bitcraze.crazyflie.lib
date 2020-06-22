@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
  * Control mode where the height is sent as an absolute
  * setpoint (intended to be the distance to the surface
  * under the Crazflie).
- * 
+ *
  * Created by arnaud on 31/03/17.
  */
 
@@ -50,5 +50,43 @@ public class ZDistancePacket extends CrtpPacket {
     @Override
     public String toString() {
         return "zDistancePacket: roll: " + this.mRoll + " pitch: " + this.mPitch + " yawrate: " + this.mYawrate + " zDistance: " + this.mZDistance;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + Float.floatToIntBits(mPitch);
+        result = prime * result + Float.floatToIntBits(mRoll);
+        result = prime * result + Float.floatToIntBits(mYawrate);
+        result = prime * result + Float.floatToIntBits(mZDistance);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
+        if (!(obj instanceof ZDistancePacket)) {
+            return false;
+        }
+        ZDistancePacket other = (ZDistancePacket) obj;
+        if (Float.floatToIntBits(mPitch) != Float.floatToIntBits(other.mPitch)) {
+            return false;
+        }
+        if (Float.floatToIntBits(mRoll) != Float.floatToIntBits(other.mRoll)) {
+            return false;
+        }
+        if (Float.floatToIntBits(mYawrate) != Float.floatToIntBits(other.mYawrate)) {
+            return false;
+        }
+        if (Float.floatToIntBits(mZDistance) != Float.floatToIntBits(other.mZDistance)) {
+            return false;
+        }
+        return true;
     }
 }

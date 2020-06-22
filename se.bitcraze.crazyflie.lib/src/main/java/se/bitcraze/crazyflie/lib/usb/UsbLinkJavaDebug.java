@@ -81,7 +81,6 @@ public class UsbLinkJavaDebug extends UsbLinkJava {
                 break;
             default:
                 channelName = UNKNOWN;
-                commandName = UNKNOWN;
                 break;
             }
         }else if (header.getPort() == CrtpPort.PARAMETERS) {

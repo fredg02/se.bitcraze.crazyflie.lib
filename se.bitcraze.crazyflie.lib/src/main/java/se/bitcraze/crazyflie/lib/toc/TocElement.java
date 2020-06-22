@@ -27,7 +27,7 @@
 
 package se.bitcraze.crazyflie.lib.toc;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +67,7 @@ public class TocElement implements Comparable<TocElement> {
             setGroupAndName(data);
             setIdent(data[0] & 0x00ff);
             if (port == CrtpPort.LOGGING) {
-                setCtype(new Toc().getVariableTypeMapLog().get(data[1] & 0x0F)); 
+                setCtype(new Toc().getVariableTypeMapLog().get(data[1] & 0x0F));
             } else {
                 setCtype(new Toc().getVariableTypeMapParam().get(data[1] & 0x0F));
             }
@@ -141,10 +141,10 @@ public class TocElement implements Comparable<TocElement> {
         int offset = 2;
         byte[] trimmedPayload = new byte[payload.length-offset];
         System.arraycopy(payload, offset, trimmedPayload, 0, trimmedPayload.length);
-        String temp = new String(trimmedPayload, Charset.forName("US-ASCII"));
+        String temp = new String(trimmedPayload, StandardCharsets.US_ASCII);
         String[] split = temp.split("\0");
         if (split.length != 2) {
-            mLogger.debug("Group and Name could not be assigned: " + temp);
+            mLogger.debug("Group and Name could not be assigned: {}", temp);
             return;
         }
         setGroup(split[0]);
@@ -206,6 +206,7 @@ public class TocElement implements Comparable<TocElement> {
         return true;
     }
 
+    @Override
     public int compareTo(TocElement te) {
         // int identCmp = Integer.compare(this.getIdent(), te.getIdent()); // only supported in API level 19+
         int identCmp = Integer.valueOf(this.getIdent()).compareTo(Integer.valueOf(te.getIdent()));

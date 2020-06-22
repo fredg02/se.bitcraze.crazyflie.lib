@@ -77,6 +77,31 @@ public class UsbLinkJava implements CrazyUsbInterface {
     public UsbLinkJava() {
     }
 
+    private void setEndpointDirection(UsbEndpoint ep) {
+        // check endpoint direction
+        if (ep.getDirection() == UsbConst.ENDPOINT_DIRECTION_IN) {
+            mEpIn = (UsbEndpoint) mIntf.getUsbEndpoints().get(0);
+            mEpOut = (UsbEndpoint) mIntf.getUsbEndpoints().get(1);
+        } else {
+            mEpIn = (UsbEndpoint) mIntf.getUsbEndpoints().get(1);
+            mEpOut = (UsbEndpoint) mIntf.getUsbEndpoints().get(0);
+        }
+    }
+
+    private void claimUsbInterface() throws IOException{
+        try {
+            mIntf.claim();
+        } catch (UsbException e) {
+            // convert to IOException to make Crazyradio independent of USB implementation
+            throw new IOException(e.getMessage());
+        }
+        if (mIntf.isClaimed()) {
+            mLogger.debug("UsbInterface claim SUCCESS");
+        }else{
+            mLogger.error("UsbInterface claim ERROR");
+        }
+    }
+
     /**
      * Initialize the USB device. Determines endpoints and prepares communication.
      *
@@ -129,29 +154,12 @@ public class UsbLinkJava implements CrazyUsbInterface {
             	mLogger.error("Endpoint is not of type bulk");
                 return;
             }
-            // check endpoint direction
-            if (ep.getDirection() == UsbConst.ENDPOINT_DIRECTION_IN) {
-                mEpIn = (UsbEndpoint) mIntf.getUsbEndpoints().get(0);
-                mEpOut = (UsbEndpoint) mIntf.getUsbEndpoints().get(1);
-            } else {
-                mEpIn = (UsbEndpoint) mIntf.getUsbEndpoints().get(1);
-                mEpOut = (UsbEndpoint) mIntf.getUsbEndpoints().get(0);
-            }
+            setEndpointDirection(ep);
 
-            try {
-                mIntf.claim();
-            } catch (UsbException e) {
-                // convert to IOException to make Crazyradio independent of USB implementation
-                throw new IOException(e.getMessage());
-            }
-            if (mIntf.isClaimed()) {
-            	mLogger.debug("UsbInterface claim SUCCESS");
-            }else{
-            	mLogger.error("UsbInterface claim ERROR");
-            }
+            claimUsbInterface();
         }else{
         	mLogger.error("UsbInterface is NULL");
-            throw new IOException("Could not open usb connection");
+            throw new IOException("Could not open USB connection");
         }
     }
 
@@ -255,6 +263,18 @@ public class UsbLinkJava implements CrazyUsbInterface {
         return data;
     }
 
+    private UsbIrp setupUsbIrp(UsbPipe usbPipe, byte[] data) throws UsbException {
+        UsbIrp usbIrp = usbPipe.createUsbIrp();
+        if(data == null){
+            data = new byte[0];
+        }
+        usbIrp.setData(data);
+        //TODO: data length does not need to be set explicitly
+        usbIrp.setLength(data.length);
+        usbPipe.syncSubmit(usbIrp);
+        return usbIrp;
+    }
+
     //TODO: better method name?
     private int sendBulkTransfer(UsbEndpoint usbEndpoint, byte[] data) throws UsbException{
         int returnCode = -1;
@@ -269,14 +289,7 @@ public class UsbLinkJava implements CrazyUsbInterface {
                 usbPipe.open();
             }
             if (usbPipe.isOpen()) {
-                UsbIrp usbIrp = usbPipe.createUsbIrp();
-                if(data == null){
-                    data = new byte[0];
-                }
-                usbIrp.setData(data);
-                //TODO: data length does not need to be set explicitly
-                usbIrp.setLength(data.length);
-                usbPipe.syncSubmit(usbIrp);
+                UsbIrp usbIrp = setupUsbIrp(usbPipe, data);
                 if (!usbIrp.isUsbException()) {
                     returnCode = usbIrp.getActualLength();
                 } else {
@@ -284,7 +297,7 @@ public class UsbLinkJava implements CrazyUsbInterface {
                     usbIrp.getUsbException().printStackTrace();
                 }
             } else {
-            	mLogger.error("usbPipe open ERROR");
+                mLogger.error("usbPipe open ERROR");
             }
         } else {
         	mLogger.error("usbPipe is NULL");

@@ -95,6 +95,7 @@ public class CrtpPacket {
             return (byte) (((mPort.getNumber() & 0x0F) << 4) | (mChannel & 0x03));
         }
 
+        @Override
         public String toString() {
             return "Header - Channel: " + getChannel() + " Port: " + getPort();
         }

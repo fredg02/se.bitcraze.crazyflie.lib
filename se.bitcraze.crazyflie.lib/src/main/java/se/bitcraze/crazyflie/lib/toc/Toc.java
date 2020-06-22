@@ -46,16 +46,16 @@ public class Toc {
 
     private int mCrc;
 
-    private Map<String, TocElement> mTocElementMap = new HashMap<String, TocElement>();
+    private Map<String, TocElement> mTocElementMap = new HashMap<>();
 
-    private static final Map<Integer, VariableType> mVariableTypeMapParam = new HashMap<Integer, VariableType>(10);
-    private static final Map<Integer, VariableType> mVariableTypeMapLog = new HashMap<Integer, VariableType>(10);
+    private static final Map<Integer, VariableType> mVariableTypeMapParam = new HashMap<>(10);
+    private static final Map<Integer, VariableType> mVariableTypeMapLog = new HashMap<>(10);
 
     static {
         fillVariableTypeMapParam();
         fillVariableTypeMapLog();
     }
-    
+
     public Toc() {
     }
 
@@ -107,7 +107,7 @@ public class Toc {
         if(tocElement != null) {
             return tocElement.getIdent();
         }
-        mLogger.warn("Unable to find TOC element for complete name '" + completeName + "'");
+        mLogger.warn("Unable to find TOC element for complete name '{}'", completeName);
         return -1;
     }
 
@@ -134,7 +134,7 @@ public class Toc {
                 return tocElement;
             }
         }
-        mLogger.warn("Unable to find TOC element with ID " + ident);
+        mLogger.warn("Unable to find TOC element with ID {}", ident);
         return null;
     }
 
@@ -145,7 +145,7 @@ public class Toc {
      */
     //TODO: generate list not every time
     public List<TocElement> getElements() {
-        List<TocElement> values = new ArrayList<TocElement>(mTocElementMap.values());
+        List<TocElement> values = new ArrayList<>(mTocElementMap.values());
         Collections.sort(values);
         return values;
     }
@@ -177,7 +177,7 @@ public class Toc {
                  0x06: ("float",    '<f'),
                  0x07: ("double",   '<d')}
         */
-        
+
         mVariableTypeMapParam.put(0x00, VariableType.INT8_T);
         mVariableTypeMapParam.put(0x01, VariableType.INT16_T);
         mVariableTypeMapParam.put(0x02, VariableType.INT32_T);
@@ -202,7 +202,7 @@ public class Toc {
                  0x08: ("FP16",     '<h', 2),
                  0x07: ("float",    '<f', 4)}
         */
-        
+
         mVariableTypeMapLog.put(0x01, VariableType.UINT8_T);
         mVariableTypeMapLog.put(0x02, VariableType.UINT16_T);
         mVariableTypeMapLog.put(0x03, VariableType.UINT32_T);
@@ -220,7 +220,7 @@ public class Toc {
     public Map<Integer, VariableType> getVariableTypeMapLog() {
         return mVariableTypeMapLog;
     }
-    
+
     public int getVariableTypeIdLog (VariableType vt) {
         for (Entry<Integer, VariableType> entry : getVariableTypeMapLog().entrySet()) {
             if (entry.getValue() == vt) {
@@ -229,5 +229,5 @@ public class Toc {
         }
         return -1;
     }
-    
+
 }

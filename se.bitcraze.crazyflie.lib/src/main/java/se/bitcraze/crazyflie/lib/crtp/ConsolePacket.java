@@ -29,13 +29,14 @@ package se.bitcraze.crazyflie.lib.crtp;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Packet containing console text from the Crazyflie.
  */
 public class ConsolePacket extends CrtpPacket {
 
-    public static final Charset CHARSET = Charset.forName("US-ASCII");
+    public static final Charset CHARSET = StandardCharsets.US_ASCII;
 
     private final String mText;
 
@@ -86,6 +87,36 @@ public class ConsolePacket extends CrtpPacket {
     @Override
     public String toString() {
         return "ConsolePacket: " + getText();
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((mText == null) ? 0 : mText.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
+        if (!(obj instanceof ConsolePacket)) {
+            return false;
+        }
+        ConsolePacket other = (ConsolePacket) obj;
+        if (mText == null) {
+            if (other.mText != null) {
+                return false;
+            }
+        } else if (!mText.equals(other.mText)) {
+            return false;
+        }
+        return true;
     }
 
 }

@@ -64,19 +64,19 @@ public class Param {
 
     private Thread mParamUpdaterThread;
     private ParamUpdaterThread mPut;
-    private Map<String, Map<String, Number>> mValues = new HashMap<String, Map<String, Number>>();
+    private Map<String, Map<String, Number>> mValues = new HashMap<>();
     private boolean mHaveUpdated = false;
 
     // TODO: use only one map for both
     // TODO: ParamListener already contains group/completeName
-    private Map<String, ParamListener> mUpdateListeners = new HashMap<String, ParamListener>();         // completeName
-    private Map<String, ParamListener> mGroupUpdateListeners = new HashMap<String, ParamListener>();    // group
+    private Map<String, ParamListener> mUpdateListeners = new HashMap<>();         // completeName
+    private Map<String, ParamListener> mGroupUpdateListeners = new HashMap<>();    // group
 
     // Possible states
-    private int IDLE = 0;
-    private int WAIT_TOC = 1;
-    private int WAIT_READ = 2;
-    private int WAIT_WRITE = 3;
+//    private static final int IDLE = 0;
+//    private static final int WAIT_TOC = 1;
+//    private static final int WAIT_READ = 2;
+//    private static final int WAIT_WRITE = 3;
 
     // Param channels, public for MockDriver
     public static final int TOC_CHANNEL = 0;
@@ -98,11 +98,9 @@ public class Param {
         // self.param_updater = _ParamUpdater(self.cf, self._param_updated)
         // self.param_updater.start()
         mParamUpdaterThread = null;
-        if (mParamUpdaterThread == null) {
-            mPut = new ParamUpdaterThread();
-            mParamUpdaterThread = new Thread(mPut);
-            mParamUpdaterThread.start();
-        }
+        mPut = new ParamUpdaterThread();
+        mParamUpdaterThread = new Thread(mPut);
+        mParamUpdaterThread.start();
 
         // self.cf.disconnected.add_callback(self.param_updater.close)
         mCrazyflie.getDriver().addConnectionListener(new ConnectionAdapter() {
@@ -325,7 +323,7 @@ public class Param {
 
         final Logger mLogger = LoggerFactory.getLogger(this.getClass().getSimpleName());
 
-        private final BlockingQueue<CrtpPacket> mRequestQueue = new LinkedBlockingQueue<CrtpPacket>();
+        private final BlockingQueue<CrtpPacket> mRequestQueue = new LinkedBlockingQueue<>();
         private int mReqParam = -1;
 
         /**

@@ -46,6 +46,7 @@ public enum VariableType {
     FLOAT (4),
     DOUBLE (8);
 
+    private static final String UINT64_T_NOT_YET_IMPLEMENTED = "UINT64_T not yet implemented";
     int mSize;
 
     VariableType(int size) {
@@ -77,7 +78,7 @@ public enum VariableType {
                 return (buffer.getInt()) & 0xffffffffL;
             case UINT64_T:
                 // TODO: throw exception
-                mLogger.warn("UINT64_T not yet implemented");
+                mLogger.warn(UINT64_T_NOT_YET_IMPLEMENTED);
                 return -1;
             case INT8_T:
                 return buffer.get();
@@ -93,7 +94,8 @@ public enum VariableType {
                 return buffer.getDouble();
             default:
                 // TODO: throw exception
-                mLogger.warn("Parsing " + this.name() + " is not yet implemented");
+                String name = this.name();
+                mLogger.warn("Parsing {} is not yet implemented", name);
                 break;
         }
         return -1;
@@ -124,7 +126,7 @@ public enum VariableType {
                 break;
             case UINT64_T:
                 // TODO: throw exception
-                mLogger.warn("UINT64_T not yet implemented");
+                mLogger.warn(UINT64_T_NOT_YET_IMPLEMENTED);
                 break;
             case INT8_T:
                 tempBuffer4.put(value.byteValue());
@@ -148,7 +150,8 @@ public enum VariableType {
                 return tempBuffer8.array();
             default:
                 // TODO: throw exception
-                mLogger.warn("Parsing " + this.name() + " is not yet implemented");
+                String name = this.name();
+                mLogger.warn("Parsing {} is not yet implemented", name);
                 break;
         }
         tempBuffer4.rewind();
@@ -157,7 +160,7 @@ public enum VariableType {
 
     public int getSize() {
         if (this == UINT64_T) {
-            mLogger.warn("UINT64_T not yet implemented");
+            mLogger.warn(UINT64_T_NOT_YET_IMPLEMENTED);
         }
         return this.mSize;
     }
