@@ -34,6 +34,7 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.util.Map;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -47,6 +48,7 @@ import se.bitcraze.crazyflie.lib.crazyradio.ConnectionData;
 @SuppressWarnings("java:S106")
 public class ParamTest {
 
+    private Crazyflie mCrazyflie;
     private Param mParam;
     private boolean mSetupFinished = false;
 
@@ -54,22 +56,24 @@ public class ParamTest {
 
     //TODO: when cf disconnects, testParam is still stuck in the while loop
 
+    @Before
+    public void setup() {
+        mCrazyflie = new Crazyflie(CrazyflieTest.getConnectionImpl(), new File("src/test"));
+    }
+
     @Test
     public void testParam() {
         if (!TestUtilities.isCrazyradioAvailable()) {
             fail("Test only works when Crazyflie is connected.");
         }
-        //TODO: refactor this into a test utility method
-        final Crazyflie crazyflie = new Crazyflie(CrazyflieTest.getConnectionImpl(), new File("src/test"));
+        mCrazyflie.clearTocCache();
 
-        crazyflie.clearTocCache();
-
-        crazyflie.getDriver().addConnectionListener(new TestConnectionAdapter() {
+        mCrazyflie.getDriver().addConnectionListener(new TestConnectionAdapter() {
 
             @Override
             public void setupFinished() {
                 System.out.println("SETUP FINISHED");
-                mParam = crazyflie.getParam();
+                mParam = mCrazyflie.getParam();
                 System.out.println("Number of TOC elements: " + mParam.getToc().getElements().size());
                 mParam.requestUpdateOfAllParams();
                 mSetupFinished = true;
@@ -77,23 +81,39 @@ public class ParamTest {
 
         });
 
-        crazyflie.setConnectionData(mConnectionData);
-        crazyflie.connect();
+        mCrazyflie.setConnectionData(mConnectionData);
+        mCrazyflie.connect();
 
-        // setup finished timeout
-        boolean isTimeout = false;
-        long startTime = System.currentTimeMillis();
-        while(!mSetupFinished && !isTimeout) {
-            isTimeout = (System.currentTimeMillis() - startTime) > 10000;
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                break;
+        setupFinishedTimeout();
+        boolean isTimeout2 = firstTimeout();
+        mCrazyflie.disconnect();
+
+        if (mParam == null) {
+            fail("mParam is null");
+        } else {
+            Map<String, Map<String, Number>> valuesMap = mParam.getValuesMap();
+
+            int noOfValueMapElements = countValueMapElements(valuesMap);
+
+            //TODO: why are not all values fetched in a reasonable time?
+    //        assertEquals(mParam.getToc().getTocSize(), valuesMap.keySet().size());
+            System.out.println("TocSize: " + mParam.getToc().getTocSize() + ", No of valueMap elements: " + noOfValueMapElements);
+
+            if(mParam.getToc().getTocSize() != noOfValueMapElements) {
+                for(String name : mParam.getToc().getTocElementMap().keySet()) {
+                    if(valuesMap.get(name) == null) {
+                        System.out.println("Missing param in ValueMap: " + name);
+                    }
+                }
+            }
+
+            if(!isTimeout2) {
+                checkValues(valuesMap);
             }
         }
-        long endTime = System.currentTimeMillis();
-        System.out.println("It took " + (endTime - startTime) + "ms until setup finished.");
+    }
 
+    private boolean firstTimeout() {
         boolean isTimeout2 = false;
         long startTime2 = System.currentTimeMillis();
         while(mParam != null && !mParam.checkIfAllUpdated() && !isTimeout2) {
@@ -110,64 +130,62 @@ public class ParamTest {
         } else {
             System.out.println("It took " + (endTime2 - startTime2) + "ms until all parameters were updated.");
         }
+        return isTimeout2;
+    }
 
-        crazyflie.disconnect();
-
-        if (mParam == null) {
-            fail("mParam is null");
-        } else {
-            Map<String, Map<String, Number>> valuesMap = mParam.getValuesMap();
-
-            int noOfValueMapElements = 0;
-            for(String g : valuesMap.keySet()) {
-                noOfValueMapElements += valuesMap.get(g).keySet().size();
-            }
-
-            //TODO: why are not all values fetched in a reasonable time?
-    //        assertEquals(mParam.getToc().getTocSize(), valuesMap.keySet().size());
-            System.out.println("TocSize: " + mParam.getToc().getTocSize() + ", No of valueMap elements: " + noOfValueMapElements);
-
-            if(mParam.getToc().getTocSize() != noOfValueMapElements) {
-                for(String name : mParam.getToc().getTocElementMap().keySet()) {
-                    if(valuesMap.get(name) == null) {
-                        System.out.println("Missing param in ValueMap: " + name);
-                        continue;
-                    }
-                }
-            }
-
-            if(!isTimeout2) {
-                for(String s : valuesMap.keySet()) {
-                    System.out.println(s + ": " + valuesMap.get(s));
-                }
-
-                //TODO: use values that hardly change
-
-                //identify CF1 and CF2 by CPU flash (CF1 has 128kb, CF2 has 1MB)
-                int flash = valuesMap.get("cpu").get("flash").intValue();
-                if(flash == 128) { // CF1
-                    //uint8_t
-                    assertEquals(13, valuesMap.get("imu_acc_lpf").get("factor"));
-
-                    //uint32_t == Long
-                    assertEquals(2266244689L, valuesMap.get("cpu").get("id2"));
-                } else if(flash == 1024) { // CF2
-                    //uint8_t
-                    assertEquals(1, valuesMap.get("imu_tests").get("MPU6500"));
-
-                    //uint32_t == Long
-                    assertEquals(926103090L, valuesMap.get("cpu").get("id2"));
-                } else {
-                    fail("cpu.flash value is not 128 or 1024.");
-                }
-
-                //uint16_t
-                assertEquals(4000, valuesMap.get("sound").get("freq"));
-
-                //float
-                assertEquals(4.2f, valuesMap.get("ring").get("fullCharge"));
+    private void setupFinishedTimeout() {
+        boolean isTimeout = false;
+        long startTime = System.currentTimeMillis();
+        while(!mSetupFinished && !isTimeout) {
+            isTimeout = (System.currentTimeMillis() - startTime) > 10000;
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                break;
             }
         }
+        long endTime = System.currentTimeMillis();
+        System.out.println("It took " + (endTime - startTime) + "ms until setup finished.");
+    }
+
+    private int countValueMapElements(Map<String, Map<String, Number>> valuesMap) {
+        int noOfValueMapElements = 0;
+        for(Map.Entry<String, Map<String, Number>> entry : valuesMap.entrySet()) {
+            noOfValueMapElements += entry.getValue().keySet().size();
+        }
+        return noOfValueMapElements;
+    }
+
+    private void checkValues(Map<String, Map<String, Number>> valuesMap) {
+        for(Map.Entry<String, Map<String, Number>> entry : valuesMap.entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
+
+        //TODO: use values that hardly change
+
+        //identify CF1 and CF2 by CPU flash (CF1 has 128kb, CF2 has 1MB)
+        int flash = valuesMap.get("cpu").get("flash").intValue();
+        if(flash == 128) { // CF1
+            //uint8_t
+            assertEquals(13, valuesMap.get("imu_acc_lpf").get("factor"));
+
+            //uint32_t == Long
+            assertEquals(2266244689L, valuesMap.get("cpu").get("id2"));
+        } else if(flash == 1024) { // CF2
+            //uint8_t
+            assertEquals(1, valuesMap.get("imu_tests").get("MPU6500"));
+
+            //uint32_t == Long
+            assertEquals(926103090L, valuesMap.get("cpu").get("id2"));
+        } else {
+            fail("cpu.flash value is not 128 or 1024.");
+        }
+
+        //uint16_t
+        assertEquals(4000, valuesMap.get("sound").get("freq"));
+
+        //float
+        assertEquals(4.2f, valuesMap.get("ring").get("fullCharge"));
     }
 
     private void waitForNotNull(String group, String name) {
@@ -194,16 +212,13 @@ public class ParamTest {
     @Test
     @Category(OfflineTests.class)
     public void testParamSet() throws InterruptedException {
-        //TODO: refactor this into a test utility method
-        Crazyflie crazyflie = new Crazyflie(CrazyflieTest.getConnectionImpl(), new File("src/test"));
-
         //crazyflie.clearTocCache();
 
-        crazyflie.setConnectionData(mConnectionData);
-        crazyflie.connect();
+        mCrazyflie.setConnectionData(mConnectionData);
+        mCrazyflie.connect();
 
         // wait until setup is finished
-        while (!crazyflie.isConnected()) {
+        while (!mCrazyflie.isConnected()) {
             try {
                 Thread.sleep(250);
             } catch (InterruptedException e) {
@@ -211,7 +226,7 @@ public class ParamTest {
             }
         }
 
-        mParam = crazyflie.getParam();
+        mParam = mCrazyflie.getParam();
         assertNotNull("mParam should not be null!", mParam);
         System.out.println("Number of TOC elements: " + mParam.getToc().getElements().size());
         // Requesting initial param update
@@ -247,6 +262,6 @@ public class ParamTest {
         System.out.println(param + " - reset value: " + resetValue);
         assertEquals(4000, resetValue);
 
-        crazyflie.disconnect();
+        mCrazyflie.disconnect();
     }
 }

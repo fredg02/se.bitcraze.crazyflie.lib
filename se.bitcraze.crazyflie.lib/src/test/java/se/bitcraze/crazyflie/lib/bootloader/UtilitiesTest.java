@@ -47,7 +47,7 @@ public class UtilitiesTest {
     }
 
     @Test
-    public void testSetAddress() throws Exception {
+    public void testSetAddress() {
         //TODO: is this working as expected?
         byte[] newAddress = new byte[5];
         newAddress[0] = (byte) 0xbc;

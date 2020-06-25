@@ -414,7 +414,7 @@ public class RadioDriver extends CrtpDriver {
                 } catch (InterruptedException e) {
                     mLogger.debug("RadioDriverThread was interrupted.");
                     notifyLinkQualityUpdated(0);
-                    break;
+                    Thread.currentThread().interrupt();
                 }
             }
 

@@ -219,7 +219,8 @@ public class Bootloader {
         // iterate over file names in manifest.json
         for (String fileName : mf.getFiles().keySet()) {
             FirmwareDetails firmwareDetails = mf.getFiles().get(fileName);
-            Target t = this.mCload.getTargets().get(TargetTypes.fromString(firmwareDetails.getTarget()));
+            String firmwareDetailsTarget = firmwareDetails.getTarget();
+            Target t = this.mCload.getTargets().get(TargetTypes.fromString(firmwareDetailsTarget));
             if (t != null) {
                 // use path to extracted file
                 //File flashFile = new File(file.getParent() + "/" + file.getName() + "/" + fileName);
@@ -228,25 +229,35 @@ public class Bootloader {
                 // add flash target
                 // if no target names are specified, flash everything
                 if (targetNames == null || targetNames.length == 0 || targetNames[0].isEmpty()) {
-                    // deal with different platforms (CF1, CF2)
-                    // TODO: simplify
-                    if (t.getFlashPages() == 128 && "cf1".equalsIgnoreCase(firmwareDetails.getPlatform())) { //128 = CF 1.0
-                        filesToFlash.add(ft);
-                        // deal with STM32 and NRF51 for CF2 (different no of flash pages)
-                    } else if ((t.getFlashPages() == 1024 || t.getFlashPages() == 232) && "cf2".equalsIgnoreCase(firmwareDetails.getPlatform())) { //1024 = CF 2.0
-                        filesToFlash.add(ft);
-                    }
+                    dealWithDifferentPlatforms(filesToFlash, firmwareDetails.getPlatform(), t, ft);
                 } else {
                     // else flash only files whose targets are contained in targetNames
-                    if (Arrays.asList(targetNames).contains(firmwareDetails.getTarget())) {
+                    if (Arrays.asList(targetNames).contains(firmwareDetailsTarget)) {
                         filesToFlash.add(ft);
                     }
                 }
             } else {
-                mLogger.error("No target found for {}.", firmwareDetails.getTarget());
+                mLogger.error("No target found for {}.", firmwareDetailsTarget);
             }
         }
         return filesToFlash;
+    }
+
+    /**
+     * Deal with different platforms (CF1, CF2)
+     * @param filesToFlash
+     * @param platform
+     * @param t
+     * @param ft
+     */
+    private void dealWithDifferentPlatforms(List<FlashTarget> filesToFlash, String platform, Target t, FlashTarget ft) {
+        // TODO: simplify
+        if (t.getFlashPages() == 128 && "cf1".equalsIgnoreCase(platform)) { //128 = CF 1.0
+            filesToFlash.add(ft);
+            // deal with STM32 and NRF51 for CF2 (different no of flash pages)
+        } else if ((t.getFlashPages() == 1024 || t.getFlashPages() == 232) && "cf2".equalsIgnoreCase(platform)) { //1024 = CF 2.0
+            filesToFlash.add(ft);
+        }
     }
 
     private List<FlashTarget> addSingleFlashTarget(File file, String... targetNames) throws IOException {
@@ -279,7 +290,7 @@ public class Bootloader {
             unzip(file);
 
             // read manifest.json
-            File basePath = new File(file.getAbsoluteFile().getParent() + "/" + getFileNameWithoutExtension(file));
+            File basePath = new File(file.getAbsoluteFile().getParent(), getFileNameWithoutExtension(file));
             File manifestFile = new File(basePath.getAbsolutePath(), MANIFEST_FILENAME);
             if (basePath.exists() && manifestFile.exists()) {
                 Manifest mf = null;
@@ -320,9 +331,10 @@ public class Bootloader {
                 String filename = ze.getName();
                 byte[] bytes = baos.toByteArray();
                 // write files
-                File filePath = new File(parent + "/" + getFileNameWithoutExtension(zipFile) + "/" + filename);
+                File filePathParent = new File(parent, getFileNameWithoutExtension(zipFile));
+                File filePath = new File(filePathParent, filename);
                 // create subdir
-                filePath.getParentFile().mkdirs();
+                filePathParent.mkdirs();
                 try (FileOutputStream fos = new FileOutputStream(filePath)) {
                     fos.write(bytes);
                 }

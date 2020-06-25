@@ -64,9 +64,7 @@ public class ConsoleTest {
         for (n=0; n < packetByteBuffer.capacity(); n++) {
             //read in one byte from packetByteBuffer
             byte b = packetByteBuffer.get(n);
-            if (b == 0) {
-                continue;
-            } else {
+            if (b != 0) {
                 tempDecodeBuffer.put(b);
             }
         }

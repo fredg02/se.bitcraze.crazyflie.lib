@@ -31,7 +31,6 @@ import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
 public class CloaderTest {
 
     private Cloader cloader;
-    private ConnectionData bootloaderConnection;
 
     @Before
     public void setUp() throws IOException {
@@ -44,7 +43,7 @@ public class CloaderTest {
 
         cloader = new Cloader(mDriver);
         System.out.print("Restart the Crazyflie you want to bootload in the next 10 seconds ...");
-        bootloaderConnection = cloader.scanForBootloader();
+        ConnectionData bootloaderConnection = cloader.scanForBootloader();
         if (bootloaderConnection != null) {
             System.out.println(" Done!");
             System.out.println("BootloaderConnection: " + bootloaderConnection);

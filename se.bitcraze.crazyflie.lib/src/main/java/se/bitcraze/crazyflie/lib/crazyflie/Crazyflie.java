@@ -192,10 +192,9 @@ public class Crazyflie {
     private class ResendQueueHandler implements Runnable {
 
         @Override
-        @SuppressWarnings("java:S2189")
         public void run() {
             mLogger.debug("ResendQueueHandlerThread was started.");
-            while(true) {
+            while(!Thread.currentThread().isInterrupted()) {
                 if (!mResendQueue.isEmpty()) {
                     CrtpPacket resendPacket = mResendQueue.poll();
                     if (resendPacket != null) {
@@ -207,7 +206,7 @@ public class Crazyflie {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
                     mLogger.debug("ResendQueueHandlerThread was interrupted.");
-                    break;
+                    Thread.currentThread().interrupt();
                 }
             }
         }

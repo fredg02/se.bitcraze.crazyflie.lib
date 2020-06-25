@@ -44,13 +44,14 @@ import se.bitcraze.crazyflie.lib.OfflineTests;
 @SuppressWarnings("java:S106")
 public class TocTest {
 
+    private static final String TEST_NAME = "testName";
     private Toc mToc;
 
     @Before
     public void setUp() {
         mToc = new Toc();
         assertTrue(mToc.getTocElementMap().isEmpty());
-        TocElement tocElement = createTocElement("testGroup", "testName", 1);
+        TocElement tocElement = createTocElement("testGroup", TEST_NAME, 1);
         mToc.addElement(tocElement);
     }
 
@@ -117,10 +118,10 @@ public class TocTest {
     @Test
     public void testGetElement() {
         //positive test
-        TocElement element = mToc.getElement("testGroup", "testName");
+        TocElement element = mToc.getElement("testGroup", TEST_NAME);
         assertTrue(element != null);
         //negative test
-        TocElement element2 = mToc.getElement("nonExistingGroup", "testName");
+        TocElement element2 = mToc.getElement("nonExistingGroup", TEST_NAME);
         assertTrue(element2 == null);
     }
 
