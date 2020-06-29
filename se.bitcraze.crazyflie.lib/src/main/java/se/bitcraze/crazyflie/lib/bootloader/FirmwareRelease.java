@@ -49,6 +49,13 @@ public class FirmwareRelease implements Comparable<FirmwareRelease> {
     public FirmwareRelease() {
     }
 
+    /**
+     * Create a firmware release object from the GitHub release
+     *
+     * @param tagName GitHub tag name (e.g. "2017.01")
+     * @param name
+     * @param createdAt
+     */
     public FirmwareRelease(String tagName, String name, String createdAt) {
         this.mTagName = tagName;
         this.mName = name;
@@ -73,6 +80,13 @@ public class FirmwareRelease implements Comparable<FirmwareRelease> {
         return mCreatedAt;
     }
 
+    /**
+     * Add asset file (usually a zip file that contains the firmware)
+     *
+     * @param assetName e.g. cf1.zip
+     * @param assetSize size of the file in bytes(?)
+     * @param url download URL
+     */
     public void setAsset(String assetName, int assetSize, String url) {
         this.mAssetName = assetName;
         this.mSize = assetSize;

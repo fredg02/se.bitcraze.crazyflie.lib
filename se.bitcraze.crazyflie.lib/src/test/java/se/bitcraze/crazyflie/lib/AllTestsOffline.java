@@ -6,6 +6,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 import se.bitcraze.crazyflie.lib.bootloader.BootloaderTest;
+import se.bitcraze.crazyflie.lib.bootloader.Cf1ConfigTest;
+import se.bitcraze.crazyflie.lib.bootloader.FirmwareReleaseTest;
+import se.bitcraze.crazyflie.lib.bootloader.ManifestTest;
 import se.bitcraze.crazyflie.lib.bootloader.TargetTest;
 import se.bitcraze.crazyflie.lib.bootloader.UtilitiesTest;
 import se.bitcraze.crazyflie.lib.log.LogConfigTest;
@@ -32,7 +35,10 @@ import se.bitcraze.crazyflie.lib.toc.VariableTypeTest;
     ParamTocElementTest.class,
     TargetTest.class,
     UtilitiesTest.class,
-    BootloaderTest.class})
+    BootloaderTest.class,
+    FirmwareReleaseTest.class,
+    ManifestTest.class,
+    Cf1ConfigTest.class})
 public class AllTestsOffline {
   //nothing
 }

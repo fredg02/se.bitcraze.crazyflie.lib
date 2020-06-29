@@ -39,7 +39,7 @@ public class Target {
     private int mFlashPages;
     private int mStartPage;
     private String mCpuId; //12 bytes
-    private Object mData;
+    private byte[] mData; //does the byte array need to be stored?
 
     public Target(int id) {
         this.mId = id;
@@ -55,6 +55,7 @@ public class Target {
     public void parseData(byte[] data) {
          // tab = struct.unpack("BBHHHH", pk.data[0:10])
         // 2 byte offset
+        this.mData = data;
         ByteBuffer bb = ByteBuffer.wrap(data, 2, data.length-2).order(ByteOrder.LITTLE_ENDIAN);
         this.mPageSize = bb.getShort();
         this.mBufferPages = bb.getShort();
@@ -106,7 +107,7 @@ public class Target {
         return mCpuId;
     }
 
-    public Object getData() {
+    public byte[] getData() {
         return mData;
     }
 
