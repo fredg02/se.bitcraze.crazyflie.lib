@@ -2,13 +2,16 @@ package se.bitcraze.crazyflie.lib.bootloader;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import se.bitcraze.crazyflie.lib.MockDriver;
+import se.bitcraze.crazyflie.lib.OfflineTests;
 import se.bitcraze.crazyflie.lib.TestUtilities;
 import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
 import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
 
+@Category(OfflineTests.class)
 @SuppressWarnings("java:S106")
 public class CfloaderTest {
 

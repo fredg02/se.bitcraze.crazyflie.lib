@@ -19,7 +19,6 @@ public class MockDriver extends RadioDriver {
 
     public MockDriver() {
         super(null);
-        this.mCradio = new MockRadio();
     }
 
     @Override
@@ -27,7 +26,8 @@ public class MockDriver extends RadioDriver {
         mLogger.debug("MockDriver connect()");
 
         notifyConnectionRequested();
-        
+
+        this.mCradio = new MockRadio();
         // Launch the comm thread
         startSendReceiveThread();
     }
@@ -39,14 +39,14 @@ public class MockDriver extends RadioDriver {
     }
 
     //TODO: scanInterface?
-    
+
     @Override
     public boolean scanSelected(ConnectionData connectionData, byte[] packet) {
         return true;
     }
 
     //TODO: setBootloaderAddress?
-    
+
     // TODO: workaround until everything is mocked
 //    public Crazyradio getRadio() {
 //        return new Crazyradio(new UsbLinkJava());

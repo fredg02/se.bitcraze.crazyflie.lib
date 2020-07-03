@@ -111,6 +111,7 @@ public class Cloader {
      * @return always the first available bootloader connection
      */
     public ConnectionData scanForBootloader() {
+        mLogger.debug("scanForBootloader()");
         if (!(mDriver instanceof RadioDriver)) {
             throw new IllegalArgumentException("Scanning for bootloader is only supported with a Crazyradio connection.");
         }
@@ -132,6 +133,7 @@ public class Cloader {
     }
 
     public boolean resetToBootloader(int targetId) {
+        mLogger.debug("resetToBootloader");
         int retryCounter = 5;
 
         sendBootloaderPacket(new byte[]{(byte) targetId, (byte) 0xFF});
@@ -367,9 +369,9 @@ public class Cloader {
         // Wait for the answer
         //TODO: retryCount?
         CrtpPacket replyPk = this.mDriver.receivePacket(2000);
-        while(!isBootloaderReplyPacket(replyPk, targetId, GET_INFO)) {
-            replyPk = this.mDriver.receivePacket(2000);
-        }
+//        while(!isBootloaderReplyPacket(replyPk, targetId, GET_INFO)) {
+//            replyPk = this.mDriver.receivePacket(2000);
+//        }
 
         if(replyPk != null) {
             Target target = new Target(targetId);

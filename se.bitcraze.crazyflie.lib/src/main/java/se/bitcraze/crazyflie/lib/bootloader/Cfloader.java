@@ -54,7 +54,7 @@ public class Cfloader {
         System.out.println("                             mode.");
     }
 
-    private void analyzeArgs(String[] args) {
+    private boolean analyzeArgs(String[] args) {
         //Analyze command line parameters
         int i = 0;
         while (i < args.length) {
@@ -75,10 +75,11 @@ public class Cfloader {
         if ("flash".equals(args[0])) {
             if (args.length < 2) {
                 System.err.println("The flash action requires a file name.");
-                return;
+                return false;
             }
             this.mFileName = args[1];
         }
+        return true;
     }
 
     private void resetToBootloader(Bootloader bl) {
@@ -119,7 +120,9 @@ public class Cfloader {
      * Initialize the bootloader lib
      */
     public void initialiseBootloaderLib(String[] args) {
-        analyzeArgs(args);
+        if (!analyzeArgs(args)) {
+            return;
+        }
 
         Bootloader bootloader = new Bootloader(this.mDriver);
 
@@ -151,12 +154,14 @@ public class Cfloader {
         } else if ("reset".equals(mAction)) {
             resetToFirmware(bootloader);
         } else if ("flash".equals(mAction)) {
-            try {
-                bootloader.flash(new File(mFileName), mTargetStrings.toArray(new String[mTargetStrings.size()]));
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (mFileName != null) {
+                try {
+                    bootloader.flash(new File(mFileName), mTargetStrings.toArray(new String[mTargetStrings.size()]));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                resetToFirmware(bootloader);
             }
-            resetToFirmware(bootloader);
         } else {
             System.err.println("Action " + mAction + " unknown.");
         }
