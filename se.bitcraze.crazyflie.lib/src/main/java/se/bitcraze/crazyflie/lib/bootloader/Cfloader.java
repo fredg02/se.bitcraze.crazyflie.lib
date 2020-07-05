@@ -119,9 +119,9 @@ public class Cfloader {
     /**
      * Initialize the bootloader lib
      */
-    public void initialiseBootloaderLib(String[] args) {
+    public boolean initialiseBootloaderLib(String[] args) {
         if (!analyzeArgs(args)) {
-            return;
+            return false;
         }
 
         Bootloader bootloader = new Bootloader(this.mDriver);
@@ -148,6 +148,7 @@ public class Cfloader {
             System.out.println(bootloader.getCloader().getTargets().get(TargetTypes.fromString(targetString)));
         }
 
+        boolean result = true;
         System.out.println("");
         if ("info".equals(mAction)) {
             // Already done ...
@@ -156,7 +157,7 @@ public class Cfloader {
         } else if ("flash".equals(mAction)) {
             if (mFileName != null) {
                 try {
-                    bootloader.flash(new File(mFileName), mTargetStrings.toArray(new String[mTargetStrings.size()]));
+                    result = bootloader.flash(new File(mFileName), mTargetStrings.toArray(new String[mTargetStrings.size()]));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -166,6 +167,7 @@ public class Cfloader {
             System.err.println("Action " + mAction + " unknown.");
         }
         bootloader.close();
+        return result;
     }
 
     /**

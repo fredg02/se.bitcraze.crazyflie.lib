@@ -127,7 +127,8 @@ public class MockRadio extends Crazyradio {
     @Override
     public RadioAck sendPacket(byte[] dataOut) {
         byte headerByte = dataOut[0];
-        if (headerByte != (byte) 0xFF) {
+        // log to debug unless it's a null packet
+        if (headerByte != (byte) 0xFF || dataOut.length > 1) {
             mLogger.debug("MockDriver sendPacket:    {}", Utilities.getHexString(dataOut));
         }
 
@@ -156,7 +157,7 @@ public class MockRadio extends Crazyradio {
 
         }
 
-        if (headerByte != (byte) 0xFF) {
+        if (headerByte != (byte) 0xFF || dataOut.length > 1) {
             mLogger.debug("MockDriver receivePacket: {}" , Utilities.getHexString(data));
         }
 
@@ -242,14 +243,14 @@ public class MockRadio extends Crazyradio {
                     OUT:    -1,-1,16,
                     IN:     1,-1,-1,16,0,4,10,0,0,4,16,0,-89,4,48,106,79,-33,34,94,-1,-27,20,-112,16,0,0,0,0,0,0,0,0,
                  */
-                data = new byte[] {-1,-1,16,0,4,10,0,0,4,16,0,-89,4,48,106,79,-33,34,94,-1,-27,20,-112,16,0,0,0,0,0,0,0,0};
+                data = new byte[] {1, -1,-1,16,0,4,10,0,0,4,16,0,-89,4,48,106,79,-33,34,94,-1,-27,20,-112,16,0,0,0,0,0,0,0,0};
             } else if (payload[0] == (byte) TargetTypes.NRF51) {
                 mLogger.debug("Bootloader - Command: GET_INFO - NRF51");
                 /*
                     OUT:    -1,-2,16,
                     IN:     1,-1,-2,16,0,4,1,0,-24,0,88,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
                  */
-                data = new byte[] {-1,-2,16,0,4,1,0,-24,0,88,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,};
+                data = new byte[] {1, -1,-2,16,0,4,1,0,-24,0,88,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,};
             }
         } else if (payload[1] == Cloader.WRITE_FLASH) {
             mLogger.debug("Bootloader - Command: WRITE_FLASH");

@@ -369,9 +369,9 @@ public class Cloader {
         // Wait for the answer
         //TODO: retryCount?
         CrtpPacket replyPk = this.mDriver.receivePacket(2000);
-//        while(!isBootloaderReplyPacket(replyPk, targetId, GET_INFO)) {
-//            replyPk = this.mDriver.receivePacket(2000);
-//        }
+        while(!isBootloaderReplyPacket(replyPk, targetId, GET_INFO)) {
+            replyPk = this.mDriver.receivePacket(2000);
+        }
 
         if(replyPk != null) {
             Target target = new Target(targetId);

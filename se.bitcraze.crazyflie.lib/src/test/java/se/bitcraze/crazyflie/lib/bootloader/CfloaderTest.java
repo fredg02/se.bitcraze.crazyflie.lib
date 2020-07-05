@@ -1,6 +1,9 @@
 package se.bitcraze.crazyflie.lib.bootloader;
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -31,32 +34,32 @@ public class CfloaderTest {
 
     @Test
     public void testCfLoaderInfo() {
-        mCfloader.initialiseBootloaderLib(new String[]{"info"});
+        assertTrue(mCfloader.initialiseBootloaderLib(new String[]{"info"}));
     }
 
     @Test
     public void testCfLoaderReset() {
-        mCfloader.initialiseBootloaderLib(new String[]{"reset"});
+        assertTrue(mCfloader.initialiseBootloaderLib(new String[]{"reset"}));
     }
 
     @Test
     public void testCfLoaderflashNoFile() {
-        mCfloader.initialiseBootloaderLib(new String[]{FLASH});
+        assertTrue(mCfloader.initialiseBootloaderLib(new String[]{FLASH}));
     }
 
     @Test
     public void testCfLoaderUnknownAction() {
-        mCfloader.initialiseBootloaderLib(new String[]{"foobar"});
+        assertTrue(mCfloader.initialiseBootloaderLib(new String[]{"foobar"}));
     }
 
     @Test
     public void testCfLoaderflashBin() {
-        mCfloader.initialiseBootloaderLib(new String[]{FLASH, "src/test/fw/cf1-2015.08.1.bin"});
+        assertTrue(mCfloader.initialiseBootloaderLib(new String[]{FLASH, "src/test/fw/cf1-2015.08.1.bin"}));
     }
 
-    @Test
+    @Test @Ignore
     public void testCfLoaderflashZip() {
-        mCfloader.initialiseBootloaderLib(new String[]{FLASH, "src/test/fw/cf2.2014.12.1.zip"});
+        assertTrue(mCfloader.initialiseBootloaderLib(new String[]{FLASH, "src/test/fw/cf2.2014.12.1.zip"}));
     }
 
 }

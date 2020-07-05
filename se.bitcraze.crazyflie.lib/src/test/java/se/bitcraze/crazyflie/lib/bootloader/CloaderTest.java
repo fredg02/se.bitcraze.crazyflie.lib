@@ -14,8 +14,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import se.bitcraze.crazyflie.lib.MockDriver;
+import se.bitcraze.crazyflie.lib.OfflineTests;
 import se.bitcraze.crazyflie.lib.TestUtilities;
 import se.bitcraze.crazyflie.lib.Utilities;
 import se.bitcraze.crazyflie.lib.bootloader.Target.TargetTypes;
@@ -27,6 +29,7 @@ import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
 //TODO: mock bootloader reply packets
 //TODO: Fix USB error after reset to firmware
 //TODO: test info on NRF51
+@Category(OfflineTests.class)
 @SuppressWarnings("java:S106")
 public class CloaderTest {
 
@@ -134,7 +137,7 @@ public class CloaderTest {
         //TODO: check that reset really worked
     }
 
-    @Test
+    @Test @Ignore
     public void testCloaderUpdateMapping() {
         boolean checkLinkAndGetInfo = cloader.checkLinkAndGetInfo(TargetTypes.STM32); //CF1
         assertTrue(checkLinkAndGetInfo);
@@ -167,8 +170,8 @@ public class CloaderTest {
      *
      * @throws IOException
      */
-    @Test @Ignore
-    public void testCloaderCF1ReadFlash() throws IOException {
+    @Test
+    public void testCloaderCF1ReadFlash() {
         boolean checkLinkAndGetInfo = cloader.checkLinkAndGetInfo(TargetTypes.STM32); //CF1
         assertTrue(checkLinkAndGetInfo);
 
