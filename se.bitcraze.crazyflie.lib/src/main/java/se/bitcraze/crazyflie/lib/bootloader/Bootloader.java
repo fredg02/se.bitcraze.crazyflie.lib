@@ -264,7 +264,7 @@ public class Bootloader {
         List<FlashTarget> filesToFlash = new ArrayList<>();
         // add single flash target
         if (targetNames == null || targetNames.length != 1) {
-            mLogger.error("Not an archive, must supply ONE target to flash.");
+            mLogger.error("Not an archive, must supply a single target to flash.");
         } else {
             for (String tn : targetNames) {
                 if (!tn.isEmpty()) {

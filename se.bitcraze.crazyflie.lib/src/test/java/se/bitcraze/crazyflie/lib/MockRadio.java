@@ -265,7 +265,7 @@ public class MockRadio extends Crazyradio {
              */
             //TODO: add error messages
             //TODO: adapt better support for NRF51
-            data = new byte[] {-1, payload[0],24,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,};
+            data = new byte[] {113,-1, payload[0],24,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,};
         } else if (payload[0] == (byte) TargetTypes.NRF51 && payload[1] == (byte) 0xF0) {
             mLogger.debug("Bootloader - Command: Reset to firmware - CF2");
             /*

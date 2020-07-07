@@ -133,7 +133,7 @@ public class Cfloader {
 
         //TODO: or just use something like bl.getTargets() !?
         if (protocolVersion == BootVersion.CF2_PROTO_VER) {
-            mTargetStrings.add(TargetTypes.toString(TargetTypes.STM32));
+            mTargetStrings.add(TargetTypes.toString(TargetTypes.NRF51));
         }
         mTargetStrings.add(TargetTypes.toString(TargetTypes.STM32));
 
@@ -143,15 +143,13 @@ public class Cfloader {
          *  ######################################
          */
 
-        // Print information about the targets
-        for (String targetString : this.mTargetStrings) {
-            System.out.println(bootloader.getCloader().getTargets().get(TargetTypes.fromString(targetString)));
-        }
-
         boolean result = true;
         System.out.println("");
         if ("info".equals(mAction)) {
-            // Already done ...
+            // Print information about the targets
+            for (String targetString : this.mTargetStrings) {
+                System.out.println(bootloader.getCloader().getTargets().get(TargetTypes.fromString(targetString)));
+            }
         } else if ("reset".equals(mAction)) {
             resetToFirmware(bootloader);
         } else if ("flash".equals(mAction)) {

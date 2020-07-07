@@ -554,10 +554,10 @@ public class Cloader {
 
         sendWriteFlashPacket(addr, pageBuffer, targetPage, pageCount);
 
-        while(!isBootloaderReplyPacket(replyPk, addr, WRITE_FLASH) && retryCounter >= 0 && !isCancelled()) {
-            replyPk = this.mDriver.receivePacket(1);
-            //TODO: why does it not work, when the retryCounter is activated?
-//            retryCounter--;
+        replyPk = this.mDriver.receivePacket(2000);
+        while(!isBootloaderReplyPacket(replyPk, addr, WRITE_FLASH) && retryCounter >= 5 && !isCancelled()) {
+            replyPk = this.mDriver.receivePacket(2000);
+            retryCounter--;
         }
 
         if (retryCounter < 0) {
