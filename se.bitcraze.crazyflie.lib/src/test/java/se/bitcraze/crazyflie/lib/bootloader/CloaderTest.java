@@ -56,6 +56,17 @@ public class CloaderTest {
             cloader.close();
             fail("No bootloader connection found.");
         }
+
+        boolean checkLinkAndGetInfo = cloader.checkLinkAndGetInfo(TargetTypes.STM32); //CF1
+        assertTrue(checkLinkAndGetInfo);
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            Thread.currentThread().interrupt();
+        }
+
     }
 
     @After
@@ -87,10 +98,7 @@ public class CloaderTest {
      */
 
     @Test
-    public void testCloaderGetInfo() throws IOException {
-        boolean checkLinkAndGetInfo = cloader.checkLinkAndGetInfo(TargetTypes.STM32); //CF1
-        assertTrue(checkLinkAndGetInfo);
-
+    public void testCloaderGetInfo() {
         // Test values
         Target target = cloader.getTargetsAsList().get(0);
         System.out.println(target.toString());
@@ -118,16 +126,6 @@ public class CloaderTest {
 
     @Test
     public void testCloaderResetToFirmware() {
-        boolean checkLinkAndGetInfo = cloader.checkLinkAndGetInfo(TargetTypes.STM32); //CF1
-        assertTrue(checkLinkAndGetInfo);
-
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            Thread.currentThread().interrupt();
-        }
-
         Target target = cloader.getTargetsAsList().get(0);
 
         System.out.println("Reset to firmware mode...");
@@ -139,16 +137,6 @@ public class CloaderTest {
 
     @Test @Ignore
     public void testCloaderUpdateMapping() {
-        boolean checkLinkAndGetInfo = cloader.checkLinkAndGetInfo(TargetTypes.STM32); //CF1
-        assertTrue(checkLinkAndGetInfo);
-
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            Thread.currentThread().interrupt();
-        }
-
         Target target = cloader.getTargetsAsList().get(0);
         if (target.getFlashPages() == 128) { //CF 1.0
             cloader.close();
@@ -161,8 +149,10 @@ public class CloaderTest {
 
         assertArrayEquals(new Integer[] { 0, 16, 32, 48, 64, 128, 256, 384, 512, 640, 768, 896 }, decompressedMappingData);
 
-        //TODO: because it's the last test that needs a bootloader connection
-        cloader.resetToFirmware(getTargetType(target));
+        System.out.println("Reset to firmware mode...");
+        boolean resetToFirmware = false;
+        resetToFirmware = cloader.resetToFirmware(getTargetType(target));
+        assertTrue(resetToFirmware);
     }
 
     /**
@@ -172,16 +162,6 @@ public class CloaderTest {
      */
     @Test
     public void testCloaderCF1ReadFlash() {
-        boolean checkLinkAndGetInfo = cloader.checkLinkAndGetInfo(TargetTypes.STM32); //CF1
-        assertTrue(checkLinkAndGetInfo);
-
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            Thread.currentThread().interrupt();
-        }
-
         Target target = cloader.getTargetsAsList().get(0);
         if (target.getFlashPages() != 128) { //128 = CF 1.0, 1024 = CF 2.0
             cloader.close();
@@ -207,10 +187,7 @@ public class CloaderTest {
     }
 
     @Test
-    public void testCloaderUploadBuffer() throws IOException {
-        boolean checkLinkAndGetInfo = cloader.checkLinkAndGetInfo(TargetTypes.STM32); //CF1
-        assertTrue(checkLinkAndGetInfo);
-
+    public void testCloaderUploadBuffer() {
         byte[] buff = new byte[]{1,2,3,4,5,6,7,8,9,10};
         System.out.println("Uploading buffer...");
         cloader.uploadBuffer(TargetTypes.STM32, 3, 0, buff);
@@ -236,9 +213,6 @@ public class CloaderTest {
 
     @Test
     public void testCloaderCF1setAddress() {
-        boolean checkLinkAndGetInfo = cloader.checkLinkAndGetInfo(TargetTypes.STM32); //CF1
-        assertTrue(checkLinkAndGetInfo);
-
         Target target = cloader.getTargetsAsList().get(0);
         if (target.getFlashPages() != 128) { //128 = CF 1.0, 1024 = CF 2.0
             cloader.close();

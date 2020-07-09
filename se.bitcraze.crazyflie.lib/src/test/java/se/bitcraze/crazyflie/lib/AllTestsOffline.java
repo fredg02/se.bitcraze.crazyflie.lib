@@ -35,14 +35,15 @@ import se.bitcraze.crazyflie.lib.toc.VariableTypeTest;
     LogDataStaticTest.class,
     ParamTest.class,
     ParamTocElementTest.class,
-    TargetTest.class,
-    UtilitiesTest.class,
+    /* Bootloader tests*/
     BootloaderTest.class,
-    FirmwareReleaseTest.class,
-    ManifestTest.class,
     Cf1ConfigTest.class,
     CfloaderTest.class,
-    CloaderTest.class})
+    CloaderTest.class,
+    FirmwareReleaseTest.class,
+    ManifestTest.class,
+    UtilitiesTest.class,
+    TargetTest.class})
 public class AllTestsOffline {
   //nothing
 }

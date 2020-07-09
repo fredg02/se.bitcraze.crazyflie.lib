@@ -1,6 +1,5 @@
 package se.bitcraze.crazyflie.lib.bootloader;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -8,9 +7,7 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
@@ -20,7 +17,6 @@ import org.junit.experimental.categories.Category;
 import se.bitcraze.crazyflie.lib.MockDriver;
 import se.bitcraze.crazyflie.lib.OfflineTests;
 import se.bitcraze.crazyflie.lib.TestUtilities;
-import se.bitcraze.crazyflie.lib.Utilities;
 import se.bitcraze.crazyflie.lib.bootloader.Bootloader.BootloaderListener;
 import se.bitcraze.crazyflie.lib.bootloader.Bootloader.FlashTarget;
 import se.bitcraze.crazyflie.lib.bootloader.Target.TargetTypes;
@@ -28,12 +24,11 @@ import se.bitcraze.crazyflie.lib.crazyradio.RadioDriver;
 import se.bitcraze.crazyflie.lib.crtp.CrtpDriver;
 import se.bitcraze.crazyflie.lib.usb.UsbLinkJava;
 
-//TODO: Fix testCf1ConfigPrepareConfig
+@Category(OfflineTests.class)
 @SuppressWarnings("java:S106")
 public class BootloaderTest {
 
     private static final String STM32 = "stm32";
-    private static final String CFLIE2_BIN = "cflie2.bin";
     private static final String DONE = " Done!";
     private static final String FIRMWARE_FILE_CF1_2015_08_1_BIN = "src/test/fw/cf1-2015.08.1.bin";
     private static final String BOOTLOADER_NOT_STARTED = "Bootloader not started.";
@@ -85,75 +80,6 @@ public class BootloaderTest {
         } else {
             fail(BOOTLOADER_NOT_STARTED);
         }
-    }
-
-    @Test
-    public void testReadWriteCF1Config() {
-        System.out.print(RESTART_THE_CRAZYFLIE_MSG);
-        mBootloader.addBootloaderListener(new BootloaderAdapter());
-        if (mBootloader.startBootloader(false)) {
-            System.out.println(DONE);
-
-            Target target = mBootloader.getCloader().getTargetsAsList().get(0);
-            if (target.getFlashPages() != 128) { //128 = CF 1.0, 1024 = CF 2.0
-                mBootloader.close();
-                fail("testReadWriteCF1Config can only be tested on CF 1.0.");
-            }
-
-            // Read original CF1 config
-            byte[] cf1ConfigOriginal = mBootloader.readCF1Config();
-            System.out.println("CF1 config (original): " + Utilities.getHexString(cf1ConfigOriginal));
-            Cf1Config oldConfig = new Cf1Config();
-            oldConfig.parse(cf1ConfigOriginal);
-            System.out.println("Old config: " + oldConfig);
-
-            // Write new CF1 config
-            System.out.println("\nWriting CF1 config ...");
-            mBootloader.writeCF1Config(new Cf1Config(11, 2, 4, 3).prepareConfig());
-
-            // Read modified CF1 config (check if write worked)
-            byte[] cf1ConfigChanged = mBootloader.readCF1Config();
-            System.out.println("\nCF1 config (changed): " + Utilities.getHexString(cf1ConfigChanged));
-            System.out.println("Reading config block ...");
-            Cf1Config newConfig = new Cf1Config();
-            newConfig.parse(cf1ConfigChanged);
-
-            /*
-            if data[0:4] == "0xBC":
-                # Skip 0xBC and version at the beginning
-            */
-            //0xBC -> every character is encoded as ascii value in hex (one byte -> one character)
-
-            //TODO: simplify
-            byte[] bcArray = new byte[4];
-            System.arraycopy(cf1ConfigChanged, 0, bcArray, 0, 4);
-            assertArrayEquals(new byte[]{0x30, 0x78, 0x42, 0x43}, bcArray);
-            String bcString = new String(bcArray);
-            System.out.println("BC: " + bcString);
-            assertEquals("0xBC", bcString);
-
-            System.out.println("New config: " + newConfig);
-
-            //Write original CF1 config
-            System.out.println("\nResetting CF1 config ...");
-            mBootloader.writeCF1Config(oldConfig.prepareConfig());
-        } else {
-            fail(BOOTLOADER_NOT_STARTED);
-        }
-    }
-
-    @Test
-    public void testCf1ConfigPrepareConfig() {
-        Cf1Config cf1Config = new Cf1Config(11,  2,  4,  3);
-        String hexString = Utilities.getHexString(cf1Config.prepareConfig());
-        System.out.println("Result: " + hexString);
-        assertEquals("0x30 0x78 0x42 0x43 0x00 0x0B 0x02 0x00 0x00 0x40 0x40 0x00 0x00 0x80 0x40 0x86 ", hexString);
-    }
-
-    @Test
-    public void testCf1ConfigChecksum() {
-        byte[] array = new byte[] {47,11,42,13};
-        assertEquals(113, new Cf1Config().checksum256(array));
     }
 
     @Test
@@ -320,57 +246,6 @@ public class BootloaderTest {
         // should only find one flash target (for CF2)
         assertEquals(1, targets.size());
         assertEquals(127792, targets.get(0).getData().length);
-    }
-
-    @Category(OfflineTests.class)
-    @Test
-    public void testReadManifest() throws IOException {
-        Manifest readManifest = Bootloader.readManifest(new File("src/test/manifest.json"));
-
-        assertNotNull(readManifest);
-        System.out.println("Version: " + readManifest.getVersion());
-        for (String name : readManifest.getFiles().keySet()) {
-            System.out.println("Name: " + name);
-            System.out.println(readManifest.getFiles().get(name).toString());
-        }
-
-        assertEquals(1, readManifest.getVersion());
-        assertTrue(readManifest.getFiles().containsKey(CFLIE2_BIN));
-        FirmwareDetails firmwareDetails1 = readManifest.getFiles().get(CFLIE2_BIN);
-        assertEquals("cf2", firmwareDetails1.getPlatform());
-        assertEquals(STM32, firmwareDetails1.getTarget());
-        assertEquals("fw", firmwareDetails1.getType());
-
-        assertTrue(readManifest.getFiles().containsKey("cf2_nrf_1.1.bin"));
-        FirmwareDetails firmwareDetails2 = readManifest.getFiles().get("cf2_nrf_1.1.bin");
-        assertEquals("cf2", firmwareDetails2.getPlatform());
-        assertEquals("nrf51", firmwareDetails2.getTarget());
-        assertEquals("fw", firmwareDetails2.getType());
-    }
-
-    @Category(OfflineTests.class)
-    @Test
-    public void writeManifest() throws IOException {
-        Manifest manifest = new Manifest();
-        manifest.setVersion(1);
-        Map<String, FirmwareDetails> map = new HashMap<>();
-        FirmwareDetails firmwareDetails = new FirmwareDetails("cf2", STM32, "fw", "2015.01.11", "release-repo");
-        map.put(CFLIE2_BIN, firmwareDetails);
-        manifest.setFiles(map);
-
-        String testFileName = "manifestTest.json";
-        Bootloader.writeManifest(testFileName, manifest);
-
-        File testFile = new File(testFileName);
-        assertTrue("Test file should exist.", testFile.exists());
-        assertTrue("Test file should have a length > 0.", testFile.length() > 0);
-
-//        System.out.println("Version: " + readManifest.getVersion());
-//        for (String name : readManifest.getFiles().keySet()) {
-//            System.out.println("Name: " + name);
-//            System.out.println(readManifest.getFiles().get(name).toString());
-//        }
-
     }
 
     /* Utility class */
