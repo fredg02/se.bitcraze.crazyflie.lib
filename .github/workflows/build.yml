@@ -21,7 +21,12 @@ jobs:
     - name: Fix the path to the target platform P2 repository
       run: ant -f se.bitcraze.crazyflie.lib-target/fixTargetDefinition.xml
     - name: Build with Maven
-      run: mvn -B clean verify --file se.bitcraze.crazyflie.lib-parent/pom.xml
+      run: mvn -B clean verify --file se.bitcraze.crazyflie.lib-parent/pom.xml -Dmaven.test.failure.ignore=true
+    - name: Publish JUnit results
+      uses: ashley-taylor/junit-report-annotations-action@1.3
+      if: always()
+      with:
+        access-token: ${{ secrets.GITHUB_TOKEN }}
     - name: SonarCloud Scan
       uses: sonarsource/sonarcloud-github-action@master
       with:
