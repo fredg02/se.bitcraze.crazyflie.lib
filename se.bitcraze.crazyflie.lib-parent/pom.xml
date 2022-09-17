@@ -8,7 +8,7 @@
   <properties>
     <tycho.version>2.7.0</tycho.version>
     <jackson.version>2.9.9</jackson.version>
-    <eclipse.version>2020-06</eclipse.version>
+    <eclipse.version>2022-06</eclipse.version>
   </properties>
   <repositories>
     <repository>
