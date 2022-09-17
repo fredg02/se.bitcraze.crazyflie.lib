@@ -10,8 +10,10 @@ Therefore they are heavily based on the Python implementation.
 
 Execute an example by right-clicking on it and selecting **Run As** -> **Java Application**
 
-**Please make sure that a Crazyradio (PA) is connected and a Crazyflie 1.0 or 2.0 is switched on, when running the examples.**
+**Please make sure that a Crazyradio (PA) is connected and a Crazyflie is switched on, when running the examples.**
 (otherwise they will fail)  
+
+* You might need to adjust the radio channel in the main method of the example classes, by default it's set to channel 80.
 
 ### On the command line
 
