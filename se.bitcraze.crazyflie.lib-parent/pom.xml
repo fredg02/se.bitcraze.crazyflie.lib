@@ -6,14 +6,15 @@
   <version>0.0.2-SNAPSHOT</version>
   <packaging>pom</packaging>
   <properties>
-    <tycho.version>1.0.0</tycho.version>
+    <tycho.version>2.7.0</tycho.version>
     <jackson.version>2.9.9</jackson.version>
+    <eclipse.version>2020-06</eclipse.version>
   </properties>
   <repositories>
     <repository>
-      <id>2020-06</id>
+      <id>${eclipse.version}</id>
       <layout>p2</layout>
-      <url>http://download.eclipse.org/releases/2020-06</url>
+      <url>http://download.eclipse.org/releases/${eclipse.version}</url>
     </repository>
   </repositories>
   <modules>

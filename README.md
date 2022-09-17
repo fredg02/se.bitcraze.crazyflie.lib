@@ -33,24 +33,10 @@ Integration
 
 The Crazyflie Java library is a Tycho project.
 
-Since it uses some non-OSGi dependencies it requires some workarounds to be
-build:
-
-1. Generate a target platform P2 repository which contains the dependencies required for the build:
+Run normal Maven build
 ```
-mvn clean verify -f se.bitcraze.crazyflie.lib-target/pom.xml
+mvn clean verify -B -f se.bitcraze.crazyflie.lib-parent/pom.xml
 ```
-2. Fix the path to the target platform P2 repository
-```
-ant -f se.bitcraze.crazyflie.lib-target/fixTargetDefinition.xml
-```
-3. Run normal Maven build
-```
-mvn clean verify -f se.bitcraze.crazyflie.lib-parent/pom.xml
-```
-
-Please note: steps 1&2 only have to be run once after a fresh checkout.
-
 
 After the Maven build is completed a compiled JAR can be found in the ```se.bitcraze.crazyflie.lib/target``` directory, e.g. ```se.bitcraze.crazyflie.lib-0.0.1-SNAPSHOT.jar```.
 
