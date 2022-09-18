@@ -33,7 +33,7 @@ The Crazyflie Java library is a Tycho project.
 
 Run normal Maven build
 ```
-mvn clean verify -B -f se.bitcraze.crazyflie.lib-parent/pom.xml
+mvn clean verify -B -f se.bitcraze.crazyflie.lib-parent/pom.xml -DskipTests
 ```
 
 After the Maven build is completed a compiled JAR can be found in the ```se.bitcraze.crazyflie.lib/target``` directory, e.g. ```se.bitcraze.crazyflie.lib-0.0.1-SNAPSHOT.jar```.
@@ -55,7 +55,7 @@ Tests
 
 JUnit tests can be executed from the command line with:
 ```
-mvn clean verify
+mvn clean verify -B -f se.bitcraze.crazyflie.lib-parent/pom.xml
 ```
 
 Or from within Eclipse by running ``/se.bitcraze.crazyflie.lib/src/test/java/se/bitcraze/crazyflie/lib/AllTests.java`` as a JUnit test.
