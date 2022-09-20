@@ -27,6 +27,9 @@ jobs:
     - name: Set badge color
       shell: bash
       run: |
+        pwd
+        ls -al
+        ls -al se.bitcraze.crazyflie.lib/target/surefire-reports/
         case ${{ fromJSON( steps.test-results.outputs.json ).conclusion }} in
           success)
             echo "BADGE_COLOR=31c653" >> $GITHUB_ENV
