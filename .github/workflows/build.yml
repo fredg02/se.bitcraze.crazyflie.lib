@@ -23,13 +23,19 @@ jobs:
       if: always()
       with:
         junit_files: "se.bitcraze.crazyflie.lib/target/surefire-reports/*.xml"
+        root_log_level: DEBUG
+        log_level: DEBUG
 
-    - name: Set badge color
+    - name: Debug
       shell: bash
       run: |
         pwd
         ls -al
         ls -al se.bitcraze.crazyflie.lib/target/surefire-reports/
+
+    - name: Set badge color
+      shell: bash
+      run: |
         case ${{ fromJSON( steps.test-results.outputs.json ).conclusion }} in
           success)
             echo "BADGE_COLOR=31c653" >> $GITHUB_ENV
