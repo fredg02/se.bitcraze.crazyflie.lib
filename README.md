@@ -53,6 +53,8 @@ Dependencies
 Tests
 -----
 
+[![Test Results](https://gist.github.com/fredg02/fa43ebf03c3a5bdaaec3aa3f899de280/raw/badge.svg)](https://gist.github.com/fredg02/fa43ebf03c3a5bdaaec3aa3f899de280/raw/badge.svg)
+
 JUnit tests can be executed from the command line with:
 ```
 mvn clean verify -B -f se.bitcraze.crazyflie.lib-parent/pom.xml
