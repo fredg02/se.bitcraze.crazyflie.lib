@@ -20,18 +20,10 @@ jobs:
       run: mvn clean verify -B --file se.bitcraze.crazyflie.lib-parent/pom.xml -Dmaven.test.failure.ignore=true
     - name: Publish JUnit results
       uses: EnricoMi/publish-unit-test-result-action@v2
+      id: test-results
       if: always()
       with:
         junit_files: "se.bitcraze.crazyflie.lib/target/surefire-reports/*.xml"
-        root_log_level: DEBUG
-        log_level: DEBUG
-
-    - name: Debug
-      shell: bash
-      run: |
-        pwd
-        ls -al
-        ls -al se.bitcraze.crazyflie.lib/target/surefire-reports/
 
     - name: Set badge color
       shell: bash
@@ -64,7 +56,7 @@ jobs:
       uses: andymckay/append-gist-action@1fbfbbce708a39bd45846f0955ed5521f2099c6d
       with:
         token: ${{ secrets.GIST_TOKEN }}
-        gistURL: https://gist.github.com/fredg02/fa43ebf03c3a5bdaaec3aa3f899de280
+        gistURL: https://gist.githubusercontent.com/fredg02/fa43ebf03c3a5bdaaec3aa3f899de280
         file: badge.svg
 
     #- name: SonarCloud Scan
